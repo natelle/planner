@@ -1,8 +1,6 @@
 var solver = require("javascript-lp-solver");
 var xlsx = require("xlsx");
 
-var results;
-
 
 function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
