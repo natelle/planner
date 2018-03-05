@@ -32,6 +32,16 @@ class Planning
         }
     }
 
+    hasEmployee(name) {
+        for(var i in this.employees) {
+            if(this.employees[i].name === name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     importXlsx(filename) {
         var workbook = xlsx.readFile(filename, {'cellDates': true});
         var sheet_name_list = workbook.SheetNames;
@@ -80,16 +90,6 @@ class Planning
         for(var name in employees) {
             this.addEmployee(name, employees[name]);
         }
-    }
-
-    hasEmployee(name) {
-        for(var i in this.employees) {
-            if(this.employees[i].name === name) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     buildModel() {
@@ -198,7 +198,25 @@ class Planning
 
         return this.calendar;
     }
+
+    exportXlsx() {
+        function Workbook() {
+            if(!(this instanceof Workbook)) return new Workbook();
+            this.SheetNames = [];
+            this.Sheets = {};
+        }
+
+        var wb = new Workbook(), ws = sheet_from_array_of_arrays(data);
+
+        /* add worksheet to workbook */
+        wb.SheetNames.push(ws_name);
+        wb.Sheets[ws_name] = ws;
+
+        /* write file */
+        XLSX.writeFile(wb, 'export.xlsx');
+    }
 }
+
 
 
 
@@ -217,7 +235,7 @@ var planning = new Planning(new Date("2018-3-1"), new Date("2018-3-31"));
 // planning.addEmployee('henriette', {'2018-3-10': false, '2018-3-14': false, '2018-3-16': false, '2018-3-19': false, '2018-3-22': false});
 // planning.addEmployee('jerome', {'2018-3-1': false, '2018-3-9': false, '2018-3-10': false, '2018-3-23': false, '2018-3-29': false});
 
-planning.importXlsx('disponibilites.xlsx');
+planning.importXlsx('availabilities.xlsx');
 console.log(planning.employees);
 
 planning.create();
