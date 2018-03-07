@@ -213,6 +213,9 @@ class Planning
     }
 }
 
+// X employees present the date D
+// employee E present at the date D
+// employee E present X time between D1 and D2
 
 
 
