@@ -1,14 +1,10 @@
 var solver = require("javascript-lp-solver");
 var xlsx = require("xlsx");
 
+var Employee = require("./Employee.js");
+var Constraint = require("./Constraint.js");
+var utils = require("./Utils.js");
 
-function shuffle(a) {
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-}
 
 class Planning
 {
@@ -162,6 +158,8 @@ class Planning
     create() {
         var model = this.buildModel();
 
+        console.log(model);
+
         var results = solver.Solve(model);
         for(var i in results) {
             switch(i) {
@@ -234,7 +232,7 @@ var planning = new Planning(new Date("2018-3-1"), new Date("2018-3-31"));
 // planning.addEmployee('jerome', {'2018-3-1': false, '2018-3-9': false, '2018-3-10': false, '2018-3-23': false, '2018-3-29': false});
 
 planning.importXlsx('availabilities.xlsx');
-console.log(planning.employees);
+//console.log(planning.employees);
 
 planning.create();
 console.log(planning.calendar);
