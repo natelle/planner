@@ -16,12 +16,16 @@ class Planning
         this.calendar = {};
     }
 
+    setEmployees(employees) {
+        this.employees = employees;
+    }
+
     addEmployee(name, constraints, defaultValue = true) {
         if(!this.hasEmployee(name)) {
             this.employees.push({
                 name: name,
                 constraints: constraints,
-                default: defaultValue
+                //default: defaultValue
             })
         }
     }
@@ -91,12 +95,12 @@ class Planning
             optimize: {},
             constraints: {},
             variables: {},
-            ints: {}
+            binaries: {}
         };
 
         for (var d = new Date(this.fromDate.getTime()); d <= this.toDate; d.setDate(d.getDate() + 1)) {
             model.constraints[d.getFullYear() + '-' + (d.getMonth()+1) + '-' +  d.getDate()] =
-            (this.nonWorkingDays.includes(d.getDay()) ? {equal:0} : {equal:1});
+            (this.nonWorkingDays.includes(d.getDay()) ? {equal:0} : {min:1});
         }
 
         var variables = {};
@@ -105,34 +109,25 @@ class Planning
             var name = this.employees[i].name;
             var constraints = this.employees[i].constraints;
             var defaultValue = this.employees[i].default;
-
-            model.optimize[name] = "min";
-            model.constraints[name] = {"min": 4};
+            //model.optimize[name] = "min";
+            model.constraints[name] = {"min": 14};
 
             for (var d = new Date(this.fromDate.getTime()); d <= this.toDate; d.setDate(d.getDate() + 1)) {
                 var dateString = d.getFullYear() + '-' + (d.getMonth()+1) + '-' +  d.getDate();
 
-                variables[name + "_" + dateString] = {};
-                variables[name + "_" + dateString][dateString] = defaultValue ? 1 : 0;
-                variables[name + "_" + dateString][name] = defaultValue ? 1 : 0;
-
-                model.constraints[name + "_" + dateString] = {max: 1};
+                if(constraints[dateString]) {
+                    variables[name + "_" + dateString] = {};
+                    variables[name + "_" + dateString][dateString] = 1 ;
+                    variables[name + "_" + dateString][name] = 1 ;
+                    model.binaries[name + "_" + dateString] = 1;
+                }
             }
 
-            for(var day in constraints) {
-                model.constraints[name + '_' + day] = (constraints[day] ? {max: 1} : {equal: 0});
-                variables[name + "_" + day] = {};
-                variables[name + "_" + day][day] = constraints[day] ? 1 : 0;
-                variables[name + "_" + day][name] = constraints[day] ? 1 : 0;
 
-            }
-
-            model.ints[name] = 1;
 
         }
 
         // Shuffle variables for better result
-
         var variablesArray = [];
         for(var i in variables) {
             var variable = {};
@@ -152,47 +147,56 @@ class Planning
 
         model.variables = variables;
 
+
         return model;
     }
+
+
 
     create() {
         var model = this.buildModel();
 
-        console.log(model);
-
         var results = solver.Solve(model);
-        for(var i in results) {
-            switch(i) {
-                case 'feasible':
-                break;
-                case 'result':
-                case 'bounded':
-                break;
-                default:
-                var name = i.replace(/_.+$/, '');
-                var date = i.replace(/^.+_/, '');
 
-                if(results[i] == 1) {
-                    this.calendar[date] = name;
+        if(results.feasible) {
+            for(var i in results) {
+                switch(i) {
+                    case 'feasible':
+                    case 'result':
+                    case 'bounded':
+                    break;
+                    default:
+                    var name = i.replace(/_.+$/, '');
+                    var date = i.replace(/^.+_/, '');
+
+                    if(results[i] == 1) {
+                        if(typeof this.calendar[date] === 'undefined') {
+                            this.calendar[date] = [name]
+                        } else {
+                            this.calendar[date].push(name);
+                        }
+                    }
                 }
             }
-        }
 
-        // Sort the planning by date
-        var tempCalendar = {};
-        for (var d = new Date(this.fromDate.getTime()); d <= this.toDate; d.setDate(d.getDate() + 1)) {
-            var dateString = d.getFullYear() + '-' + (d.getMonth()+1) + '-' +  d.getDate();
 
-            for(var date in this.calendar) {
-                if(date == dateString) {
-                    tempCalendar[date] = this.calendar[date];
+            // Sort the planning by date
+            var tempCalendar = {};
+            for (var d = new Date(this.fromDate.getTime()); d <= this.toDate; d.setDate(d.getDate() + 1)) {
+                var dateString = d.getFullYear() + '-' + (d.getMonth()+1) + '-' +  d.getDate();
+
+                for(var date in this.calendar) {
+                    if(date == dateString) {
+                        tempCalendar[date] = this.calendar[date];
+                    }
                 }
             }
+
+            this.calendar = tempCalendar;
+            return this.calendar;
+        } else {
+            return false;
         }
-
-        this.calendar = tempCalendar;
-
-        return this.calendar;
     }
 
     exportXlsx() {
@@ -223,7 +227,6 @@ class Planning
 
 // 4 présences sur deux mois
 
-//console.log(model);
 
 var beginning = new Date();
 
@@ -234,8 +237,122 @@ var planning = new Planning(new Date("2018-3-1"), new Date("2018-3-31"));
 // planning.addEmployee('henriette', {'2018-3-10': false, '2018-3-14': false, '2018-3-16': false, '2018-3-19': false, '2018-3-22': false});
 // planning.addEmployee('jerome', {'2018-3-1': false, '2018-3-9': false, '2018-3-10': false, '2018-3-23': false, '2018-3-29': false});
 
-planning.importXlsx('availabilities.xlsx');
-//console.log(planning.employees);
+
+var employees = [
+    {
+        name: 'Jean',
+        constraints: {
+            '2018-3-1': true,
+            '2018-3-2': true,
+            '2018-3-3': true,
+            '2018-3-4': true,
+            '2018-3-5': false,
+            '2018-3-6': true,
+            '2018-3-7': true,
+            '2018-3-8': true,
+            '2018-3-9': true,
+            '2018-3-10': true,
+            '2018-3-11': false,
+            '2018-3-12': true,
+            '2018-3-13': true,
+            '2018-3-14': true,
+            '2018-3-15': true,
+            '2018-3-16': false,
+            '2018-3-17': true,
+            '2018-3-18': true,
+            '2018-3-19': false,
+            '2018-3-20': true,
+            '2018-3-21': true,
+            '2018-3-22': false,
+            '2018-3-23': true,
+            '2018-3-24': true,
+            '2018-3-25': true,
+            '2018-3-26': true,
+            '2018-3-27': true,
+            '2018-3-28': true,
+            '2018-3-29': false,
+            '2018-3-30': true,
+            '2018-3-31': false
+        }
+    },{
+        name: 'Marie',
+        constraints: {
+            '2018-3-1': false,
+            '2018-3-2': true,
+            '2018-3-3': true,
+            '2018-3-4': false,
+            '2018-3-5': true,
+            '2018-3-6': true,
+            '2018-3-7': true,
+            '2018-3-8': true,
+            '2018-3-9': true,
+            '2018-3-10': true,
+            '2018-3-11': true,
+            '2018-3-12': true,
+            '2018-3-13': false,
+            '2018-3-14': true,
+            '2018-3-15': true,
+            '2018-3-16': true,
+            '2018-3-17': false,
+            '2018-3-18': true,
+            '2018-3-19': true,
+            '2018-3-20': true,
+            '2018-3-21': true,
+            '2018-3-22': true,
+            '2018-3-23': false,
+            '2018-3-24': true,
+            '2018-3-25': true,
+            '2018-3-26': true,
+            '2018-3-27': true,
+            '2018-3-28': true,
+            '2018-3-29': true,
+            '2018-3-30': false,
+            '2018-3-31': true
+        }
+    }, {
+        name: 'Bernard',
+        constraints: {
+            '2018-3-1': false,
+            '2018-3-2': true,
+            '2018-3-3': true,
+            '2018-3-4': false,
+            '2018-3-5': true,
+            '2018-3-6': false,
+            '2018-3-7': true,
+            '2018-3-8': false,
+            '2018-3-9': false,
+            '2018-3-10': true,
+            '2018-3-11': true,
+            '2018-3-12': false,
+            '2018-3-13': true,
+            '2018-3-14': false,
+            '2018-3-15': true,
+            '2018-3-16': false,
+            '2018-3-17': false,
+            '2018-3-18': true,
+            '2018-3-19': true,
+            '2018-3-20': false,
+            '2018-3-21': true,
+            '2018-3-22': false,
+            '2018-3-23': true,
+            '2018-3-24': false,
+            '2018-3-25': false,
+            '2018-3-26': true,
+            '2018-3-27': true,
+            '2018-3-28': false,
+            '2018-3-29': true,
+            '2018-3-30': false,
+            '2018-3-31': true
+        }
+    }
+];
+
+
+
+
+
+//planning.importXlsx('availabilities.xlsx');
+planning.setEmployees(employees);
 
 planning.create();
 console.log(planning.calendar);
