@@ -1,0 +1,26 @@
+{
+  "name": "Planner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/natelle/planner.git"
+  },
+  "keywords": [],
+  "author": "Nathan Berenger <nathanberenger@wanadoo.fr>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/natelle/planner/issues"
+  },
+  "homepage": "https://github.com/natelle/planner#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "javascript-lp-solver": "^0.4.5",
+    "sequelize": "^4.37.10"
+  }
+}
