@@ -1,0 +1,22 @@
+<%- include ../header.ejs %>
+
+<h2>Modification du salarié nn</h2>
+<br>
+<h3>n<%= JSON.stringify(employee) %></h3>
+<form action="/employee/update" method="post">
+  <div class="form-group row">
+    <label class="col-sm-2" for="firstName">Prénom</label>
+    <div class="col-sm-10">
+        <input type="text" name="firstName" value="<%= employee.firstName %>" class="form-control" id="firstName" aria-describedby="emailHelp" placeholder="Nom">
+    </div>
+  </div>
+  <div class="form-group row">
+    <label class="col-sm-2" for="lastName">Nom</label>
+    <div class="col-sm-10">
+        <input type="text" name="lastName" value="<%= employee.lastName %>" class="form-control" id="lastName" aria-describedby="emailHelp" placeholder="Prénom">
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Créer</button>
+</form>
+
+<%- include ../footer.ejs %>
