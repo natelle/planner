@@ -4,14 +4,14 @@ module.exports = function(router, db) {
     });
 
     router.post('/employee/add', function(req, res) {
-        db.Employee.sync({force: false}).then(() => {
-            // Table created
-            return db.Employee.create({
-                firstName: req.body.firstName,
-                lastName: req.body.lastName
-            });
+        db.Employee.create({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName
+        }).then(employee => {
+            // let's assume the default of isAdmin is false:
+            console.log(employee.firstName + " " + employee.lastName + "created")
+            res.end(employee.firstName + " " + employee.lastName + " created");
         });
-        res.end('Utilisateur ' + req.body.firstName + " " + req.body.lastName);
     });
 
     router.get('/employee/:id/update', function(req, res) {
@@ -20,6 +20,17 @@ module.exports = function(router, db) {
         db.Employee.findById(id).then(employee => {
             console.log(JSON.stringify(employee));
             res.render('employee/update.ejs', {employee: employee});
+        });
+    });
+
+    router.post('/employee/:id/update', function(req, res) {
+        db.Employee.update({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName
+        }).then(employee => {
+            // let's assume the default of isAdmin is false:
+            console.log(employee.firstName + " " + employee.lastName + "updated")
+            res.end(employee.firstName + " " + employee.lastName + " updated");
         });
     });
 
