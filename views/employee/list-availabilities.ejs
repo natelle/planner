@@ -4,6 +4,7 @@
 <br>
 <%var currentMonth = availabilities[0].day;%>
 <p>
+    <a class="btn btn-primary" href="/employee/<%= employee.id %>/availabilities/<%= currentMonth.getFullYear() %>" role="button">Retour</a>&nbsp;
     <a class="btn btn-primary" href="/employee/<%= employee.id %>/availabilities/set/<%= (currentMonth.getMonth() + 1).toString().padStart(2, '0') + currentMonth.getFullYear() %>" role="button">Modifier</a>
 </p>
 <br>
@@ -29,10 +30,11 @@
                     <%var availability = availabilities[i];%>
                     <%var date = availability.day;%>
                     <% var dateId = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') %>
-
                     <tr>
                     <th scope="row"><%= date.getDate().toString().padStart(2, '0') + '/' + (date.getMonth()+1).toString().padStart(2, '0') + '/' + date.getFullYear() %></th>
-                    <td><%= availability.type == 'all' ? "Journée entière" : (availability.type == 'am' ? "Matin" : "Après-midi") %></td>
+                    <td>
+                    <%= availability.type == 'all' ? "Journée entière" : (availability.type == 'am' ? "Matin" : "Après-midi") %>
+                    </td>
                     <td><%= availability.presence ? "Oui" : "Non" %></td>
                     </tr>
                     <% } %>

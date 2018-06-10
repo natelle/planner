@@ -1,0 +1,23 @@
+{
+	"global": {
+		"action": {
+			"one": "Action",
+			"other": "Actions"
+		},
+		"add": "Ajouter",
+		"create": "Créer",
+		"delete": "Supprimer",
+		"edit": "Modifier"
+	},
+	"employee": {
+		"category": "Catégorie",
+		"employee": {
+			"one": "employé",
+			"other": "employés"
+		},
+		"firstname": "Prénom",
+		"lastname": "Nom",
+		"firstdate": "employee.firstdate",
+		"listing": "Liste des employés"
+	}
+}
