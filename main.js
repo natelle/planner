@@ -1,16 +1,17 @@
-var express = require('express');
-var app = express();
+var app = require('./controllers/app');
+var http = require('http');
+var models = require('./models');
 
-var bodyParser = require('body-parser')
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+var port = '8080';
+app.set('port', port);
 
-const db = require('./models/models.js')();
-const router = require('./controllers/controllers.js')(express, db);
-app.use("/", router);
+var server = http.createServer(app);
 
-app.listen(8080);
-
-console.log("main running...");
+models.sequelize.sync().then(function() {
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+  server.listen(port, function() {
+    console.log('Express server listening on port ' + server.address().port);
+  });
+});
