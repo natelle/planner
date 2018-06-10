@@ -1,16 +1,16 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    var EmployeePossibility = sequelize.define('EmployeePossibility', {
+    var EmployeeAvailability = sequelize.define('EmployeeAvailability', {
         day: DataTypes.DATE,
         type: DataTypes.STRING,
         presence: DataTypes.BOOLEAN
     }, {
-        tableName: 'employeepossibility',
+        tableName: 'employeeavailability',
     });
 
-    EmployeePossibility.associate = function (models) {
-        models.EmployeePossibility.belongsTo(models.Employee, {
+    EmployeeAvailability.associate = function (models) {
+        models.EmployeeAvailability.belongsTo(models.Employee, {
             onDelete: "CASCADE",
             foreignKey: {
                 allowNull: false
@@ -18,5 +18,5 @@ module.exports = (sequelize, DataTypes) => {
         });
     };
 
-    return EmployeePossibility;
+    return EmployeeAvailability;
 };

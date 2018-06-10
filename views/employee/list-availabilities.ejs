@@ -1,0 +1,51 @@
+<%- include ../header.ejs %>
+
+<h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
+<br>
+<%var currentMonth = availabilities[0].day;%>
+<p>
+    <a class="btn btn-primary" href="/employee/<%= employee.id %>/availabilities/set/<%= (currentMonth.getMonth() + 1).toString().padStart(2, '0') + currentMonth.getFullYear() %>" role="button">Modifier</a>
+</p>
+<br>
+<div class="row">
+    <div class="col-md-1">
+        <%
+        var previousMonth = new Date(availabilities[0].day);
+        previousMonth.setMonth(previousMonth.getMonth()-1);
+        %>
+        <a class="btn" href="/employee/<%= employee.id %>/availabilities/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+    </div>
+    <div class="col-md-10">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Présence</th>
+                    <th scope="col">Disponible</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(var i in availabilities) {%>
+                    <%var availability = availabilities[i];%>
+                    <%var date = availability.day;%>
+                    <% var dateId = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') %>
+
+                    <tr>
+                    <th scope="row"><%= date.getDate().toString().padStart(2, '0') + '/' + (date.getMonth()+1).toString().padStart(2, '0') + '/' + date.getFullYear() %></th>
+                    <td><%= availability.type == 'all' ? "Journée entière" : (availability.type == 'am' ? "Matin" : "Après-midi") %></td>
+                    <td><%= availability.presence ? "Oui" : "Non" %></td>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-1">
+            <%
+            var nextMonth = new Date(availabilities[0].day);
+            nextMonth.setMonth(nextMonth.getMonth()+2);
+            %>
+            <a class="btn" href="/employee/<%= employee.id %>/availabilities/<%= (nextMonth.getMonth() + 1).toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+        </div>
+    </div>
+
+    <%- include ../footer.ejs %>

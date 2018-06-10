@@ -1,0 +1,125 @@
+<%- include ../header.ejs %>
+
+<h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
+<br>
+<%var currentMonth = availabilities[0].day;%>
+<p>
+    <a class="btn btn-primary" href="/employee/<%= employee.id %>/availabilities/<%= (currentMonth.getMonth() + 1).toString().padStart(2, '0') + currentMonth.getFullYear() %>" role="button">Retour</a>
+</p>
+<br>
+<div class="row">
+    <div class="col-md-1">
+        <%
+        var previousMonth = new Date(availabilities[0].day);
+        previousMonth.setMonth(previousMonth.getMonth()-1);
+        %>
+        <a class="btn" href="/employee/<%= employee.id %>/availabilities/set/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+    </div>
+    <div class="col-md-10">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Présence</th>
+                    <th scope="col">Disponible</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(var i in availabilities) {%>
+                    <%var availability = availabilities[i];%>
+                    <%var date = availability.day;%>
+                    <% var dateId = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') %>
+
+                    <tr class="presenceRow" id="row<%= dateId %>" data-dateId="<%= dateId %>">
+                    <th scope="row"><%= date.getDate().toString().padStart(2, '0') + '/' + (date.getMonth()+1).toString().padStart(2, '0') + '/' + date.getFullYear() %></th>
+                    <td>
+                    <div class="form-check form-check-inline">
+                    <input class="form-check-input type" type="radio" name="type<%= dateId %>" id="type<%= dateId %>-all" value="all" data-dateId="<%= dateId %>" <%= availability.type == 'all' ? "checked" : "" %>>
+                    <label class="form-check-label" for="inlineRadio1">Journée</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                    <input class="form-check-input type" type="radio" name="type<%= dateId %>" id="type<%= dateId %>-am" data-dateId="<%= dateId %>" value="am" <%= availability.type == 'am' ? "checked" : "" %>>
+                    <label class="form-check-label" for="inlineRadio2">Matin</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                    <input class="form-check-input type" type="radio" name="type<%= dateId %>" id="type<%= dateId %>-pm" data-dateId="<%= dateId %>" value="pm" <%= availability.type == 'pm' ? "checked" : "" %>>
+                    <label class="form-check-label" for="inlineRadio3">Après-midi</label>
+                    </div>
+                    </td>
+                    <td>
+                    <div class="form-check">
+                    <input class="form-check-input presence" type="checkbox" name="presence<%= dateId %>" id="presence<%= dateId %>" data-dateId="<%= dateId %>" <%= availability.presence ? "checked" : "" %>>
+                    </div>
+                    </td>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-1">
+            <%
+            var nextMonth = new Date(availabilities[0].day);
+            nextMonth.setMonth(nextMonth.getMonth()+2);
+            %>
+            <a class="btn" href="/employee/<%= employee.id %>/availabilities/set/<%= (nextMonth.getMonth() + 1).toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        var presences = {};
+
+        $( "tr.presenceRow" ).each(function( index ) {
+            var dateId = $(this).attr('data-dateId');
+            presences[dateId] = {};
+        });
+
+        $( "input.type:checked" ).each(function( index ) {
+            var dateId = $(this).attr('data-dateId');
+            var value = this.value;
+
+            presences[dateId].type = value;
+        });
+
+        $( "input.presence" ).each(function( index ) {
+            var dateId = $(this).attr('data-dateId');
+            var value = $(this).is(':checked');
+
+            presences[dateId].presence = value;
+        });
+
+        console.log(presences);
+
+        // $.post('/employee/' + <%= employee.id %> + '/availabilities/set',
+        // { presences: presences },
+        // function( data ) {
+        //     console.log(data);
+        // });
+
+        $('input.type').change(function() {
+            var dateId = this.name.replace(/type/, '');
+            var value = this.value;
+
+            $.post('/employee/' + <%= employee.id %> + '/availabilities/type/set',
+            { dateId: dateId, value: value },
+            function( data ) {
+                console.log(data);
+            });
+            // todo : ajax request
+        });
+
+        $('input.presence').change(function() {
+            var dateId = this.name.replace(/presence/, '');
+            var value = $(this).is(':checked');
+
+            $.post('/employee/' + <%= employee.id %> + '/availabilities/presence/set',
+            { dateId: dateId, value: value },
+            function( data ) {
+                console.log(data);
+            });
+
+        });
+    });
+</script>
+
+<%- include ../footer.ejs %>

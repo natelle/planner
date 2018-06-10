@@ -12,7 +12,7 @@ router.post('/add', function(req, res) {
         lastName: req.body.lastName,
         category: req.body.category
     }).then(employee => {
-        res.end(employee.firstName + " " + employee.lastName + " created");
+        res.redirect('/employee');
     });
 });
 
@@ -20,7 +20,6 @@ router.get('/:id/update', function(req, res) {
     var id = req.params.id;
 
     models.Employee.findById(id).then(employee => {
-        console.log(JSON.stringify(employee));
         res.render('employee/update.ejs', {employee: employee});
     });
 });
@@ -31,14 +30,50 @@ router.post('/:id/update', function(req, res) {
         lastName: req.body.lastName,
         category: req.body.category
     }, {where: { id: req.params.id }}).then(employee => {
-        // let's assume the default of isAdmin is false:
-        res.end(employee.firstName + " " + employee.lastName + " updated");
+        res.redirect('/employee');
     });
 });
 
-router.get('/:id/presences/set/:month(\\d{2}):year(\\d{4})', function(req, res) {
-    //find or create must be where
+router.get('/:id/delete', function(req, res) {
+    var id = req.params.id;
 
+    models.Employee.destroy({
+        where: {
+            id: id
+        }
+    }).then(status => {
+        res.redirect('/employee');
+    });
+});
+
+router.get('/', function(req, res) {
+    models.Employee.findAll({
+        order: [
+            ['lastName', 'ASC'],
+            ['firstName', 'ASC']
+        ]
+    }).then(employees => {
+        res.render('employee/list-employees.ejs',
+        {
+            employees: employees
+        });
+    });
+});
+
+router.get('/:id/availabilities/:year(\\d{4})', function(req, res) {
+    var id = req.params.id;
+    var year = req.params.year;
+
+    models.Employee.findById(id).then(employee => {
+        res.render('employee/list-yearly-availabilities.ejs',
+        {
+            employee: employee,
+            year: year
+        });
+    });
+});
+
+router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res) {
     var id = req.params.id;
     var month = req.params.month;
     var year = req.params.year;
@@ -50,122 +85,129 @@ router.get('/:id/presences/set/:month(\\d{2}):year(\\d{4})', function(req, res) 
     var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
 
     models.Employee.findById(id).then(employee => {
-        var possibilities = [];
+        var availabilities = [];
         var promises = [];
 
         for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) {
             var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
 
-            promises.push(models.EmployeePossibility.findOrCreate(
-                {
-                    where: { Employeeid: req.params.id, day: date },
-                    defaults: {
-                        Employeeid: req.params.id,
-                        type: 'all',
-                        presence: true,
-                    }}
-                ).spread(function(employeepossibility, created){
-                    if (created){
-                        employeepossibility.setEmployee(employee);
-                    }
+            promises.push(models.EmployeeAvailability.findOrCreate({
+                where: { Employeeid: req.params.id, day: date },
+                defaults: {
+                    Employeeid: req.params.id,
+                    type: 'all',
+                    presence: true,
+                }}
+            ).spread(function(employeeavailability, created){
+                if (created){
+                    employeeavailability.setEmployee(employee);
+                }
 
-                    possibilities.push(employeepossibility);
-                }));
-            }
+                availabilities.push(employeeavailability);
+            }));
+        }
 
-            Promise.all(promises).then(values => {
-                res.render('employee/set-possibilities.ejs', {
-                    employee: employee,
-                    possibilities: possibilities});
-                });
+        Promise.all(promises).then(values => {
+            res.render('employee/list-availabilities.ejs',
+            {
+                employee: employee,
+                availabilities: availabilities
             });
         });
+    });
+});
 
+router.get('/:id/availabilities/set/:month(\\d{2}):year(\\d{4})', function(req, res) {
+    var id = req.params.id;
+    var month = req.params.month;
+    var year = req.params.year;
 
-        // models.Employee.findById(id).then(employee => {
-        //     console.log(JSON.stringify(employee));
-        //
-        //     res.render('employee/set-possibilities.ejs', {
-        //         employee: employee,
-        //         firstDate: firstDate,
-        //         lastDate: lastDate});
-        //     });
-        
+    var firstDate = new Date(year, parseInt(month) - 1, 1);
+    var lastDate = new Date(year, parseInt(month), 0);
 
-        router.post('/:id/presences/set', function(req, res) {
-            var id = req.params.id;
-            var presences = req.body.presences;
+    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
 
-            models.Employee.findById(id).then(employee => {
-                for(var date in presences) {
-                    var d = date;
+    models.Employee.findById(id).then(employee => {
+        var availabilities = [];
+        var promises = [];
 
-                    models.EmployeePossibility.findOrCreate(
-                        {
-                            where: { Employeeid: req.params.id, day: date + " 00:00:00Z" },
-                            defaults: {
-                                Employeeid: req.params.id,
-                                type: presences[date].type,
-                                presence: presences[date].presence,
-                            }}
-                        ).spread(function(employeepossibility, created){
-                            // this userId was either created or found depending upon whether the argment 'created' is true or false
-                            // do something with this user now
-                            if (created){
-                                employeepossibility.setEmployee(employee);
-                            }
-                        });
-                    }
+        for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) {
+            var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
 
-                });
+            promises.push(models.EmployeeAvailability.findOrCreate({
+                where: { Employeeid: req.params.id, day: date },
+                defaults: {
+                    Employeeid: req.params.id,
+                    type: 'all',
+                    presence: true,
+                }}
+            ).spread(function(employeeavailability, created){
+                if (created){
+                    employeeavailability.setEmployee(employee);
+                }
 
-                res.send("bien joué!")
+                availabilities.push(employeeavailability);
+            }));
+        }
+
+        Promise.all(promises).then(values => {
+            res.render('employee/set-availabilities.ejs',
+            {
+                employee: employee,
+                availabilities: availabilities
             });
+        });
+    });
+});
 
-            router.post('/:id/presences/type/set', function(req, res) {
-                var date = req.body.dateId + " 00:00:00Z";
+router.post('/:id/availabilities/set', function(req, res) {
+    var id = req.params.id;
+    var presences = req.body.presences;
 
-                models.EmployeePossibility.update(
-                    {type: req.body.value},
-                    {where: { Employeeid: req.params.id, day: date }}).then(employee => {
-                        res.send("maj!")
-                    });
-                });
+    models.Employee.findById(id).then(employee => {
+        for(var date in presences) {
+            var d = date;
 
-                router.post('/:id/presences/presence/set', function(req, res) {
-                    var date = req.body.dateId + " 00:00:00Z";
+            models.EmployeeAvailability.findOrCreate({
+                where: { Employeeid: req.params.id, day: date + " 00:00:00Z" },
+                defaults: {
+                    Employeeid: req.params.id,
+                    type: presences[date].type,
+                    presence: presences[date].presence,
+                }}
+            ).spread(function(employeeavailability, created){
+                if (created){
+                    employeeavailability.setEmployee(employee);
+                }
+            });
+        }
 
-                    models.EmployeePossibility.update(
-                        {presence: req.body.value},
-                        {where: { Employeeid: req.params.id, day: date }}).then(employee => {
-                            res.send("maj!")
-                        });
-                    });
+    });
 
-                    router.get('/:id/possibility/add', function(req, res) {
-                        var id = req.params.id;
+    res.send("bien joué!")
+});
 
-                        models.Employee.findById(id).then(employee => {
-                            console.log(JSON.stringify(employee));
+router.post('/:id/availabilities/type/set', function(req, res) {
+    var date = req.body.dateId + " 00:00:00Z";
 
+    models.EmployeeAvailability.update({
+        type: req.body.value
+    },
+    {where: { Employeeid: req.params.id, day: date }}).then(employee => {
+        res.send("maj!")
+    });
+});
 
-                            res.render('employee/add-possibility.ejs', {employee: employee});
-                        });
-                    });
+router.post('/:id/availabilities/presence/set', function(req, res) {
+    var date = req.body.dateId + " 00:00:00Z";
 
-                    router.post('/:id/possibility/add', function(req, res) {
-                        var id = req.params.id;
+    models.EmployeeAvailability.update({
+        presence: req.body.value
+    },
+    {where: { Employeeid: req.params.id, day: date }}).then(employee => {
+        res.send("maj!")
+    });
+});
 
-                        models.EmployeePossibility.create({
-                            EmployeeId: id,
-                            day: req.body.day,
-                            type: req.body.type,
-                            presence: req.body.presence === 'yes' ? true : false,
-                        }).then(possibility => {
-                            // todo
-
-                        });
-                    });
-
-
-                    module.exports = router;
+module.exports = router;

@@ -1,0 +1,36 @@
+<%- include ../header.ejs %>
+
+<h2>Liste des employés</h2>
+<br>
+<p>
+    <a class="btn btn-primary" href="/employee/add">Ajouter</a>
+</p>
+<br>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Prénom</th>
+            <th scope="col">Nom</th>
+            <th scope="col">Catégorie</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <%
+        for(var i in employees) {
+            var employee = employees[i];
+            %>
+            <tr>
+            <td><%= employee.firstName %></td>
+            <td><%= employee.lastName %></td>
+            <td><%= employee.category %></td>
+            <td>
+            <a href="/employee/<%= employee.id %>/update"><i class="fas fa-edit"></i></a>&nbsp;
+            <a href="/employee/<%= employee.id %>/delete"><i class="fas fa-trash-alt"></i></a>
+            </td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+
+    <%- include ../footer.ejs %>
