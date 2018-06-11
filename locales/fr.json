@@ -7,7 +7,11 @@
 		"add": "Ajouter",
 		"create": "Créer",
 		"delete": "Supprimer",
-		"edit": "Modifier"
+		"edit": "Modifier",
+		"home": "Accueil"
+	},
+	"company": {
+		"menu": "Entreprise"
 	},
 	"employee": {
 		"category": "Catégorie",
@@ -18,6 +22,10 @@
 		"firstname": "Prénom",
 		"lastname": "Nom",
 		"firstdate": "employee.firstdate",
-		"listing": "Liste des employés"
+		"listing": "Liste des employés",
+        "menu": "Employés"
+	},
+	"xompany": {
+		"menu": "xompany.menu"
 	}
 }

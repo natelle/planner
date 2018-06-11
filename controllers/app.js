@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var i18n = require('../i18n');
 
 var employee = require('./employee');
+var company = require('./company');
 
 var app = express();
 
@@ -16,6 +17,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use('/employee', employee);
+app.use('/company', company);
 
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

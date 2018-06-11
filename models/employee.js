@@ -12,6 +12,12 @@ module.exports = (sequelize, DataTypes) => {
 
     Employee.associate = function(models) {
         models.Employee.hasMany(models.EmployeeAvailability);
+
+        models.Employee.belongsTo(models.Company, {
+            foreignKey: {
+                allowNull: false
+            }
+        });
     };
 
     return Employee;
