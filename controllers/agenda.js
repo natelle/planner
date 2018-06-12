@@ -30,23 +30,27 @@ router.get('/:month(\\d{2}):year(\\d{4})', function(req, res) {
     var agendas = [];
     var promises = [];
 
-    for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) {
-        var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    models.Company.findOne({where: {}}).then(company => {
+        for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) {
+            var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+            var key = "defaultDay" + d.getDay();
+            var type = (company[key] !== null) ? company[key] : "time.allday";
 
-        promises.push(models.Agenda.findOrCreate({
-            where: { day: date },
-            defaults: {
-                type: 'time.allday'
-            }}
-        ).spread(function(agenda, created){
-            agendas.push(agenda);
-        }));
-    }
+            promises.push(models.Agenda.findOrCreate({
+                where: { day: date },
+                defaults: {
+                    type: type
+                }}
+            ).spread(function(agenda, created){
+                agendas.push(agenda);
+            }));
+        }
 
-    Promise.all(promises).then(values => {
-        res.render('agenda/list.ejs',
-        {
-            agendas: agendas
+        Promise.all(promises).then(values => {
+            res.render('agenda/list.ejs',
+            {
+                agendas: agendas
+            });
         });
     });
 });

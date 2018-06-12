@@ -7,13 +7,13 @@ module.exports = (sequelize, DataTypes) => {
         email: DataTypes.STRING,
         phone: DataTypes.STRING,
 
-        defaultMon: DataTypes.STRING,
-        defaultTue: DataTypes.STRING,
-        defaultWed: DataTypes.STRING,
-        defaultThu: DataTypes.STRING,
-        defaultFri: DataTypes.STRING,
-        defaultSat: DataTypes.STRING,
-        defaultSun: DataTypes.STRING
+        defaultDay0: DataTypes.STRING,
+        defaultDay1: DataTypes.STRING,
+        defaultDay2: DataTypes.STRING,
+        defaultDay3: DataTypes.STRING,
+        defaultDay4: DataTypes.STRING,
+        defaultDay5: DataTypes.STRING,
+        defaultDay6: DataTypes.STRING
     }, {
         tableName: 'employee'
     });

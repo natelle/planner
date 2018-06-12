@@ -63,7 +63,8 @@
 		"alldayabbr": "J",
 		"morningabbr": "M",
 		"afternoonabbr": "A",
-		"closedabbr": "F"
+		"closedabbr": "F",
+		"type": "time.type"
 	},
 	"availability": {
 		"date": "Date",
@@ -72,5 +73,6 @@
 			"one": "Disponibilité",
 			"other": "Disponibilités"
 		}
-	}
+	},
+	"undefinedabbr": "undefinedabbr"
 }
