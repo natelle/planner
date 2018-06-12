@@ -1,1 +1,26 @@
-<%= JSON.stringify(company) %>
+<%- include ../header.ejs %>
+
+<h2><%= __("company.show") %></h2>
+<br>
+<p>
+    <a class="btn btn-primary" href="/company/update" role="button"><%= __("global.edit") %></a>
+</p>
+<br>
+<table class="table table-borderless">
+  <tbody>
+    <tr>
+      <td><%= __("company.name") %></td>
+      <td><%= company.name ? company.name : "-" %></td>
+    </tr>
+    <tr>
+        <td><%= __("company.email") %></td>
+        <td><%= company.email ? company.email : "-" %></td>
+    </tr>
+    <tr>
+        <td><%= __("company.phone") %></td>
+        <td><%= company.phone ? company.phone : "-" %></td>
+    </tr>
+  </tbody>
+</table>
+
+<%- include ../footer.ejs %>

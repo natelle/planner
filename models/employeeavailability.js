@@ -3,8 +3,7 @@
 module.exports = (sequelize, DataTypes) => {
     var EmployeeAvailability = sequelize.define('EmployeeAvailability', {
         day: DataTypes.DATE,
-        type: DataTypes.STRING,
-        presence: DataTypes.BOOLEAN
+        type: DataTypes.STRING
     }, {
         tableName: 'employeeavailability',
     });

@@ -1,40 +1,40 @@
 <%- include ../header.ejs %>
 
-<h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
+<h2><%= __("agenda.list") %></h2>
 <br>
-<%var currentMonth = availabilities[0].day;%>
+<%var currentMonth = agendas[0].day;%>
 <p>
-    <a class="btn btn-primary" href="/employee/<%= employee.id %>/availabilities/<%= (currentMonth.getMonth() + 1).toString().padStart(2, '0') + currentMonth.getFullYear() %>" role="button">Retour</a>
+    <a class="btn btn-primary" href="/agenda/<%= currentMonth.getFullYear() %>" role="button">Retour</a>
 </p>
 <br>
 <div class="row">
     <div class="col-md-1">
         <%
-        var previousMonth = new Date(availabilities[0].day);
+        var previousMonth = new Date(agendas[0].day);
         previousMonth.setMonth(previousMonth.getMonth()-1);
         %>
-        <a href="/employee/<%= employee.id %>/availabilities/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+        <a href="/agenda/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
             <thead>
                 <tr>
-                    <th scope="col"><%= __("availability.date") %></th>
-                    <th scope="col" class="text-center"><%= __("availability.type") %></th>
+                    <th scope="col" class="date"><%= __("agenda.date") %></th>
+                    <th scope="col" class="text-center"><%= __("agenda.type") %></th>
                 </tr>
             </thead>
             <tbody>
-                <% for(var i in availabilities) {%>
-                    <%var availability = availabilities[i];%>
-                    <%var date = availability.day;%>
-                    <% var dateId = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') %>
+                <% for(var i in agendas) {%>
+                    <%var agenda = agendas[i];
+                      var date = agenda.day;
+                      var dateId = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') %>
 
-                    <tr class="presenceRow" id="row<%= dateId %>" data-dateId="<%= dateId %>">
+                    <tr class="agendaRow" id="row<%= dateId %>" data-dateId="<%= dateId %>">
                     <th scope="row" class="date">
                     <%= date.getDate().toString().padStart(2, '0') + '/' + (date.getMonth()+1).toString().padStart(2, '0') + '/' + date.getFullYear() %>
                     </th>
-                    <td class="type text-center" data-type="<%= availability.type %>" data-dateId="<%= dateId %>">
-                    <%= __(availability.type) %>
+                    <td class="type text-center" data-type="<%= agenda.type %>" data-dateId="<%= dateId %>">
+                    <%= __(agenda.type) %>
                     </td>
                     </tr>
                     <% } %>
@@ -43,10 +43,10 @@
         </div>
         <div class="col-md-1">
             <%
-            var nextMonth = new Date(availabilities[0].day);
+            var nextMonth = new Date(agendas[0].day);
             nextMonth.setMonth(nextMonth.getMonth()+2);
             %>
-            <a href="/employee/<%= employee.id %>/availabilities/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+            <a href="/agenda/<%= (nextMonth.getMonth() + 1).toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
         </div>
     </div>
 
@@ -67,9 +67,9 @@
             var dateId = $(this).attr("data-dateId");
             var that = this;
 
-            $.post('/employee/<%= employee.id %>/availabilities/type/set',
+            $.post('/agenda/type/set',
             { dateId: dateId, value: value },
-            function(data) {
+            function( data ) {
                 $(that).attr("data-type", value);
                 $(that).text(typeTranslations[value]);
             });

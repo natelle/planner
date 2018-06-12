@@ -8,10 +8,16 @@
 		"create": "Créer",
 		"delete": "Supprimer",
 		"edit": "Modifier",
-		"home": "Accueil"
+		"home": "Accueil",
+		"save": "Enregistrer"
 	},
 	"company": {
-		"menu": "Entreprise"
+		"email": "Email",
+		"menu": "Entreprise",
+		"name": "Nom",
+		"phone": "Téléphone",
+		"show": "Information de l'entreprise",
+		"edit": "Information de l'entreprise"
 	},
 	"employee": {
 		"category": "Catégorie",
@@ -23,9 +29,32 @@
 		"lastname": "Nom",
 		"firstdate": "employee.firstdate",
 		"listing": "Liste des employés",
-        "menu": "Employés"
+		"menu": "Employés",
+		"email": "Email",
+		"phone": "Phone"
 	},
-	"xompany": {
-		"menu": "xompany.menu"
+	"agenda": {
+		"yearly": "agenda.yearly",
+		"list": "agenda.list",
+		"date": "Date",
+		"type": "Type",
+		"agenda": "Agenda",
+		"afternoon": "agenda.afternoon",
+		"morning": "agenda.morning",
+		"allday": "agenda.allday"
+	},
+	"time": {
+		"allday": "Journée",
+		"morning": "Matin",
+		"afternoon": "Après-midi",
+		"closed": "Fermé"
+	},
+	"availability": {
+		"date": "Date",
+		"type": "Type",
+		"availabilities": {
+			"one": "Disponibilité",
+			"other": "Disponibilités"
+		}
 	}
 }

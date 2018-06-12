@@ -16,9 +16,8 @@ router.get('/', function(req, res) {
 });
 
 router.get('/update', function(req, res) {
-
-    models.Company.findById(id).then(employee => {
-        res.render('company/update.ejs', {employee: employee});
+    models.Company.findOne({where: {}}).then(company => {
+        res.render('company/update.ejs', {company: company});
     });
 });
 

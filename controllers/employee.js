@@ -10,7 +10,9 @@ router.post('/add', function(req, res) {
     models.Employee.create({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        category: req.body.category
+        category: req.body.category,
+        email: req.body.email,
+        phone: req.body.phone
     }).then(employee => {
         res.redirect('/employee');
     });
@@ -28,7 +30,9 @@ router.post('/:id/update', function(req, res) {
     models.Employee.update({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        category: req.body.category
+        category: req.body.category,
+        email: req.body.email,
+        phone: req.body.phone
     }, {where: { id: req.params.id }}).then(employee => {
         res.redirect('/employee');
     });
@@ -58,6 +62,13 @@ router.get('/', function(req, res) {
             employees: employees
         });
     });
+});
+
+router.get('/:id/availabilities', function(req, res) {
+    var id = req.params.id;
+    var year = (new Date()).getFullYear();
+
+    res.redirect('/employee/' + id + '/availabilities/' + year);
 });
 
 router.get('/:id/availabilities/:year(\\d{4})', function(req, res) {
@@ -95,8 +106,7 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res)
                 where: { Employeeid: req.params.id, day: date },
                 defaults: {
                     Employeeid: req.params.id,
-                    type: 'all',
-                    presence: true,
+                    type: 'time.allday',
                 }}
             ).spread(function(employeeavailability, created){
                 if (created){
@@ -139,8 +149,7 @@ router.get('/:id/availabilities/set/:month(\\d{2}):year(\\d{4})', function(req, 
                 where: { Employeeid: req.params.id, day: date },
                 defaults: {
                     Employeeid: req.params.id,
-                    type: 'all',
-                    presence: true,
+                    type: 'time.allday'
                 }}
             ).spread(function(employeeavailability, created){
                 if (created){
@@ -152,7 +161,7 @@ router.get('/:id/availabilities/set/:month(\\d{2}):year(\\d{4})', function(req, 
         }
 
         Promise.all(promises).then(values => {
-            res.render('employee/set-availabilities.ejs',
+            res.render('employee/list-availabilities.ejs',
             {
                 employee: employee,
                 availabilities: availabilities
@@ -161,49 +170,11 @@ router.get('/:id/availabilities/set/:month(\\d{2}):year(\\d{4})', function(req, 
     });
 });
 
-router.post('/:id/availabilities/set', function(req, res) {
-    var id = req.params.id;
-    var presences = req.body.presences;
-
-    models.Employee.findById(id).then(employee => {
-        for(var date in presences) {
-            var d = date;
-
-            models.EmployeeAvailability.findOrCreate({
-                where: { Employeeid: req.params.id, day: date + " 00:00:00Z" },
-                defaults: {
-                    Employeeid: req.params.id,
-                    type: presences[date].type,
-                    presence: presences[date].presence,
-                }}
-            ).spread(function(employeeavailability, created){
-                if (created){
-                    employeeavailability.setEmployee(employee);
-                }
-            });
-        }
-
-    });
-
-    res.send("bien joué!")
-});
-
 router.post('/:id/availabilities/type/set', function(req, res) {
     var date = req.body.dateId + " 00:00:00Z";
 
     models.EmployeeAvailability.update({
         type: req.body.value
-    },
-    {where: { Employeeid: req.params.id, day: date }}).then(employee => {
-        res.send("maj!")
-    });
-});
-
-router.post('/:id/availabilities/presence/set', function(req, res) {
-    var date = req.body.dateId + " 00:00:00Z";
-
-    models.EmployeeAvailability.update({
-        presence: req.body.value
     },
     {where: { Employeeid: req.params.id, day: date }}).then(employee => {
         res.send("maj!")

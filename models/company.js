@@ -9,9 +9,5 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'company'
     });
 
-    Company.associate = function(models) {
-        models.Company.hasMany(models.Employee);
-    };
-
     return Company;
 };
