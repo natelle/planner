@@ -12,7 +12,14 @@ router.post('/add', function(req, res) {
         lastName: req.body.lastName,
         category: req.body.category,
         email: req.body.email,
-        phone: req.body.phone
+        phone: req.body.phone,
+        defaultMon: req.body.defaultMon,
+        defaultTue: req.body.defaultTue,
+        defaultWed: req.body.defaultWed,
+        defaultThu: req.body.defaultThu,
+        defaultFri: req.body.defaultFri,
+        defaultSat: req.body.defaultSat,
+        defaultSun: req.body.defaultSun
     }).then(employee => {
         res.redirect('/employee');
     });
@@ -32,7 +39,14 @@ router.post('/:id/update', function(req, res) {
         lastName: req.body.lastName,
         category: req.body.category,
         email: req.body.email,
-        phone: req.body.phone
+        phone: req.body.phone,
+        defaultMon: req.body.defaultMon,
+        defaultTue: req.body.defaultTue,
+        defaultWed: req.body.defaultWed,
+        defaultThu: req.body.defaultThu,
+        defaultFri: req.body.defaultFri,
+        defaultSat: req.body.defaultSat,
+        defaultSun: req.body.defaultSun,
     }, {where: { id: req.params.id }}).then(employee => {
         res.redirect('/employee');
     });

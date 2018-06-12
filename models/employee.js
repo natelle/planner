@@ -5,7 +5,15 @@ module.exports = (sequelize, DataTypes) => {
         lastName: DataTypes.STRING,
         category: DataTypes.STRING,
         email: DataTypes.STRING,
-        phone: DataTypes.STRING
+        phone: DataTypes.STRING,
+
+        defaultMon: DataTypes.STRING,
+        defaultTue: DataTypes.STRING,
+        defaultWed: DataTypes.STRING,
+        defaultThu: DataTypes.STRING,
+        defaultFri: DataTypes.STRING,
+        defaultSat: DataTypes.STRING,
+        defaultSun: DataTypes.STRING
     }, {
         tableName: 'employee'
     });

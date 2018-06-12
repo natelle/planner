@@ -7,7 +7,7 @@
     <div class="form-group row">
         <label class="col-sm-2" for="name"><%= __("company.name") %></label>
         <div class="col-sm-10">
-            <input type="text" name="name" value="<%= company.firstName %>" class="form-control" id="name" placeholder="<%= __("company.name") %>">
+            <input type="text" name="name" value="<%= company.name %>" class="form-control" id="name" placeholder="<%= __("company.name") %>">
         </div>
     </div>
     <div class="form-group row">
@@ -22,9 +22,71 @@
             <input type="tel" name="phone" value="<%= company.phone %>" class="form-control" id="phone" placeholder="<%= __("company.phone") %>" pattern="^((\+\d{1,3})[ .-]?\d|0\d)([ .-]?\d{2}){4}$">
         </div>
     </div>
+    <br>
+
+    <table class="table table-bordered defaultDays text-center">
+        <thead>
+            <tr>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.monday") %></th>
+                <th class="text-center" style="width: 14.29%" cope="col"><%= __("time.tuesday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.wednesday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.thursday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.friday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.saturday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.sunday") %></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-form="defaultMon" data-value="<%= company.defaultMon %>"><%= __(company.defaultMon) %></td>
+                <td data-form="defaultTue" data-value="<%= company.defaultTue %>"><%= __(company.defaultTue) %></td>
+                <td data-form="defaultWed" data-value="<%= company.defaultWed %>"><%= __(company.defaultWed) %></td>
+                <td data-form="defaultThu" data-value="<%= company.defaultThu %>"><%= __(company.defaultThu) %></td>
+                <td data-form="defaultFri" data-value="<%= company.defaultFri %>"><%= __(company.defaultFri) %></td>
+                <td data-form="defaultSat" data-value="<%= company.defaultSat %>"><%= __(company.defaultSat) %></td>
+                <td data-form="defaultSun" data-value="<%= company.defaultSun %>"><%= __(company.defaultSun) %></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <input type="hidden" name="defaultMon" value="<%= company.defaultMon %>"/>
+    <input type="hidden" name="defaultTue" value="<%= company.defaultTue %>"/>
+    <input type="hidden" name="defaultWed" value="<%= company.defaultWed %>"/>
+    <input type="hidden" name="defaultThu" value="<%= company.defaultThu %>"/>
+    <input type="hidden" name="defaultFri" value="<%= company.defaultFri %>"/>
+    <input type="hidden" name="defaultSat" value="<%= company.defaultSat %>"/>
+    <input type="hidden" name="defaultSun" value="<%= company.defaultSun %>"/>
+
+    <br>
     <div class="text-right">
         <button type="submit" class="btn btn-primary text-right"><%= __("global.save") %></button>
     </div>
 </form>
+
+<script>
+$(document).ready(function() {
+    var typeOrder = ['time.allday', 'time.morning', 'time.afternoon', 'time.closed'];
+    var typeTranslations = {
+        'time.allday': "<%= __("time.allday") %>",
+        'time.morning': "<%= __("time.morning") %>",
+        'time.afternoon': "<%= __("time.afternoon") %>",
+        'time.closed': "<%= __("time.closed") %>" %>
+    };
+
+    $('table.defaultDays td').click(function() {
+        var index = typeOrder.indexOf($(this).attr("data-value"));
+        var nextIndex = (index + 1) % typeOrder.length;
+        var value = typeOrder[nextIndex];
+        var form = $(this).attr("data-form");
+
+        console.log(form);
+
+        $(this).attr("data-value", value);
+        $(this).text(typeTranslations[value]);
+        $("input[name=" + form + "]").val(value);
+    });
+});
+</script>
+
 
 <%- include ../footer.ejs %>

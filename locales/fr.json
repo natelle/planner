@@ -17,7 +17,8 @@
 		"name": "Nom",
 		"phone": "Téléphone",
 		"show": "Information de l'entreprise",
-		"edit": "Information de l'entreprise"
+		"edit": "Information de l'entreprise",
+		"defaultagenda": "Horaires par défaut"
 	},
 	"employee": {
 		"category": "Catégorie",
@@ -31,7 +32,11 @@
 		"listing": "Liste des employés",
 		"menu": "Employés",
 		"email": "Email",
-		"phone": "Phone"
+		"phone": "Phone",
+		"defaultavailabilities": "Disponibilités par défaut",
+		"lastName": "Nom",
+		"firstName": "Prénom",
+		"availabilities": "employee.availabilities"
 	},
 	"agenda": {
 		"yearly": "agenda.yearly",
@@ -47,7 +52,18 @@
 		"allday": "Journée",
 		"morning": "Matin",
 		"afternoon": "Après-midi",
-		"closed": "Fermé"
+		"closed": "Fermé",
+		"monday": "Lundi",
+		"tuesday": "Mardi",
+		"wednesday": "Mercredi",
+		"thursday": "Jeudi",
+		"friday": "Vendredi",
+		"saturday": "Samedi",
+		"sunday": "Dimanche",
+		"alldayabbr": "J",
+		"morningabbr": "M",
+		"afternoonabbr": "A",
+		"closedabbr": "F"
 	},
 	"availability": {
 		"date": "Date",

@@ -22,5 +22,32 @@
     </tr>
   </tbody>
 </table>
+<br>
+<h4><%= __("company.defaultagenda") %></h4>
+<br>
+<table class="table table-bordered defaultDays text-center">
+    <thead>
+        <tr>
+            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.monday") %></th>
+            <th class="text-center" style="width: 14.29%" cope="col"><%= __("time.tuesday") %></th>
+            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.wednesday") %></th>
+            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.thursday") %></th>
+            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.friday") %></th>
+            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.saturday") %></th>
+            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.sunday") %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><%= __(company.defaultMon) %></td>
+            <td><%= __(company.defaultTue) %></td>
+            <td><%= __(company.defaultWed) %></td>
+            <td><%= __(company.defaultThu) %></td>
+            <td><%= __(company.defaultFri) %></td>
+            <td><%= __(company.defaultSat) %></td>
+            <td><%= __(company.defaultSun) %></td>
+        </tr>
+    </tbody>
+</table>
 
 <%- include ../footer.ejs %>

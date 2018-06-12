@@ -1,1 +1,37 @@
-{}
+{
+	"global": {
+		"home": "global.home",
+		"add": "global.add",
+		"action": {
+			"one": "global.action",
+			"other": "global.action"
+		},
+		"edit": "global.edit",
+		"delete": "global.delete"
+	},
+	"employee": {
+		"menu": "employee.menu",
+		"listing": "employee.listing",
+		"firstname": "employee.firstname",
+		"lastname": "employee.lastname",
+		"category": "employee.category",
+		"availabilities": "employee.availabilities"
+	},
+	"agenda": {
+		"agenda": "agenda.agenda"
+	},
+	"company": {
+		"menu": "company.menu"
+	},
+	"time": {
+		"morningabbr": "time.morningabbr",
+		"closedabbr": "time.closedabbr",
+		"alldayabbr": "time.alldayabbr"
+	},
+	"availability": {
+		"availabilities": {
+			"one": "availability.availabilities",
+			"other": "availability.availabilities"
+		}
+	}
+}

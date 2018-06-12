@@ -4,19 +4,19 @@
 <br>
 <form action="/employee/<%= employee.id %>/update" method="post">
     <div class="form-group row">
-        <label class="col-sm-2" for="firstName">Prénom</label>
+        <label class="col-sm-2" for="lastName"><%= __("employee.lastName") %></label>
         <div class="col-sm-10">
-            <input type="text" name="firstName" value="<%= employee.firstName %>" class="form-control" id="firstName" placeholder="Nom">
+            <input type="text" name="lastName" value="<%= employee.lastName %>" class="form-control" id="lastName" placeholder="<%= __("employee.lastName") %>">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2" for="lastName">Nom</label>
+        <label class="col-sm-2" for="firstName"><%= __("employee.firstName") %></label>
         <div class="col-sm-10">
-            <input type="text" name="lastName" value="<%= employee.lastName %>" class="form-control" id="lastName" placeholder="Prénom">
+            <input type="text" name="firstName" value="<%= employee.firstName %>"class="form-control" id="firstName" placeholder="<%= __("employee.firstName") %>">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2" for="category">Catégorie</label>
+        <label class="col-sm-2" for="category"><%= __("employee.category") %></label>
         <div class="col-sm-10">
             <input type="text" name="category" value="<%= employee.category %>" class="form-control" id="category" placeholder="Catégorie">
         </div>
@@ -33,9 +33,70 @@
             <input type="tel" name="phone" value="<%= employee.phone %>" class="form-control" id="phone" placeholder="<%= __("employee.phone") %>" pattern="^((\+\d{1,3})[ .-]?\d|0\d)([ .-]?\d{2}){4}$">
         </div>
     </div>
+    <br>
+
+    <table class="table table-bordered defaultDays text-center">
+        <thead>
+            <tr>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.monday") %></th>
+                <th class="text-center" style="width: 14.29%" cope="col"><%= __("time.tuesday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.wednesday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.thursday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.friday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.saturday") %></th>
+                <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.sunday") %></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-form="defaultMon" data-value="<%= employee.defaultMon %>"><%= __(employee.defaultMon) %></td>
+                <td data-form="defaultTue" data-value="<%= employee.defaultTue %>"><%= __(employee.defaultTue) %></td>
+                <td data-form="defaultWed" data-value="<%= employee.defaultWed %>"><%= __(employee.defaultWed) %></td>
+                <td data-form="defaultThu" data-value="<%= employee.defaultThu %>"><%= __(employee.defaultThu) %></td>
+                <td data-form="defaultFri" data-value="<%= employee.defaultFri %>"><%= __(employee.defaultFri) %></td>
+                <td data-form="defaultSat" data-value="<%= employee.defaultSat %>"><%= __(employee.defaultSat) %></td>
+                <td data-form="defaultSun" data-value="<%= employee.defaultSun %>"><%= __(employee.defaultSun) %></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <input type="hidden" name="defaultMon" value="<%= employee.defaultMon %>"/>
+    <input type="hidden" name="defaultTue" value="<%= employee.defaultTue %>"/>
+    <input type="hidden" name="defaultWed" value="<%= employee.defaultWed %>"/>
+    <input type="hidden" name="defaultThu" value="<%= employee.defaultThu %>"/>
+    <input type="hidden" name="defaultFri" value="<%= employee.defaultFri %>"/>
+    <input type="hidden" name="defaultSat" value="<%= employee.defaultSat %>"/>
+    <input type="hidden" name="defaultSun" value="<%= employee.defaultSun %>"/>
+
+    <br>
     <div class="text-right">
         <button type="submit" class="btn btn-primary text-right"><%= __("global.save") %></button>
     </div>
 </form>
+
+<script>
+$(document).ready(function() {
+    var typeOrder = ['time.allday', 'time.morning', 'time.afternoon', 'time.closed'];
+    var typeTranslations = {
+        'time.allday': "<%= __("time.allday") %>",
+        'time.morning': "<%= __("time.morning") %>",
+        'time.afternoon': "<%= __("time.afternoon") %>",
+        'time.closed': "<%= __("time.closed") %>" %>
+    };
+
+    $('table.defaultDays td').click(function() {
+        var index = typeOrder.indexOf($(this).attr("data-value"));
+        var nextIndex = (index + 1) % typeOrder.length;
+        var value = typeOrder[nextIndex];
+        var form = $(this).attr("data-form");
+
+        console.log(form);
+
+        $(this).attr("data-value", value);
+        $(this).text(typeTranslations[value]);
+        $("input[name=" + form + "]").val(value);
+    });
+});
+</script>
 
 <%- include ../footer.ejs %>
