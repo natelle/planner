@@ -4,7 +4,8 @@
 <br>
 <%var currentMonth = agendas[0].day;%>
 <p>
-    <a class="btn btn-primary" href="/agenda/<%= currentMonth.getFullYear() %>" role="button">Retour</a>
+    <a class="btn btn-primary" href="/agenda/<%= currentMonth.getFullYear() %>" role="button">Retour</a>&nbsp;
+    <a class="btn btn-primary" href="/agenda/<%= (currentMonth.getMonth() + 1).toString().padStart(2, '0') + currentMonth.getFullYear() %>/reset" role="button"><%= __("agenda.reset") %></a>
 </p>
 <br>
 <div class="row">
@@ -21,13 +22,14 @@
                 <tr>
                     <th scope="col" class="date"><%= __("agenda.date") %></th>
                     <th scope="col" class="text-center"><%= __("agenda.type") %></th>
+                    <th scope="col" class="text-center"><%= __("agenda.number") %></th>
                 </tr>
             </thead>
             <tbody>
                 <% for(var i in agendas) {%>
                     <%var agenda = agendas[i];
-                      var date = agenda.day;
-                      var dateId = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') %>
+                    var date = agenda.day;
+                    var dateId = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') %>
 
                     <tr class="agendaRow" id="row<%= dateId %>" data-dateId="<%= dateId %>">
                     <th scope="row" class="date">
@@ -35,6 +37,12 @@
                     </th>
                     <td class="type text-center" data-type="<%= agenda.type %>" data-dateId="<%= dateId %>">
                     <%= __(agenda.type) %>
+                    </td>
+                    <td class="number text-center" data-state="display" data-number="<%= agenda.number %>" data-dateId="<%= dateId %>">
+                    <span class="number-display"><%= agenda.number %></span>
+                    <span class="number-control">
+                    <input class="mx-auto form-control mr-0" style="width:60px; display:none;" type="number" value="<%= agenda.number %>">
+                    </span>
                     </td>
                     </tr>
                     <% } %>
@@ -74,6 +82,31 @@
                 $(that).text(typeTranslations[value]);
             });
         });
+
+        $('td.number').click(function() {
+            if($(this).attr("data-state") == "display") {
+                $(this).find("span.number-display").hide();
+                $(this).find("span.number-control input").show();
+                $(this).attr("data-state", "control");
+            }
+        });
+
+        $('span.number-control input').focusout(function() {
+            var td = $(this).parent().parent();
+            var value = $(this).val();
+            var dateId = td.attr("data-dateId");
+
+            $.post('/agenda/number/set',
+            { dateId: dateId, value: value },
+            function (data) {
+                td.find("span.number-display").text(value);
+                td.find("span.number-display").show();
+                td.find("span.number-control input").hide();
+                window.setTimeout(function() { td.attr("data-state", "display"); }, 50);
+            });
+        });
+
+
     });
 </script>
 

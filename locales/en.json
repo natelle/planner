@@ -18,7 +18,12 @@
 		"availabilities": "employee.availabilities"
 	},
 	"agenda": {
-		"agenda": "agenda.agenda"
+		"agenda": "agenda.agenda",
+		"list": "agenda.list",
+		"reset": "agenda.reset",
+		"date": "agenda.date",
+		"type": "agenda.type",
+		"number": "agenda.number"
 	},
 	"company": {
 		"menu": "company.menu"
@@ -26,7 +31,11 @@
 	"time": {
 		"morningabbr": "time.morningabbr",
 		"closedabbr": "time.closedabbr",
-		"alldayabbr": "time.alldayabbr"
+		"alldayabbr": "time.alldayabbr",
+		"allday": "time.allday",
+		"closed": "time.closed",
+		"morning": "time.morning",
+		"afternoon": "time.afternoon"
 	},
 	"availability": {
 		"availabilities": {

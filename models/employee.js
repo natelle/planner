@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 
     Employee.associate = function(models) {
         models.Employee.hasMany(models.EmployeeAvailability);
+        models.Employee.hasMany(models.Planning);
     };
 
     return Employee;

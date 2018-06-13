@@ -4,7 +4,8 @@
 <br>
 <%var currentMonth = availabilities[0].day;%>
 <p>
-    <a class="btn btn-primary" href="/employee/<%= employee.id %>/availabilities/<%= currentMonth.getFullYear() %>" role="button">Retour</a>
+    <a class="btn btn-primary" href="/employee/<%= employee.id %>/availabilities/<%= currentMonth.getFullYear() %>" role="button">Retour</a>&nbsp;
+    <a class="btn btn-primary" href="/employee/<%= employee.id %>/availabilities/<%= (currentMonth.getMonth() + 1).toString().padStart(2, '0') + currentMonth.getFullYear() %>/reset" role="button"><%= __("availability.reset") %></a>
 </p>
 <br>
 <div class="row">

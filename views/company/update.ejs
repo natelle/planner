@@ -23,7 +23,13 @@
         </div>
     </div>
     <br>
-
+    <div class="form-group row">
+        <label class="col-sm-10 text-right" for="defaultNumber"><%= __("company.defaultNumber") %></label>
+        <div class="col-sm-2">
+            <input type="number" name="defaultNumber" value="<%= company.defaultNumber %>" class="form-control" id="defaultNumber" placeholder="<%= __("company.defaultNnumber") %>">
+        </div>
+    </div>
+    <br>
     <table class="table table-bordered defaultDays text-center">
         <thead>
             <tr>

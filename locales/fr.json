@@ -18,7 +18,10 @@
 		"phone": "Téléphone",
 		"show": "Information de l'entreprise",
 		"edit": "Information de l'entreprise",
-		"defaultagenda": "Horaires par défaut"
+		"defaultagenda": "Horaires par défaut",
+		"defaultnumber": "company.defaultnumber",
+		"defaultNumber": "company.defaultNumber",
+		"defaultNnumber": "company.defaultNnumber"
 	},
 	"employee": {
 		"category": "Catégorie",
@@ -27,7 +30,7 @@
 			"other": "employés"
 		},
 		"firstname": "Prénom",
-		"lastname": "Nom",
+		"lastnameww": "Nom",
 		"firstdate": "employee.firstdate",
 		"listing": "Liste des employés",
 		"menu": "Employés",
@@ -46,7 +49,9 @@
 		"agenda": "Agenda",
 		"afternoon": "agenda.afternoon",
 		"morning": "agenda.morning",
-		"allday": "agenda.allday"
+		"allday": "agenda.allday",
+		"reset": "Réinitialisers",
+		"number": "Effectif"
 	},
 	"time": {
 		"allday": "Journée",
@@ -72,7 +77,11 @@
 		"availabilities": {
 			"one": "Disponibilité",
 			"other": "Disponibilités"
-		}
+		},
+		"reset": "Réinitialiser"
 	},
-	"undefinedabbr": "undefinedabbr"
+	"undefinedabbr": "undefinedabbr",
+	"planning": {
+		"home": "planning.home"
+	}
 }

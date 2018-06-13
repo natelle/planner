@@ -5,6 +5,7 @@ var i18n = require('../i18n');
 var employee = require('./employee');
 var company = require('./company');
 var agenda = require('./agenda');
+var planning = require('./planning');
 
 var app = express();
 
@@ -21,6 +22,7 @@ app.use(bodyParser.urlencoded({
 app.use('/employee', employee);
 app.use('/company', company);
 app.use('/agenda', agenda);
+app.use('/planning', planning);
 
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

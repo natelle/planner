@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         email: DataTypes.STRING,
         phone: DataTypes.STRING,
 
+        defaultNumber: DataTypes.SMALLINT,
         defaultDay0: DataTypes.STRING,
         defaultDay1: DataTypes.STRING,
         defaultDay2: DataTypes.STRING,
