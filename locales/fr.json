@@ -39,7 +39,10 @@
 		"defaultavailabilities": "Disponibilités par défaut",
 		"lastName": "Nom",
 		"firstName": "Prénom",
-		"availabilities": "employee.availabilities"
+		"availabilities": "employee.availabilities",
+		"lastname": "employee.lastname",
+		"defaultNumber": "employee.defaultNumber",
+		"defaultNnumber": "employee.defaultNnumber"
 	},
 	"agenda": {
 		"yearly": "agenda.yearly",
@@ -82,6 +85,10 @@
 	},
 	"undefinedabbr": "undefinedabbr",
 	"planning": {
-		"home": "planning.home"
+		"home": "planning.home",
+		"proposal": "Proposition de planning",
+		"date": "Date",
+		"type": "Type",
+		"employee": "Effectif"
 	}
 }

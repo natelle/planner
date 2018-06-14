@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
         day: DataTypes.DATE,
         type: DataTypes.STRING
     }, {
-        tableName: 'employeeavailability',
+        tableName: 'availability',
     });
 
     EmployeeAvailability.associate = function (models) {

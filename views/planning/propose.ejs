@@ -1,0 +1,52 @@
+<%- include ../header.ejs %>
+
+<h2><%= __("planning.proposal") %></h2>
+<br>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col" class="date"><%= __("planning.date") %></th>
+            <th scope="col"><%= __("planning.type") %></th>
+            <th scope="col"><%= __("planning.employee") %></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <% for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) { %>
+            <tr>
+            <th scope="row" rowspan="2" class="date">
+            <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+            </th>
+            <td><%= __("time.morning") %></td>
+            <td>
+            <%
+                if(typeof plannings[d.getTime()] !== 'undefined') {
+                    for(var i in plannings[d.getTime()]['time.morning']) {
+                        var employee = employees[plannings[d.getTime()]['time.morning'][i].EmployeeId];
+                %>
+                        <a href="/employee/<%= employee.id %>" title="<%= employee.getName() %>"><%= employee.getShortName() %></a>
+                <% }} else { %>
+                        <%= __("time.closed") %>
+                    <% } %>
+            </td>
+            </tr>
+            <tr>
+            <td><%= __("time.afternoon") %></td>
+            <td>
+            <%
+                if(typeof plannings[d.getTime()] !== 'undefined') {
+                    for(var i in plannings[d.getTime()]['time.afternoon']) {
+                        var employee = employees[plannings[d.getTime()]['time.afternoon'][i].EmployeeId];
+                %>
+                <a href="/employee/<%= employee.id %>" title="<%= employee.getName() %>"><%= employee.getShortName() %></a>
+                <% }} else { %>
+                    <%= __("time.closed") %>
+                <% } %>
+                </td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+
+
+            <%- include ../footer.ejs %>

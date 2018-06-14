@@ -15,30 +15,64 @@ router.get('/generate/:month(\\d{2}):year(\\d{4})', function(req, res) {
     var lastDate = new Date(year, parseInt(month), 0);
 
     var promises = [];
-    var employees, agendas, availabilities;
-
-    promises.push(models.Employee.findAll().then(e => {
-        employees = e;
-    }));
+    var employeeArray, agendas, availabilities;
 
     promises.push(models.Agenda.findAll().then(a => {
         agendas = a;
     }));
-
     promises.push(models.EmployeeAvailability.findAll().then(a => {
         availabilities = a;
     }));
+    promises.push(models.Employee.findAll().then(e => {
+        employeeArray = e;
+    }));
 
     Promise.all(promises).then(values => {
+        console.log(employeeArray);
+
         var planner = new Planner({
             firstDate: firstDate,
             lastDate: lastDate,
-            employees: employees,
+            employees: employeeArray,
             agendas: agendas,
             availabilities: availabilities
         });
 
-        planner.generate();
+        var rawPlannings = planner.generate();
+        var plannings = {};
+        var employees = {};
+        var promises = [];
+
+        for(var i in rawPlannings) {
+            if(typeof employees[rawPlannings[i].EmployeeId] === 'undefined') {
+                promises.push(models.Employee.findById(rawPlannings[i].EmployeeId).then(employee => {
+                    employees[rawPlannings[i].EmployeeId] = employee;
+                }));
+            }
+
+            var timestamp = rawPlannings[i].day.getTime();
+            if(typeof plannings[timestamp] === 'undefined') {
+                plannings[timestamp] = {};
+            }
+
+            var type = rawPlannings[i].type
+            if(typeof plannings[timestamp][type] === 'undefined') {
+                plannings[timestamp][type] = [rawPlannings[i]];
+            } else {
+                plannings[timestamp][type].push(rawPlannings[i]);
+            }
+        }
+
+        Promise.all(promises).then(status => {
+            console.log(employees);
+
+            res.render('planning/propose.ejs', {
+                plannings: plannings,
+                employees: employees,
+                firstDate: firstDate,
+                lastDate: lastDate
+            })
+        });
     });
 
 

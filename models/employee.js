@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         email: DataTypes.STRING,
         phone: DataTypes.STRING,
 
+        defaultNumber: DataTypes.FLOAT,
         defaultDay0: DataTypes.STRING,
         defaultDay1: DataTypes.STRING,
         defaultDay2: DataTypes.STRING,
@@ -17,6 +18,26 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'employee'
     });
+
+    Employee.prototype.getName = function() {
+        return (this.firstName + ' ' + this.lastName);
+    };
+
+    Employee.prototype.getFirstNameInitials = function() {
+        return this.firstName.replace(/(\w)\w*(\W|$)/g, "$1.$2");
+    };
+
+    Employee.prototype.getLastNameInitials = function() {
+        return this.lastName.replace(/(\w)\w*(\W|$)/g, "$1.$2");
+    };
+
+    Employee.prototype.getNameInitials = function() {
+        return this.getFirstNameInitials + ' ' + this.getLastNameInitials();
+    };
+
+    Employee.prototype.getShortName = function() {
+        return this.getFirstNameInitials() + ' ' + this.lastName;
+    };
 
     Employee.associate = function(models) {
         models.Employee.hasMany(models.EmployeeAvailability);
