@@ -1,3 +1,4 @@
 Griser le champ effectif dans agenda si time.closed
 Utiliser par catégorie
 Changer employeeavailability par availability
+Ajouter une table PlanningTemp dans laquelle les plannings générés sont enregister avant d'être validés
