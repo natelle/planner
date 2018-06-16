@@ -3,80 +3,63 @@ var express = require('express');
 var router  = express.Router();
 
 router.get('/', function(req, res) {
-    models.Employee.findAll({
+    models.EmployeeCategory.findAll({
         order: [
-            ['lastName', 'ASC'],
-            ['firstName', 'ASC']
+            ['name', 'ASC']
         ]
-    }).then(employees => {
-        res.render('employee/list-employees.ejs',
+    }).then(categories => {
+        res.render('category/list.ejs',
         {
-            employees: employees
+            categories: categories
         });
     });
 });
 
 router.get('/add', function(req, res) {
-    res.render('employee/add.ejs');
+    res.render('category/add.ejs');
 });
 
 router.post('/add', function(req, res) {
-    models.Employee.create({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        category: req.body.category,
-        email: req.body.email,
-        phone: req.body.phone,
-        "defaultNumber": req.body.defaultNumber,
-        "defaultDay1": req.body.defaultDay1,
-        "defaultDay2": req.body.defaultDay2,
-        "defaultDay3": req.body.defaultDay3,
-        "defaultDay4": req.body.defaultDay4,
-        "defaultDay5": req.body.defaultDay5,
-        "defaultDay6": req.body.defaultDay6,
-        "defaultDay0": req.body.defaultDay0
-    }).then(employee => {
-        res.redirect('/employee');
+    models.EmployeeCategory.create({
+        name: req.body.name
+    }).then(category => {
+        res.redirect('/employee/category');
     });
 });
 
 router.get('/:id/update', function(req, res) {
     var id = req.params.id;
 
-    models.Employee.findById(id).then(employee => {
-        res.render('employee/update.ejs', {employee: employee});
+    models.EmployeeCategory.findById(id).then(category => {
+        res.render('category/update.ejs', {category: category});
     });
 });
 
 router.post('/:id/update', function(req, res) {
-    models.Employee.update({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        category: req.body.category,
-        email: req.body.email,
-        phone: req.body.phone,
-        "defaultNumber": req.body.defaultNumber,
-        "defaultDay1": req.body.defaultDay1,
-        "defaultDay2": req.body.defaultDay2,
-        "defaultDay3": req.body.defaultDay3,
-        "defaultDay4": req.body.defaultDay4,
-        "defaultDay5": req.body.defaultDay5,
-        "defaultDay6": req.body.defaultDay6,
-        "defaultDay0": req.body.defaultDay0,
-    }, {where: { id: req.params.id }}).then(employee => {
-        res.redirect('/employee');
+    models.EmployeeCategory.update({
+        name: req.body.name,
+    }, {where: { id: req.params.id }}).then(category => {
+        res.redirect('/employee/category');
     });
 });
 
 router.get('/:id/delete', function(req, res) {
     var id = req.params.id;
 
-    models.Employee.destroy({
+    models.EmployeeCategory.destroy({
         where: { id: id }
     }).then(status => {
-        res.redirect('/employee');
+        res.redirect('/employee/category');
     });
 });
+
+
+
+
+
+
+
+
 
 
 

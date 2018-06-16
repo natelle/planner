@@ -90,5 +90,12 @@
 		"date": "Date",
 		"type": "Type",
 		"employee": "Effectif"
-	}
+	},
+	"category": {
+		"listing": "Catégories",
+		"name": "Nom",
+		"add": "Création d'une catégorie",
+		"update": "Edition d'une catégorie"
+	},
+	"nullabbr": "nullabbr"
 }

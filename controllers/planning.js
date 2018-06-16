@@ -20,7 +20,7 @@ router.get('/generate/:month(\\d{2}):year(\\d{4})', function(req, res) {
     promises.push(models.Agenda.findAll().then(a => {
         agendas = a;
     }));
-    promises.push(models.EmployeeAvailability.findAll().then(a => {
+    promises.push(models.Availability.findAll().then(a => {
         availabilities = a;
     }));
     promises.push(models.Employee.findAll().then(e => {

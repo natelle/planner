@@ -9,12 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Planning.associate = function (models) {
-        models.Planning.belongsTo(models.Employee, {
-            onDelete: "CASCADE",
-            foreignKey: {
-                allowNull: false
-            }
-        });
+        models.Planning.belongsToMany(models.Availability, {through: 'PlanningAvailability'});
     };
 
     return Planning;

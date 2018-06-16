@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var i18n = require('../i18n');
 
 var employee = require('./employee');
+var category = require('./category');
 var company = require('./company');
 var agenda = require('./agenda');
 var planning = require('./planning');
@@ -20,6 +21,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use('/employee', employee);
+app.use('/employee/category', category);
 app.use('/company', company);
 app.use('/agenda', agenda);
 app.use('/planning', planning);

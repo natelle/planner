@@ -3,7 +3,6 @@ module.exports = (sequelize, DataTypes) => {
     var Employee = sequelize.define('Employee', {
         firstName: DataTypes.STRING,
         lastName: DataTypes.STRING,
-        category: DataTypes.STRING,
         email: DataTypes.STRING,
         phone: DataTypes.STRING,
 
@@ -40,8 +39,9 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     Employee.associate = function(models) {
-        models.Employee.hasMany(models.EmployeeAvailability);
-        models.Employee.hasMany(models.Planning);
+        models.Employee.hasMany(models.Availability);
+        models.Employee.belongsTo(models.EmployeeOption, {as: 'options'});
+        models.Employee.belongsTo(models.EmployeeCategory, {as: 'category'});
     };
 
     return Employee;

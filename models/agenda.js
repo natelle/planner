@@ -9,5 +9,9 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'agenda',
     });
 
+    Agenda.associate = function (models) {
+        models.Agenda.belongsTo(models.Slot);
+    };
+
     return Agenda;
 };

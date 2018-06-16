@@ -18,5 +18,9 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'company'
     });
 
+    Company.associate = function(models) {
+        models.Company.belongsTo(models.CompanyOption, {as: 'options'});
+    }
+
     return Company;
 };

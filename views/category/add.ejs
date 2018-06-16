@@ -1,0 +1,18 @@
+<%- include ../header.ejs %>
+
+<h2><%= __("category.add") %></h2>
+<br>
+<form action="/employee/category/add" method="post">
+    <div class="form-group row">
+        <label class="col-sm-2" for="name"><%= __("category.name") %></label>
+        <div class="col-sm-10">
+            <input type="text" name="name" class="form-control" id="name" placeholder="<%= __("category.name") %>">
+        </div>
+    </div>
+    <br>
+    <div class="text-right">
+        <button type="submit" class="btn btn-primary text-right"><%= __("global.save") %></button>
+    </div>
+</form>
+
+<%- include ../footer.ejs %>
