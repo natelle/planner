@@ -6,14 +6,14 @@ module.exports = (sequelize, DataTypes) => {
         email: DataTypes.STRING,
         phone: DataTypes.STRING,
 
-        defaultNumber: DataTypes.FLOAT,
-        defaultDay0: DataTypes.STRING,
-        defaultDay1: DataTypes.STRING,
-        defaultDay2: DataTypes.STRING,
-        defaultDay3: DataTypes.STRING,
-        defaultDay4: DataTypes.STRING,
-        defaultDay5: DataTypes.STRING,
-        defaultDay6: DataTypes.STRING
+        // defaultNumber: DataTypes.FLOAT,
+        // defaultDay0: DataTypes.STRING,
+        // defaultDay1: DataTypes.STRING,
+        // defaultDay2: DataTypes.STRING,
+        // defaultDay3: DataTypes.STRING,
+        // defaultDay4: DataTypes.STRING,
+        // defaultDay5: DataTypes.STRING,
+        // defaultDay6: DataTypes.STRING
     }, {
         tableName: 'employee'
     });
@@ -40,8 +40,8 @@ module.exports = (sequelize, DataTypes) => {
 
     Employee.associate = function(models) {
         models.Employee.hasMany(models.Availability);
-        models.Employee.belongsTo(models.EmployeeOption, {as: 'options'});
-        models.Employee.belongsTo(models.EmployeeCategory, {as: 'category'});
+        models.Employee.belongsTo(models.EmployeeOption, {as: 'options', foreignKey: 'optionsId'});
+        models.Employee.belongsTo(models.EmployeeCategory, {as: 'category', foreignKey: 'categoryId'});
     };
 
     return Employee;

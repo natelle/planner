@@ -7,9 +7,14 @@ router.get('/', function(req, res) {
         order: [
             ['lastName', 'ASC'],
             ['firstName', 'ASC']
-        ]
+        ],
+        include: [{
+            model: models.EmployeeCategory,
+            as: 'category'
+        }]
+
     }).then(employees => {
-        res.render('employee/list-employees.ejs',
+        res.render('employee/list.ejs',
         {
             employees: employees
         });
@@ -17,7 +22,16 @@ router.get('/', function(req, res) {
 });
 
 router.get('/add', function(req, res) {
-    res.render('employee/add.ejs');
+    models.EmployeeCategory.findAll({
+        order: [
+            ['name', 'ASC']
+        ]
+    }).then(categories => {
+        res.render('employee/add.ejs',
+        {
+            categories: categories
+        });
+    });
 });
 
 router.post('/add', function(req, res) {
@@ -27,14 +41,7 @@ router.post('/add', function(req, res) {
         category: req.body.category,
         email: req.body.email,
         phone: req.body.phone,
-        "defaultNumber": req.body.defaultNumber,
-        "defaultDay1": req.body.defaultDay1,
-        "defaultDay2": req.body.defaultDay2,
-        "defaultDay3": req.body.defaultDay3,
-        "defaultDay4": req.body.defaultDay4,
-        "defaultDay5": req.body.defaultDay5,
-        "defaultDay6": req.body.defaultDay6,
-        "defaultDay0": req.body.defaultDay0
+        categoryId: req.body.category
     }).then(employee => {
         res.redirect('/employee');
     });
@@ -43,8 +50,25 @@ router.post('/add', function(req, res) {
 router.get('/:id/update', function(req, res) {
     var id = req.params.id;
 
-    models.Employee.findById(id).then(employee => {
-        res.render('employee/update.ejs', {employee: employee});
+    var employeePromise = models.Employee.findById(id, {
+        include: [{
+            model: models.EmployeeCategory,
+            as: 'category'
+        }]
+    });
+
+    var categoriesPromise = models.EmployeeCategory.findAll({
+        order: [
+            ['name', 'ASC']
+        ]
+    });
+
+    Promise.all([employeePromise, categoriesPromise]).then(values => {
+        res.render('employee/update.ejs',
+        {
+            employee: values[0],
+            categories: values[1]
+        });
     });
 });
 
@@ -55,14 +79,7 @@ router.post('/:id/update', function(req, res) {
         category: req.body.category,
         email: req.body.email,
         phone: req.body.phone,
-        "defaultNumber": req.body.defaultNumber,
-        "defaultDay1": req.body.defaultDay1,
-        "defaultDay2": req.body.defaultDay2,
-        "defaultDay3": req.body.defaultDay3,
-        "defaultDay4": req.body.defaultDay4,
-        "defaultDay5": req.body.defaultDay5,
-        "defaultDay6": req.body.defaultDay6,
-        "defaultDay0": req.body.defaultDay0,
+        categoryId: req.body.category
     }, {where: { id: req.params.id }}).then(employee => {
         res.redirect('/employee');
     });

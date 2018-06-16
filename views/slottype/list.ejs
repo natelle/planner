@@ -1,0 +1,24 @@
+<%- include ../header.ejs %>
+
+<h2><%= __('slottype.list') %></h2>
+<br>
+<p>
+    <a class="btn btn-primary" href="/company/slot/add"><%= __('global.add') %></a>
+</p>
+<br>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col"><%= __('slottype.name') %></th>
+            <th scope="col"><%= __('slottype.begin') %></th>
+            <th scope="col"><%= __('slottype.end') %></th>
+            <th scope="col"><%= __('slottype.order') %></th>
+            <th scope="col"><%= __n('global.action', 2) %></th>
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
+<%- include ../footer.ejs %>

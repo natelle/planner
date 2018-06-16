@@ -30,19 +30,18 @@
 			"other": "employés"
 		},
 		"firstname": "Prénom",
-		"lastnameww": "Nom",
 		"firstdate": "employee.firstdate",
 		"listing": "Liste des employés",
 		"menu": "Employés",
 		"email": "Email",
-		"phone": "Phone",
+		"phone": "Téléphone",
 		"defaultavailabilities": "Disponibilités par défaut",
-		"lastName": "Nom",
-		"firstName": "Prénom",
 		"availabilities": "employee.availabilities",
-		"lastname": "employee.lastname",
+		"lastname": "Nom",
 		"defaultNumber": "employee.defaultNumber",
-		"defaultNnumber": "employee.defaultNnumber"
+		"defaultNnumber": "employee.defaultNnumber",
+		"lastName": "employee.lastName",
+		"firstName": "employee.firstName"
 	},
 	"agenda": {
 		"yearly": "agenda.yearly",
@@ -97,5 +96,12 @@
 		"add": "Création d'une catégorie",
 		"update": "Edition d'une catégorie"
 	},
-	"nullabbr": "nullabbr"
+	"nullabbr": "nullabbr",
+	"slottype": {
+		"list": "slottype.list",
+		"name": "slottype.name",
+		"begin": "slottype.begin",
+		"end": "slottype.end",
+		"order": "slottype.order"
+	}
 }
