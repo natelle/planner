@@ -21,7 +21,9 @@
 		"defaultagenda": "Horaires par défaut",
 		"defaultnumber": "company.defaultnumber",
 		"defaultNumber": "company.defaultNumber",
-		"defaultNnumber": "company.defaultNnumber"
+		"defaultNnumber": "company.defaultNnumber",
+		"menuparameter": "Paramètres",
+		"menuslot": "Créneaux"
 	},
 	"employee": {
 		"category": "Catégorie",
@@ -41,7 +43,9 @@
 		"defaultNumber": "employee.defaultNumber",
 		"defaultNnumber": "employee.defaultNnumber",
 		"lastName": "employee.lastName",
-		"firstName": "employee.firstName"
+		"firstName": "employee.firstName",
+		"menulist": "Liste des employées",
+		"menucategory": "Catégories"
 	},
 	"agenda": {
 		"yearly": "agenda.yearly",

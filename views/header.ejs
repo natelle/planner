@@ -21,14 +21,26 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/"><%= __("global.home") %></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/employee"><%= __("employee.menu") %></a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <%= __("employee.menu") %>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/employee"><%= __("employee.menulist") %></a>
+                        <a class="dropdown-item" href="/employee/category"><%= __("employee.menucategory") %></a>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/agenda"><%= __("agenda.agenda") %></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/company"><%= __("company.menu") %></a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <%= __("company.menu") %>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/company"><%= __("company.menuparameter") %></a>
+                        <a class="dropdown-item" href="/company/slot"><%= __("company.menuslot") %></a>
+                    </div>
                 </li>
             </ul>
         </div>
