@@ -5,7 +5,25 @@ module.exports = (sequelize, DataTypes) => {
         begin: DataTypes.TIME,
         end: DataTypes.TIME,
         name: DataTypes.STRING,
-        order: DataTypes.SMALLINT
+        order: DataTypes.SMALLINT,
+        days: {
+            type: DataTypes.STRING,
+            get() {
+                var days = this.getDataValue('days').split('').filter(function(d, index, array) {
+                    return array.indexOf(d) === index;
+                });
+                days = days.map(d => parseInt(d)).sort();
+
+                return days;
+            },
+            set(value) {
+                var days = value.sort().filter(function(d, index, array) {
+                    return array.indexOf(d) === index;
+                });
+
+                this.setDataValue('days', days.join(""));
+            }
+        }
     }, {
         tableName: 'slottype',
     });

@@ -38,7 +38,6 @@ router.post('/add', function(req, res) {
     models.Employee.create({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        category: req.body.category,
         email: req.body.email,
         phone: req.body.phone,
         categoryId: req.body.category
@@ -76,7 +75,6 @@ router.post('/:id/update', function(req, res) {
     models.Employee.update({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        category: req.body.category,
         email: req.body.email,
         phone: req.body.phone,
         categoryId: req.body.category

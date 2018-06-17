@@ -1,3 +1,7 @@
 th.date, td.date {
     width: 100px;
 }
+
+select.custom-select {
+    height: 34px;
+}
