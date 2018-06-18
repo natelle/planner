@@ -10,7 +10,7 @@
 for(var categoryId in slotTypes) {
     var categorySlotTypes = slotTypes[categoryId];
     %>
-    <h4><%= categoryId !== 'all' ? categories[categoryId].name : __("slottype.allcategories") %></h4>
+    <h4><%= categoryId !== 'default' ? categories[categoryId].name : __("slottype.defaultcategory") %></h4>
     <table class="table">
     <thead>
     <tr>
@@ -29,8 +29,8 @@ for(var categoryId in slotTypes) {
         %>
         <tr>
         <td><%= slotType.name %></td>
-        <td><%= slotType.begin.replace(/:\d+$/, '') %></td>
-        <td><%= slotType.end.replace(/:\d+$/, '') %></td>
+        <td><%= slotType.begin ? slotType.begin.replace(/:\d+$/, '') : '-' %></td>
+        <td><%= slotType.end ? slotType.end.replace(/:\d+$/, '') : '-' %></td>
         <td>
             <%
             for(var j in slotType.days) {

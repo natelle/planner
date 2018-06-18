@@ -10,35 +10,26 @@ router.get('/', function(req, res) {
         ],
         include: [{
             model: models.EmployeeCategory,
-            as: 'categories'
+            as: 'category'
         }]
-    });
-
-    var categoriesPromise = models.EmployeeCategory.count();
-
-    Promise.all([slotTypePromise, categoriesPromise]).then(values => {
-        var slotTypesRaw = values[0];
-        var count = values[1];
-
+    }).then(slotTypesRaw => {
         var slotTypes = {};
         for(var i in slotTypesRaw) {
             var slotType = slotTypesRaw[i];
-            var categories = slotType.categories;
+            var category = slotType.category;
 
-            if(categories.length == 0 || categories.length == count ) {
-                if(typeof slotTypes['all'] === 'undefined') {
-                    slotTypes['all'] = [slotType];
+            if(!category) {
+                if(typeof slotTypes['default'] === 'undefined') {
+                    slotTypes['default'] = [slotType];
                 } else {
-                    slotTypes['all'].push(slotType);
+                    slotTypes['default'].push(slotType);
                 }
             } else {
-                for(var j in categories) {
-                    var categoryId = categories[j].id
-                    if(typeof slotTypes[categoryId] === 'undefined') {
-                        slotTypes[categoryId] = [slotType];
-                    } else {
-                        slotTypes[categoryId].push(slotType);
-                    }
+                var categoryId = category.id
+                if(typeof slotTypes[categoryId] === 'undefined') {
+                    slotTypes[categoryId] = [slotType];
+                } else {
+                    slotTypes[categoryId].push(slotType);
                 }
             }
         }
@@ -89,18 +80,10 @@ router.post('/add', function(req, res) {
         begin: (req.body.begin !== '' ? req.body.begin : null),
         end: (req.body.end !== '' ? req.body.end : null),
         days: req.body.days,
-        order: req.body.order
+        order: req.body.order,
+        categoryId: req.body.category !== '0' ? req.body.category : null
     }).then(slotType => {
-        var promises = [];
-        for(var i in req.body.categories) {
-            promises.push(models.EmployeeCategory.findById(req.body.categories[i]));
-        }
-
-        Promise.all(promises).then(categories => {
-            slotType.setCategories(categories).then(() => {
-                res.redirect('/company/slot');
-            });
-        });
+        res.redirect('/company/slot');
     });
 });
 
@@ -110,11 +93,9 @@ router.get('/:id/update', function(req, res) {
     var slotTypePromise = models.SlotType.findById(id, {
         include: [{
             model: models.EmployeeCategory,
-            as: 'categories'
+            as: 'category'
         }]
     });
-
-
 
     var categoriesPromise = models.EmployeeCategory.findAll({
         order: [
@@ -123,15 +104,9 @@ router.get('/:id/update', function(req, res) {
     });
 
     Promise.all([slotTypePromise, categoriesPromise]).then(values => {
-        var categoriesId = [];
-        for(var i in values[0].categories) {
-            categoriesId.push(values[0].categories[i].id)
-        }
-
         res.render('slottype/update.ejs',
         {
             slotType: values[0],
-            categoriesId: categoriesId,
             categories: values[1]
         });
     });
@@ -145,20 +120,10 @@ router.post('/:id/update', function(req, res) {
         begin: (req.body.begin !== '' ? req.body.begin : null),
         end: (req.body.end !== '' ? req.body.end : null),
         days: req.body.days,
-        order: req.body.order
+        order: req.body.order,
+        categoryId: req.body.category !== '0' ? req.body.category : null
     }, {where: {id: id}}).then(status => {
-        models.SlotType.findById(id).then(slotType => {
-            var promises = [];
-            for(var i in req.body.categories) {
-                promises.push(models.EmployeeCategory.findById(req.body.categories[i]));
-            }
-
-            Promise.all(promises).then(categories => {
-                slotType.setCategories(categories).then(() => {
-                    res.redirect('/company/slot');
-                });
-            });
-        });
+        res.redirect('/company/slot');
     });
 });
 
@@ -171,7 +136,6 @@ router.get('/:id/delete', function(req, res) {
         res.redirect('/company/slot');
     });
 });
-
 
 
 module.exports = router;

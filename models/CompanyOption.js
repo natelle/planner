@@ -1,14 +1,15 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-    var CompanyOption = sequelize.define('CompanyOption', {
-        name: DataTypes.STRING
+    var CompanyOptions = sequelize.define('CompanyOptions', {
+        name: DataTypes.STRING,
+
     }, {
-        tableName: 'companyoption'
+        tableName: 'companyoptions'
     });
 
-    CompanyOption.associate = function(models) {
-        models.CompanyOption.hasOne(models.Company);
+    CompanyOptions.associate = function(models) {
+        models.CompanyOptions.hasMany(models.CompanyOptionsDay, {as: "days"});
     };
 
-    return CompanyOption;
+    return CompanyOptions;
 };

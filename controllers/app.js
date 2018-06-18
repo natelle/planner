@@ -5,6 +5,7 @@ var i18n = require('../i18n');
 var employee = require('./employee');
 var category = require('./category');
 var company = require('./company');
+var companyOptions = require('./companyoptions');
 var agenda = require('./agenda');
 var planning = require('./planning');
 var slot = require('./slot');
@@ -24,6 +25,7 @@ app.use(bodyParser.urlencoded({
 app.use('/employee', employee);
 app.use('/employee/category', category);
 app.use('/company', company);
+app.use('/company/options', companyOptions);
 app.use('/company/slot', slot);
 app.use('/agenda', agenda);
 app.use('/planning', planning);

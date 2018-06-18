@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
                 });
                 days = days.map(d => parseInt(d)).sort();
 
+                if(days.includes(0)) {
+                    days.shift();
+                    days.push(0);
+                }
+
                 return days;
             },
             set(value) {
@@ -30,9 +35,9 @@ module.exports = (sequelize, DataTypes) => {
 
     SlotType.associate = function (models) {
         models.SlotType.hasMany(models.Slot);
-        models.SlotType.belongsToMany(models.EmployeeCategory, {
-            through: 'EmployeeCategorySlotType',
-            as: 'categories'
+        models.SlotType.belongsTo(models.EmployeeCategory, {
+            as: 'category',
+            foreignKey: 'categoryId'
         });
     };
 

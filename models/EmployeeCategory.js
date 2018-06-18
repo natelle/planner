@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 
     EmployeeCategory.associate = function(models) {
         models.EmployeeCategory.hasMany(models.Employee);
-        models.EmployeeCategory.belongsToMany(models.SlotType, {through: 'EmployeeCategorySlotType'});
+        models.EmployeeCategory.hasMany(models.SlotType);
     };
 
     return EmployeeCategory;

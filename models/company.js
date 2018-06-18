@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Company.associate = function(models) {
-        models.Company.belongsTo(models.CompanyOption, {as: 'options'});
+        //models.Company.belongsTo(models.CompanyOption, {as: 'options'});
     }
 
     return Company;

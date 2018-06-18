@@ -1,0 +1,25 @@
+<%- include ../header.ejs %>
+
+<h2><%= __("companyoptions.show") %></h2>
+<br>
+<p>
+    <a class="btn btn-primary" href="/company/options/update" role="button"><%= __("global.edit") %></a>
+</p>
+<br>
+<table class="table table-borderless">
+    <tbody>
+        <%
+        for(var categoryId in options.days) {
+            var days = options.days[categoryId];
+            %>
+            <tr><td><%= categoryId %></td></tr>
+            <% for(var i in days) { %>
+                <tr>
+                <th><%= __("time.day" + days[i].number) %></th>
+                <td></td>
+                </tr>
+                <% }} %>
+            </tbody>
+        </table>
+
+        <%- include ../footer.ejs %>
