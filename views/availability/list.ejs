@@ -2,6 +2,41 @@
 
 <h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
 <br>
-<%= JSON.stringify(slotTypes) %>
+<div class="row">
+    <div class="col-md-1">
+        <p>todo</p>
+    </div>
+    <div class="col-md-10">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col"><%= __("availability.date") %></th>
+                    <th scope="col" class="text-center"><%= __("availability.slottype") %></th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) { %>
+                    <tr>
+                        <th scope="row" class="date">
+                            <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+                        </th>
+                        <td class="type text-center">
+                            <% if(typeof slotTypes[d.getDay()] !== 'undefined') { %>
+                                <div class="btn-group" role="group">
+                                    <% for(var slotType of slotTypes[d.getDay()]) { %>
+                                        <button type="button" data-toggle="button" class="btn btn-secondary btn-sm"><%= slotType.name %></button>
+                                    <% } %>
+                                </div>
+                                <% } %>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-1">
+            <p>todo</p>
+        </div>
+    </div>
 
 <%- include ../footer.ejs %>

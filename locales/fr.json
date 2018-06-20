@@ -91,7 +91,8 @@
 			"one": "Disponibilité",
 			"other": "Disponibilités"
 		},
-		"reset": "Réinitialiser"
+		"reset": "Réinitialiser",
+		"slottype": "availability.slottype"
 	},
 	"undefinedabbr": "undefinedabbr",
 	"planning": {

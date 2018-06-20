@@ -23,7 +23,6 @@ router.get('/:id/availabilities/:year(\\d{4})', function(req, res) {
 });
 
 router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res) {
-    console.log("ok");
     var id = req.params.id;
     var month = req.params.month;
     var year = req.params.year;
@@ -42,27 +41,38 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res)
             where: {
                 categoryId: employee.category.id
             }
-        }).then(st => {
+        }).then(rawSlotTypes => {
             var promises = [];
-            var slotTypes = st;
 
-            if(slotTypes.length = 0) {
+            if(rawSlotTypes.length == 0) {
                 promises.push(models.SlotType.findAll({
                     where: {
                         categoryId: null
                     }
-                }).then(st => {
-                    slotTypes = st;
+                }).then(defaultSlotTypes => {
+                    rawSlotTypes = defaultSlotTypes;
                 }))
             }
-            console.log(slotTypes.length);
+
             Promise.all(promises).then(values => {
-                console.log(slotTypes.length);
+                var slotTypes = {}
+
+                for(var slotType of rawSlotTypes) {
+                    for(var day of slotType.days) {
+                        if(typeof slotTypes[day] === 'undefined') {
+                            slotTypes[day] = [slotType];
+                        } else {
+                            slotTypes[day].push(slotType)
+                        }
+                    }
+                }
 
                 res.render('availability/list.ejs',
                 {
                     employee: employee,
-                    slotTypes: slotTypes
+                    slotTypes: slotTypes,
+                    firstDate: firstDate,
+                    lastDate: lastDate
                 });
             });
         })
