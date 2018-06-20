@@ -1,3 +1,5 @@
-Griser le champ effectif dans agenda si time.closed
-Utiliser par catégorie
-Ajouter une table PlanningTemp dans laquelle les plannings générés sont enregister avant d'être validés
+Les créneaux ajoutés dans le menu créneaux SUFFISENT.
+Enlever la possibilité de spécifier les créneaux de l'entreprise dans les "CompanyOptions"
+(qui deviennent inutiles)
+
+Dans le menu créneaux, utliser des buttons-group au lieu des cases à cocher => plus joli et même un peu plus pratique

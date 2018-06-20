@@ -15,7 +15,10 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false
             }
         });
-        models.Availability.belongsTo(models.Slot);
+        models.Availability.belongsTo(models.SlotType, {
+            as: 'slotType',
+            foreignKey: 'slotTypeId'
+        });
         models.Availability.belongsToMany(models.Planning, {through: 'PlanningAvailability'});
     };
 

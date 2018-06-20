@@ -124,6 +124,7 @@
 		"defaultcategory": "Par défaut"
 	},
 	"companyoptions": {
-		"show": "companyoptions.show"
+		"show": "companyoptions.show",
+		"defaultcategory": "Par défaut"
 	}
 }

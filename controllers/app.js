@@ -9,6 +9,7 @@ var companyOptions = require('./companyoptions');
 var agenda = require('./agenda');
 var planning = require('./planning');
 var slot = require('./slot');
+var availability = require('./availability');
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use('/company/options', companyOptions);
 app.use('/company/slot', slot);
 app.use('/agenda', agenda);
 app.use('/planning', planning);
+app.use('/employee', availability);
 
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
