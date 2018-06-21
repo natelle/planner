@@ -27,7 +27,8 @@
             <td>
             <a href="/employee/<%= employee.id %>/update" title="<%= __('global.edit') %>"><i class="fas fa-pencil-alt"></i></a>&nbsp;
             <a href="/employee/<%= employee.id %>/delete" title="<%= __('global.delete') %>"><i class="fas fa-trash-alt"></i></a>&nbsp;
-            <!--<a href="/employee/<%= employee.id %>/availabilities" title="<%= __n('availability.availabilities', 2) %>"><i class="fas fa-calendar-alt"></i></a>-->
+            <a href="/employee/<%= employee.id %>/availabilities" title="<%= __n('availability.availabilities', 2) %>"><i class="fas fa-calendar-alt"></i></a>&nbsp;
+            <a href="/employee/<%= employee.id %>/availabilities/default" title="<%= __('availability.default') %>"><i class="fas fa-calendar-check"></i></a>
             </td>
             </tr>
             <% } %>

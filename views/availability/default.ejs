@@ -19,7 +19,7 @@
                     <% if(typeof slotTypes[day] !== 'undefined') { %>
                         <div class="btn-group" role="group">
                             <% for(var slotType of slotTypes[day]) { %>
-                                <button type="button" class="btn btn-danger btn-sm slot" data-day="<%= day %>" data-slotTypeId="<%= slotType.id %>"><%= slotType.name %></button>
+                                <button type="button" class="btn btn-secondary btn-sm slot" data-day="<%= day %>" data-slotTypeId="<%= slotType.id %>"><%= slotType.name %></button>
                             <% } %>
                         </div>
                     <% } %>
@@ -39,6 +39,8 @@
                         slotTypeId: slotTypeId,
                         day: day
                     }, function(enabled) {
+                        $(that).removeClass("btn-secondary");
+
                         if(enabled) {
                             $(that).removeClass("btn-danger");
                             $(that).addClass("btn-success");
@@ -55,18 +57,30 @@
                     var slotTypeId = $(this).attr("data-slotTypeId");
                     var that = this;
 
+                    $(this).addClass("disabled");
+
+                    if(enable) {
+                        $(this).removeClass("btn-danger");
+                        $(this).addClass("btn-success")
+                    } else {
+                        $(this).removeClass("btn-success");
+                        $(this).addClass("btn-danger")
+                    }
+
                     $.post('/employee/<%= employee.id %>/availabilities/default/set', {
                         enable: enable,
                         slotTypeId: slotTypeId,
                         day: day
                     },
                     function(enabled) {
+                        $(that).removeClass("disabled");
+
                         if(enabled) {
-                            $(that).removeClass("btn-danger");
-                            $(that).addClass("btn-success");
+                            $(this).removeClass("btn-danger");
+                            $(this).addClass("btn-success")
                         } else {
-                            $(that).removeClass("btn-success");
-                            $(that).addClass("btn-danger");
+                            $(this).removeClass("btn-success");
+                            $(this).addClass("btn-danger")
                         }
                     });
                 });

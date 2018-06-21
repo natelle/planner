@@ -4,16 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         firstName: DataTypes.STRING,
         lastName: DataTypes.STRING,
         email: DataTypes.STRING,
-        phone: DataTypes.STRING,
-
-        // defaultNumber: DataTypes.FLOAT,
-        // defaultDay0: DataTypes.STRING,
-        // defaultDay1: DataTypes.STRING,
-        // defaultDay2: DataTypes.STRING,
-        // defaultDay3: DataTypes.STRING,
-        // defaultDay4: DataTypes.STRING,
-        // defaultDay5: DataTypes.STRING,
-        // defaultDay6: DataTypes.STRING
+        phone: DataTypes.STRING
     }, {
         tableName: 'employee'
     });

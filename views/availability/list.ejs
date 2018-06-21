@@ -2,6 +2,11 @@
 
 <h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
 <br>
+<p class="text-right">
+    <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
+    <button id="default" class="btn btn-primary" data-id="dateId"><%= __("availability.setdefault") %></button>
+</p>
+<br>
 <div class="row">
     <div class="col-md-1">
         <%
@@ -29,7 +34,7 @@
                     <% if(typeof slotTypes[d.getDay()] !== 'undefined') { %>
                         <div class="btn-group" role="group">
                         <% for(var slotType of slotTypes[d.getDay()]) { %>
-                            <button type="button" class="btn btn-danger btn-sm slot" data-dateId="<%= dateId %>" data-slotTypeId="<%= slotType.id %>"><%= slotType.name %></button>
+                            <button type="button" class="btn btn-secondary btn-sm slot" data-dateId="<%= dateId %>" data-slotTypeId="<%= slotType.id %>"><%= slotType.name %></button>
                             <% } %>
                             </div>
                             <% } %>
@@ -50,23 +55,15 @@
 
             <script>
             $(document).ready(function() {
-                $('button.slot').each(function() {
-                    var dateId = $(this).attr("data-dateId");
-                    var slotTypeId = $(this).attr("data-slotTypeId");
-                    var that = this;
+                updateButtons();
 
-                    $.post('/employee/<%= employee.id %>/availabilities/enabled', {
-                        slotTypeId: slotTypeId,
-                        dateId: dateId
-                    }, function(enabled) {
-                        if(enabled) {
-                            $(that).removeClass("btn-danger");
-                            $(that).addClass("btn-success");
-                        } else {
-                            $(that).removeClass("btn-success");
-                            $(that).addClass("btn-danger");
-                        }
-                    })
+                $('button#default').click(function() {
+                    var dateId = $(this).attr("data-dateId");
+                    console.log(dateId);
+                    $.get('/employee/<%= employee.id %>/availabilities/' + dateId + '/default',
+                    function(status) {
+                        updateButtons();
+                    });
                 });
 
                 $('button.slot').click(function() {
@@ -75,21 +72,56 @@
                     var slotTypeId = $(this).attr("data-slotTypeId");
                     var that = this;
 
+                    $(this).addClass("disabled");
+
+                    if(enable) {
+                        $(this).removeClass("btn-danger");
+                        $(this).addClass("btn-success")
+                    } else {
+                        $(this).removeClass("btn-success");
+                        $(this).addClass("btn-danger")
+                    }
+
                     $.post('/employee/<%= employee.id %>/availabilities/set', {
                         enable: enable,
                         slotTypeId: slotTypeId,
                         dateId: dateId
                     },
                     function(enabled) {
+                        $(that).removeClass("disabled");
+
                         if(enabled) {
-                            $(that).removeClass("btn-danger");
-                            $(that).addClass("btn-success");
+                            $(this).removeClass("btn-danger");
+                            $(this).addClass("btn-success")
                         } else {
-                            $(that).removeClass("btn-success");
-                            $(that).addClass("btn-danger");
+                            $(this).removeClass("btn-success");
+                            $(this).addClass("btn-danger")
                         }
                     });
                 });
+
+                function updateButtons() {
+                    $('button.slot').each(function() {
+                        var dateId = $(this).attr("data-dateId");
+                        var slotTypeId = $(this).attr("data-slotTypeId");
+                        var that = this;
+
+                        $.post('/employee/<%= employee.id %>/availabilities/enabled', {
+                            slotTypeId: slotTypeId,
+                            dateId: dateId
+                        }, function(enabled) {
+                            $(that).removeClass("btn-secondary");
+
+                            if(enabled) {
+                                $(that).removeClass("btn-danger");
+                                $(that).addClass("btn-success");
+                            } else {
+                                $(that).removeClass("btn-success");
+                                $(that).addClass("btn-danger");
+                            }
+                        })
+                    });
+                }
             });
             </script>
 

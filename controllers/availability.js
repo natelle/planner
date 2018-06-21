@@ -14,7 +14,7 @@ router.get('/:id/availabilities/:year(\\d{4})', function(req, res) {
     var year = req.params.year;
 
     models.Employee.findById(id).then(employee => {
-        res.render('employee/list-yearly-availabilities.ejs',
+        res.render('availability/list-yearly.ejs',
         {
             employee: employee,
             year: year
@@ -79,6 +79,54 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res)
     });
 });
 
+router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/default', function(req, res) {
+    var id = req.params.id;
+    var month = req.params.month;
+    var year = req.params.year;
+
+    var firstDate = new Date(year, parseInt(month) - 1, 1);
+    var lastDate = new Date(year, parseInt(month), 0);
+
+    models.Employee.findById(id).then(employee => {
+        models.DefaultAvailability.findAll({
+            where: {
+                EmployeeId: id
+            }
+        }).then(rawAvailabilities => {
+            var availabilities = {}
+
+            for(var availability of rawAvailabilities) {
+                var day = availability.day;
+
+                if(typeof availabilities[day] === 'undefined') {
+                    availabilities[day] = [availability];
+                } else {
+                    availabilities[day].push(availability)
+                }
+            }
+
+            for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) {
+                var day = d.getDay();
+
+                models.Availability.findOrCreate({
+                    where: {
+                        EmployeeId: employeeId,
+                        day: date,
+                        slotTypeId: slotTypeId
+                    }, defaults: {
+                        EmployeeId: employeeId,
+                        day: date,
+                        slotTypeId: slotTypeId
+                    }
+                })
+                .spread((availability, created) => {
+                    res.send(true)
+                });
+            }
+        })
+    });
+});
+
 router.post('/:id/availabilities/enabled', function(req, res) {
     var employeeId = req.params.id;
     var date = req.body.dateId + " 00:00:00Z";
@@ -102,7 +150,6 @@ router.post('/:id/availabilities/set', function(req, res) {
     var slotTypeId = req.body.slotTypeId;
 
     if(enable) {
-
         models.Availability.findOrCreate({
             where: {
                 EmployeeId: employeeId,
@@ -246,23 +293,6 @@ router.post('/:id/availabilities/default/set', function(req, res) {
         });
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/reset', function(req, res) {
     var id = req.params.id;
