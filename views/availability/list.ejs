@@ -4,7 +4,11 @@
 <br>
 <div class="row">
     <div class="col-md-1">
-        <p>todo</p>
+        <%
+        var previousMonth = new Date(firstDate);
+        previousMonth.setMonth(previousMonth.getMonth()-1);
+        %>
+        <a href="/employee/<%= employee.id %>/availabilities/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
@@ -16,27 +20,77 @@
             </thead>
             <tbody>
                 <% for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) { %>
+                    <% var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') %>
                     <tr>
-                        <th scope="row" class="date">
-                            <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
-                        </th>
-                        <td class="type text-center">
-                            <% if(typeof slotTypes[d.getDay()] !== 'undefined') { %>
-                                <div class="btn-group" role="group">
-                                    <% for(var slotType of slotTypes[d.getDay()]) { %>
-                                        <button type="button" data-toggle="button" class="btn btn-secondary btn-sm"><%= slotType.name %></button>
-                                    <% } %>
-                                </div>
-                                <% } %>
-                        </td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
-    <div class="col-md-1">
-            <p>todo</p>
-        </div>
-    </div>
+                    <th scope="row" class="date">
+                    <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+                    </th>
+                    <td class="type text-center">
+                    <% if(typeof slotTypes[d.getDay()] !== 'undefined') { %>
+                        <div class="btn-group" role="group">
+                        <% for(var slotType of slotTypes[d.getDay()]) { %>
+                            <button type="button" class="btn btn-danger btn-sm slot" data-dateId="<%= dateId %>" data-slotTypeId="<%= slotType.id %>"><%= slotType.name %></button>
+                            <% } %>
+                            </div>
+                            <% } %>
+                            </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-1">
+                    <%
+                    var nextMonth = new Date(firstDate);
+                    nextMonth.setMonth(nextMonth.getMonth()+1);
+                    %>
+                    <a href="/employee/<%= employee.id %>/availabilities/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+                </div>
+            </div>
 
-<%- include ../footer.ejs %>
+            <script>
+            $(document).ready(function() {
+                $('button.slot').each(function() {
+                    var dateId = $(this).attr("data-dateId");
+                    var slotTypeId = $(this).attr("data-slotTypeId");
+                    var that = this;
+
+                    $.post('/employee/<%= employee.id %>/availabilities/enabled', {
+                        slotTypeId: slotTypeId,
+                        dateId: dateId
+                    }, function(enabled) {
+                        if(enabled) {
+                            $(that).removeClass("btn-danger");
+                            $(that).addClass("btn-success");
+                        } else {
+                            $(that).removeClass("btn-success");
+                            $(that).addClass("btn-danger");
+                        }
+                    })
+                });
+
+                $('button.slot').click(function() {
+                    var enable = !$(this).hasClass("btn-success");
+                    var dateId = $(this).attr("data-dateId");
+                    var slotTypeId = $(this).attr("data-slotTypeId");
+                    var that = this;
+
+                    $.post('/employee/<%= employee.id %>/availabilities/set', {
+                        enable: enable,
+                        slotTypeId: slotTypeId,
+                        dateId: dateId
+                    },
+                    function(enabled) {
+                        if(enabled) {
+                            $(that).removeClass("btn-danger");
+                            $(that).addClass("btn-success");
+                        } else {
+                            $(that).removeClass("btn-success");
+                            $(that).addClass("btn-danger");
+                        }
+                    });
+                });
+            });
+            </script>
+
+            <%- include ../footer.ejs %>

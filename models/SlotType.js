@@ -39,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
             as: 'category',
             foreignKey: 'categoryId'
         });
+        models.SlotType.belongsToMany(models.Employee, {
+            as: 'employeesDefault',
+            through: 'EmployeeDefaultSlotType'
+        });
     };
 
     return SlotType;

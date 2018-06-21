@@ -40,8 +40,8 @@ module.exports = (sequelize, DataTypes) => {
 
     Employee.associate = function(models) {
         models.Employee.hasMany(models.Availability);
-        models.Employee.belongsTo(models.EmployeeOption, {as: 'options', foreignKey: 'optionsId'});
         models.Employee.belongsTo(models.EmployeeCategory, {as: 'category', foreignKey: 'categoryId'});
+        models.Employee.hasMany(models.DefaultAvailability, {as: 'defaultAvailabilities'});
     };
 
     return Employee;

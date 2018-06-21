@@ -92,7 +92,8 @@
 			"other": "Disponibilités"
 		},
 		"reset": "Réinitialiser",
-		"slottype": "availability.slottype"
+		"slottype": "availability.slottype",
+		"day": "availability.day"
 	},
 	"undefinedabbr": "undefinedabbr",
 	"planning": {

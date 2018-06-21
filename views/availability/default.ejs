@@ -1,0 +1,76 @@
+<%- include ../header.ejs %>
+
+<h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
+<br>
+
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col"><%= __("availability.day") %></th>
+            <th scope="col" class="text-center"><%= __("availability.slottype") %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for(var i=1; i<=7; i++) { %>
+            <% var day = i % 7; %>
+            <tr>
+                <th scope="row"><%= __("time.day" + day) %></th>
+                <td class="type text-center">
+                    <% if(typeof slotTypes[day] !== 'undefined') { %>
+                        <div class="btn-group" role="group">
+                            <% for(var slotType of slotTypes[day]) { %>
+                                <button type="button" class="btn btn-danger btn-sm slot" data-day="<%= day %>" data-slotTypeId="<%= slotType.id %>"><%= slotType.name %></button>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </td>
+            </tr>
+        <% } %>
+    </tbody>
+</table>
+
+            <script>
+            $(document).ready(function() {
+                $('button.slot').each(function() {
+                    var day = $(this).attr("data-day");
+                    var slotTypeId = $(this).attr("data-slotTypeId");
+                    var that = this;
+                    $.post('/employee/<%= employee.id %>/availabilities/default/enabled', {
+                        slotTypeId: slotTypeId,
+                        day: day
+                    }, function(enabled) {
+                        if(enabled) {
+                            $(that).removeClass("btn-danger");
+                            $(that).addClass("btn-success");
+                        } else {
+                            $(that).removeClass("btn-success");
+                            $(that).addClass("btn-danger");
+                        }
+                    })
+                });
+
+                $('button.slot').click(function() {
+                    var enable = !$(this).hasClass("btn-success");
+                    var day = $(this).attr("data-day");
+                    var slotTypeId = $(this).attr("data-slotTypeId");
+                    var that = this;
+
+                    $.post('/employee/<%= employee.id %>/availabilities/default/set', {
+                        enable: enable,
+                        slotTypeId: slotTypeId,
+                        day: day
+                    },
+                    function(enabled) {
+                        if(enabled) {
+                            $(that).removeClass("btn-danger");
+                            $(that).addClass("btn-success");
+                        } else {
+                            $(that).removeClass("btn-success");
+                            $(that).addClass("btn-danger");
+                        }
+                    });
+                });
+            });
+            </script>
+
+            <%- include ../footer.ejs %>
