@@ -94,8 +94,8 @@
 		"reset": "Réinitialiser",
 		"slottype": "availability.slottype",
 		"day": "availability.day",
-		"default": "availability.default",
-		"setdefault": "availability.setdefault"
+		"default": "Disponibilités par défaut",
+		"setdefault": "Remplir avec les disponibilités par défaut"
 	},
 	"undefinedabbr": "undefinedabbr",
 	"planning": {

@@ -91,7 +91,10 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/default', function(r
         models.DefaultAvailability.findAll({
             where: {
                 EmployeeId: id
-            }
+            }, include: [{
+                model: models.SlotType,
+                as: 'slotType'
+            }]
         }).then(rawAvailabilities => {
             var availabilities = {}
 
@@ -105,24 +108,42 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/default', function(r
                 }
             }
 
-            for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) {
-                var day = d.getDay();
+            var promises = [];
 
-                models.Availability.findOrCreate({
-                    where: {
-                        EmployeeId: employeeId,
-                        day: date,
-                        slotTypeId: slotTypeId
-                    }, defaults: {
-                        EmployeeId: employeeId,
-                        day: date,
-                        slotTypeId: slotTypeId
-                    }
-                })
-                .spread((availability, created) => {
-                    res.send(true)
-                });
+            // Delete first all the availabilities in the month
+            for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) {
+                var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+                var day = (new Date(date)).getDay();
+
+                promises.push(models.Availability.destroy({ where: {
+                    EmployeeId: id,
+                    day: date
+                }}));
             }
+
+            Promise.all(promises).then(values => {
+                promises = [];
+                
+                // Create then all the availabilities from the default ones
+                for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) {
+                    var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+                    var day = d.getDay();
+
+                    if(typeof availabilities[day] !== 'undefined') {
+                        for(var availability of availabilities[day]) {
+                            promises.push(models.Availability.create({
+                                EmployeeId: id,
+                                day: date,
+                                slotTypeId: availability.slotType.id
+                            }));
+                        }
+                    }
+                }
+
+                Promise.all(promises).then(values => {
+                    res.send(true);
+                });
+            });
         })
     });
 });

@@ -4,7 +4,7 @@
 <br>
 <p class="text-right">
     <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
-    <button id="default" class="btn btn-primary" data-id="dateId"><%= __("availability.setdefault") %></button>
+    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>"><%= __("availability.setdefault") %></button>
 </p>
 <br>
 <div class="row">
@@ -26,7 +26,7 @@
             <tbody>
                 <% for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) { %>
                     <% var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') %>
-                    <tr>
+                    <tr class="availability">
                     <th scope="row" class="date">
                     <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
                     </th>
@@ -62,6 +62,7 @@
                     console.log(dateId);
                     $.get('/employee/<%= employee.id %>/availabilities/' + dateId + '/default',
                     function(status) {
+                        console.log(status);
                         updateButtons();
                     });
                 });
