@@ -20,7 +20,7 @@
             <thead>
                 <tr>
                     <th scope="col"><%= __("availability.date") %></th>
-                    <th scope="col" class="text-center"><%= __("availability.slottype") %></th>
+                    <th scope="col" class="text-center"><%= __("availability.slot") %></th>
                 </tr>
             </thead>
             <tbody>
@@ -31,12 +31,14 @@
                     <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
                     </th>
                     <td class="type text-center">
-                    <% if(typeof slotTypes[d.getDay()] !== 'undefined') { %>
+                    <% if(typeof slots[d.getDay()] !== 'undefined') { %>
                         <div class="btn-group" role="group">
-                        <% for(var slotType of slotTypes[d.getDay()]) { %>
-                            <button type="button" class="btn btn-secondary btn-sm slot" data-dateId="<%= dateId %>" data-slotTypeId="<%= slotType.id %>"><%= slotType.name %></button>
+                        <% for(var slot of slots[d.getDay()]) { %>
+                            <button type="button" class="btn btn-secondary btn-sm slot" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
                             <% } %>
                             </div>
+                            <% } else { %>
+                                <button type="button" class="btn btn-secondary btn-sm disabled"><%= __("time.closed") %></button>
                             <% } %>
                             </td>
                             </tr>
@@ -70,7 +72,7 @@
                 $('button.slot').click(function() {
                     var enable = !$(this).hasClass("btn-success");
                     var dateId = $(this).attr("data-dateId");
-                    var slotTypeId = $(this).attr("data-slotTypeId");
+                    var slotId = $(this).attr("data-slotId");
                     var that = this;
 
                     $(this).addClass("disabled");
@@ -85,7 +87,7 @@
 
                     $.post('/employee/<%= employee.id %>/availabilities/set', {
                         enable: enable,
-                        slotTypeId: slotTypeId,
+                        slotId: slotId,
                         dateId: dateId
                     },
                     function(enabled) {
@@ -104,11 +106,11 @@
                 function updateButtons() {
                     $('button.slot').each(function() {
                         var dateId = $(this).attr("data-dateId");
-                        var slotTypeId = $(this).attr("data-slotTypeId");
+                        var slotId = $(this).attr("data-slotId");
                         var that = this;
 
                         $.post('/employee/<%= employee.id %>/availabilities/enabled', {
-                            slotTypeId: slotTypeId,
+                            slotId: slotId,
                             dateId: dateId
                         }, function(enabled) {
                             $(that).removeClass("btn-secondary");

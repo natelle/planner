@@ -1,113 +1,132 @@
 <%- include ../header.ejs %>
 
-<h2><%= __("agenda.list") %></h2>
+<% var categoryId = category ? category.id : 0 %>
+
+<h2><%= __("agenda.agenda") %> - <%= category ? category.name : __("category.default") %></h2>
 <br>
-<%var currentMonth = agendas[0].day;%>
-<p>
-    <a class="btn btn-primary" href="/agenda/<%= currentMonth.getFullYear() %>" role="button">Retour</a>&nbsp;
-    <a class="btn btn-primary" href="/agenda/<%= (currentMonth.getMonth() + 1).toString().padStart(2, '0') + currentMonth.getFullYear() %>/reset" role="button"><%= __("agenda.reset") %></a>
+<p class="text-right">
+    <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
+    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>"><%= __("agenda.setdefault") %></button>
 </p>
 <br>
 <div class="row">
     <div class="col-md-1">
         <%
-        var previousMonth = new Date(agendas[0].day);
+        var previousMonth = new Date(firstDate);
         previousMonth.setMonth(previousMonth.getMonth()-1);
         %>
-        <a href="/agenda/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+        <a href="/agenda/<%= categoryId %>/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
             <thead>
                 <tr>
-                    <th scope="col" class="date"><%= __("agenda.date") %></th>
-                    <th scope="col" class="text-center"><%= __("agenda.type") %></th>
-                    <th scope="col" class="text-center"><%= __("agenda.number") %></th>
+                    <th scope="col"><%= __("agenda.date") %></th>
+                    <th scope="col" class="text-center"><%= __("agenda.slot") %></th>
                 </tr>
             </thead>
             <tbody>
-                <% for(var i in agendas) {%>
-                    <%var agenda = agendas[i];
-                    var date = agenda.day;
-                    var dateId = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') %>
-
-                    <tr class="agendaRow" id="row<%= dateId %>" data-dateId="<%= dateId %>">
+                <% for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) { %>
+                    <% var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') %>
+                    <tr class="agenda">
                     <th scope="row" class="date">
-                    <%= date.getDate().toString().padStart(2, '0') + '/' + (date.getMonth()+1).toString().padStart(2, '0') + '/' + date.getFullYear() %>
+                    <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
                     </th>
-                    <td class="type text-center" data-type="<%= agenda.type %>" data-dateId="<%= dateId %>">
-                    <%= __(agenda.type) %>
-                    </td>
-                    <td class="number text-center" data-state="display" data-number="<%= agenda.number %>" data-dateId="<%= dateId %>">
-                    <span class="number-display"><%= agenda.number %></span>
-                    <span class="number-control">
-                    <input class="mx-auto form-control mr-0" style="width:60px; display:none;" type="number" value="<%= agenda.number %>">
-                    </span>
-                    </td>
-                    </tr>
-                    <% } %>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-1">
-            <%
-            var nextMonth = new Date(agendas[0].day);
-            nextMonth.setMonth(nextMonth.getMonth()+2);
-            %>
-            <a href="/agenda/<%= (nextMonth.getMonth() + 1).toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
-        </div>
-    </div>
+                    <td class="type text-center">
+                    <% if(typeof slots[d.getDay()] !== 'undefined') { %>
+                        <div class="btn-group" role="group">
+                        <% for(var slot of slots[d.getDay()]) { %>
+                            <button type="button" class="btn btn-secondary btn-sm slot" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
+                            <% } %>
+                            </div>
+                            <% } else { %>
+                                <button type="button" class="btn btn-secondary btn-sm disabled"><%= __("time.closed") %></button>
+                            <% } %>
+                            </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-1">
+                    <%
+                    var nextMonth = new Date(firstDate);
+                    nextMonth.setMonth(nextMonth.getMonth()+1);
+                    %>
+                    <a href="/agenda/<%= categoryId %>/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+                </div>
+            </div>
 
-    <script>
-    $(document).ready(function() {
-        var typeOrder = ['time.allday', 'time.morning', 'time.afternoon', 'time.closed'];
-        var typeTranslations = {
-            'time.allday': "<%= __("time.allday") %>",
-            'time.morning': "<%= __("time.morning") %>",
-            'time.afternoon': "<%= __("time.afternoon") %>",
-            'time.closed': "<%= __("time.closed") %>" %>
-        };
+            <script>
+            $(document).ready(function() {
+                updateButtons();
 
-        $('td.type').click(function() {
-            var index = typeOrder.indexOf($(this).attr("data-type"));
-            var nextIndex = (index + 1) % typeOrder.length;
-            var value = typeOrder[nextIndex];
-            var dateId = $(this).attr("data-dateId");
-            var that = this;
+                $('button#default').click(function() {
+                    var dateId = $(this).attr("data-dateId");
+                    $.get('/agenda/<%= categoryId %>/' + dateId + '/default',
+                    function(status) {
+                        console.log(status);
+                        updateButtons();
+                    });
+                });
 
-            $.post('/agenda/type/set',
-            { dateId: dateId, value: value },
-            function( data ) {
-                $(that).attr("data-type", value);
-                $(that).text(typeTranslations[value]);
+                $('button.slot').click(function() {
+                    var enable = !$(this).hasClass("btn-success");
+                    var dateId = $(this).attr("data-dateId");
+                    var slotId = $(this).attr("data-slotId");
+                    var that = this;
+
+                    $(this).addClass("disabled");
+
+                    if(enable) {
+                        $(this).removeClass("btn-danger");
+                        $(this).addClass("btn-success")
+                    } else {
+                        $(this).removeClass("btn-success");
+                        $(this).addClass("btn-danger")
+                    }
+
+                    $.post('/agenda/set', {
+                        enable: enable,
+                        slotId: slotId,
+                        dateId: dateId
+                    },
+                    function(enabled) {
+                        $(that).removeClass("disabled");
+
+                        if(enabled) {
+                            $(this).removeClass("btn-danger");
+                            $(this).addClass("btn-success")
+                        } else {
+                            $(this).removeClass("btn-success");
+                            $(this).addClass("btn-danger")
+                        }
+                    });
+                });
+
+                function updateButtons() {
+                    $('button.slot').each(function() {
+                        var dateId = $(this).attr("data-dateId");
+                        var slotId = $(this).attr("data-slotId");
+                        var that = this;
+
+                        $.post('/agenda/enabled', {
+                            slotId: slotId,
+                            dateId: dateId
+                        }, function(enabled) {
+                            $(that).removeClass("btn-secondary");
+
+                            if(enabled) {
+                                $(that).removeClass("btn-danger");
+                                $(that).addClass("btn-success");
+                            } else {
+                                $(that).removeClass("btn-success");
+                                $(that).addClass("btn-danger");
+                            }
+                        })
+                    });
+                }
             });
-        });
+            </script>
 
-        $('td.number').click(function() {
-            if($(this).attr("data-state") == "display") {
-                $(this).find("span.number-display").hide();
-                $(this).find("span.number-control input").show();
-                $(this).attr("data-state", "control");
-            }
-        });
-
-        $('span.number-control input').focusout(function() {
-            var td = $(this).parent().parent();
-            var value = $(this).val();
-            var dateId = td.attr("data-dateId");
-
-            $.post('/agenda/number/set',
-            { dateId: dateId, value: value },
-            function (data) {
-                td.find("span.number-display").text(value);
-                td.find("span.number-display").show();
-                td.find("span.number-control input").hide();
-                window.setTimeout(function() { td.attr("data-state", "display"); }, 50);
-            });
-        });
-
-
-    });
-</script>
-
-<%- include ../footer.ejs %>
+            <%- include ../footer.ejs %>

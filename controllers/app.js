@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var i18n = require('../i18n');
 
+var general = require('./general');
 var employee = require('./employee');
 var category = require('./category');
 var company = require('./company');
@@ -23,6 +24,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+app.use('/', general);
 app.use('/employee', employee);
 app.use('/employee/category', category);
 app.use('/company', company);

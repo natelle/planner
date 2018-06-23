@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Agenda.associate = function (models) {
-        models.Agenda.belongsTo(models.Slot);
+        models.Agenda.belongsTo(models.Slot, {
+            as: 'slot',
+            foreignKey: 'slotId'
+        });
     };
 
     return Agenda;

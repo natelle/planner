@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 
     EmployeeCategory.associate = function(models) {
         models.EmployeeCategory.hasMany(models.Employee);
-        models.EmployeeCategory.hasMany(models.SlotType);
+        models.EmployeeCategory.hasMany(models.Slot);
     };
 
     return EmployeeCategory;

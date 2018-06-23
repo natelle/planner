@@ -57,7 +57,12 @@
 		"morning": "agenda.morning",
 		"allday": "agenda.allday",
 		"reset": "Réinitialisers",
-		"number": "Effectif"
+		"number": "Effectif",
+		"menu": "Agenda",
+		"home": "Agendas",
+		"default": "Agenda par défaut",
+		"setdefault": "Remplir avec l'agenda par défaut",
+		"slot": "Créneaux"
 	},
 	"time": {
 		"allday": "Journée",
@@ -92,8 +97,11 @@
 			"other": "Disponibilités"
 		},
 		"reset": "Réinitialiser",
-		"slottype": "availability.slottype",
-		"day": "availability.day",
+		"slot": {
+			"one": "Créneau",
+			"other": "Créneaux"
+		},
+		"day": "Jour",
 		"default": "Disponibilités par défaut",
 		"setdefault": "Remplir avec les disponibilités par défaut"
 	},
@@ -108,6 +116,7 @@
 	"category": {
 		"listing": "Catégories",
 		"name": "Nom",
+		"default": "Catégorie par défaut",
 		"add": "Création d'une catégorie",
 		"update": "Edition d'une catégorie",
 		"category": {
@@ -116,7 +125,7 @@
 		}
 	},
 	"nullabbr": "nullabbr",
-	"slottype": {
+	"slot": {
 		"list": "Liste des créneaux",
 		"name": "Nom",
 		"begin": "Débute à",
@@ -125,7 +134,9 @@
 		"add": "Création d'un créneau",
 		"days": "Jours",
 		"update": "Edition du créneau",
-		"defaultcategory": "Par défaut"
+		"defaultcategory": "Par défaut",
+		"closed": "slot.closed",
+		"default": "slot.default"
 	},
 	"companyoptions": {
 		"show": "companyoptions.show",

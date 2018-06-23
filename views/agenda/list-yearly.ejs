@@ -1,10 +1,10 @@
 <%- include ../header.ejs %>
 
-<h2><%= __("agenda.yearly") %> <%= year %></h2>
+<h2><%= __("agenda.yearly") %> <%= year %> - <%= category ? category.name : __("category.default") %></h2>
 <br>
 <div class="row">
     <div class="col-md-1">
-        <a href="/agenda/<%= parseInt(year) - 1 %>"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+        <a href="/agenda/<%= category ? category.id : 0 %>/<%= parseInt(year) - 1 %>"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table">
@@ -21,7 +21,7 @@
                     %>
                     <tr>
                     <td>
-                    <a href="/agenda/<%= i.toString().padStart(2, '0') + year %>">
+                    <a href="/agenda/<%= category ? category.id : 0 %>/<%= i.toString().padStart(2, '0') + year %>">
                     <% if(now.getMonth() == (i-1)) { %><b><% } %>
                     <%= i.toString().padStart(2, '0') %>/<%= year %>
                     <% if(now.getMonth() == (i-1)) { %></b><% } %>
@@ -35,7 +35,7 @@
             </table>
         </div>
         <div class="col-md-1">
-            <a href="/agenda/<%= parseInt(year) + 1 %>"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+            <a href="/agenda/<%= category ? category.id : 0 %>/<%= parseInt(year) + 1 %>"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
         </div>
     </div>
 

@@ -1,8 +1,11 @@
 <%- include ../header.ejs %>
 
-<h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
+<h2><%= __("agenda.default") %></h2>
 <br>
 
+<% for(var categoryId in slots) { %>
+<h4><%= categories[categoryId] ? categories[categoryId].name : __("category.default") %></h4>
+<br>
 <table class="table table-sm">
     <thead>
         <tr>
@@ -16,9 +19,9 @@
             <tr>
                 <th scope="row"><%= __("time.day" + day) %></th>
                 <td class="type text-center">
-                    <% if(typeof slots[day] !== 'undefined') { %>
+                    <% if(typeof slots[categoryId][day] !== 'undefined') { %>
                         <div class="btn-group" role="group">
-                            <% for(var slot of slots[day]) { %>
+                            <% for(var slot of slots[categoryId][day]) { %>
                                 <button type="button" class="btn btn-secondary btn-sm slot" data-day="<%= day %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
                             <% } %>
                         </div>
@@ -28,6 +31,8 @@
         <% } %>
     </tbody>
 </table>
+<br>
+<% } %>
 
             <script>
             $(document).ready(function() {
@@ -35,7 +40,7 @@
                     var day = $(this).attr("data-day");
                     var slotId = $(this).attr("data-slotId");
                     var that = this;
-                    $.post('/employee/<%= employee.id %>/availabilities/default/enabled', {
+                    $.post('/agenda/default/enabled', {
                         slotId: slotId,
                         day: day
                     }, function(enabled) {
@@ -67,7 +72,7 @@
                         $(this).addClass("btn-danger")
                     }
 
-                    $.post('/employee/<%= employee.id %>/availabilities/default/set', {
+                    $.post('/agenda/default/set', {
                         enable: enable,
                         slotId: slotId,
                         day: day

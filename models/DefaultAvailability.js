@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     DefaultAvailability.associate = function(models) {
-        models.DefaultAvailability.belongsTo(models.SlotType, {
-            as: 'slotType',
-            foreignKey: 'slotTypeId'
+        models.DefaultAvailability.belongsTo(models.Slot, {
+            as: 'slot',
+            foreignKey: 'slotId'
         });
         models.DefaultAvailability.belongsTo(models.Employee);
     };

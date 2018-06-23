@@ -16,7 +16,7 @@ router.get('/', function(req, res) {
         res.render('companyoptions/show.ejs', {
             options: companyOptions,
             categories: c,
-            slotTypes: slotTypes
+            slots: slots
         });
     });
 });

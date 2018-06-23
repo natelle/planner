@@ -46,7 +46,7 @@ router.post('/add', function(req, res) {
     });
 });
 
-router.get('/:id/update', function(req, res) {
+router.get('/:id(\\d+)/update', function(req, res) {
     var id = req.params.id;
 
     var employeePromise = models.Employee.findById(id, {
@@ -71,7 +71,7 @@ router.get('/:id/update', function(req, res) {
     });
 });
 
-router.post('/:id/update', function(req, res) {
+router.post('/:id(\\d+)/update', function(req, res) {
     models.Employee.update({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
@@ -83,7 +83,7 @@ router.post('/:id/update', function(req, res) {
     });
 });
 
-router.get('/:id/delete', function(req, res) {
+router.get('/:id(\\d+)/delete', function(req, res) {
     var id = req.params.id;
 
     models.Employee.destroy({

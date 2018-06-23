@@ -27,7 +27,7 @@ router.post('/add', function(req, res) {
     });
 });
 
-router.get('/:id/update', function(req, res) {
+router.get('/:id(\\d+)/update', function(req, res) {
     var id = req.params.id;
 
     models.EmployeeCategory.findById(id).then(category => {
@@ -35,7 +35,7 @@ router.get('/:id/update', function(req, res) {
     });
 });
 
-router.post('/:id/update', function(req, res) {
+router.post('/:id(\\d+)/update', function(req, res) {
     models.EmployeeCategory.update({
         name: req.body.name,
     }, {where: { id: req.params.id }}).then(category => {
@@ -43,7 +43,7 @@ router.post('/:id/update', function(req, res) {
     });
 });
 
-router.get('/:id/delete', function(req, res) {
+router.get('/:id(\\d+)/delete', function(req, res) {
     var id = req.params.id;
 
     models.EmployeeCategory.destroy({
@@ -68,14 +68,14 @@ router.get('/:id/delete', function(req, res) {
 
 
 
-router.get('/:id/availabilities', function(req, res) {
+router.get('/:id(\\d+)/availabilities', function(req, res) {
     var id = req.params.id;
     var year = (new Date()).getFullYear();
 
     res.redirect('/employee/' + id + '/availabilities/' + year);
 });
 
-router.get('/:id/availabilities/:year(\\d{4})', function(req, res) {
+router.get('/:id(\\d+)/availabilities/:year(\\d{4})', function(req, res) {
     var id = req.params.id;
     var year = req.params.year;
 
@@ -88,7 +88,7 @@ router.get('/:id/availabilities/:year(\\d{4})', function(req, res) {
     });
 });
 
-router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res) {
+router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res) {
     var id = req.params.id;
     var month = req.params.month;
     var year = req.params.year;
@@ -133,7 +133,7 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res)
     });
 });
 
-router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/reset', function(req, res) {
+router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/reset', function(req, res) {
     var id = req.params.id;
     var month = req.params.month;
     var year = req.params.year;
@@ -159,7 +159,7 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/reset', function(req
     });
 });
 
-router.post('/:id/availabilities/type/set', function(req, res) {
+router.post('/:id(\\d+)/availabilities/type/set', function(req, res) {
     var date = req.body.dateId + " 00:00:00Z";
 
     models.Availability.update({

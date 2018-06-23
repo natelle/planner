@@ -2,14 +2,14 @@ var models  = require('../models');
 var express = require('express');
 var router  = express.Router();
 
-router.get('/:id/availabilities', function(req, res) {
+router.get('/:id(\\d+)/availabilities', function(req, res) {
     var id = req.params.id;
     var year = (new Date()).getFullYear();
 
     res.redirect('/employee/' + id + '/availabilities/' + year);
 });
 
-router.get('/:id/availabilities/:year(\\d{4})', function(req, res) {
+router.get('/:id(\\d+)/availabilities/:year(\\d{4})', function(req, res) {
     var id = req.params.id;
     var year = req.params.year;
 
@@ -22,7 +22,7 @@ router.get('/:id/availabilities/:year(\\d{4})', function(req, res) {
     });
 });
 
-router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res) {
+router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res) {
     var id = req.params.id;
     var month = req.params.month;
     var year = req.params.year;
@@ -37,32 +37,32 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res)
         model: models.EmployeeCategory,
         as: 'category'
     }]}).then(employee => {
-        models.SlotType.findAll({
+        models.Slot.findAll({
             where: {
                 categoryId: employee.category.id
             }
-        }).then(rawSlotTypes => {
+        }).then(rawSlots => {
             var promises = [];
 
-            if(rawSlotTypes.length == 0) {
-                promises.push(models.SlotType.findAll({
+            if(rawSlots.length == 0) {
+                promises.push(models.Slot.findAll({
                     where: {
                         categoryId: null
                     }
-                }).then(defaultSlotTypes => {
-                    rawSlotTypes = defaultSlotTypes;
+                }).then(defaultSlots => {
+                    rawSlots = defaultSlots;
                 }))
             }
 
             Promise.all(promises).then(values => {
-                var slotTypes = {}
+                var slots = {}
 
-                for(var slotType of rawSlotTypes) {
-                    for(var day of slotType.days) {
-                        if(typeof slotTypes[day] === 'undefined') {
-                            slotTypes[day] = [slotType];
+                for(var slot of rawSlots) {
+                    for(var day of slot.days) {
+                        if(typeof slots[day] === 'undefined') {
+                            slots[day] = [slot];
                         } else {
-                            slotTypes[day].push(slotType)
+                            slots[day].push(slot)
                         }
                     }
                 }
@@ -70,7 +70,7 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res)
                 res.render('availability/list.ejs',
                 {
                     employee: employee,
-                    slotTypes: slotTypes,
+                    slots: slots,
                     firstDate: firstDate,
                     lastDate: lastDate
                 });
@@ -79,7 +79,7 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})', function(req, res)
     });
 });
 
-router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/default', function(req, res) {
+router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/default', function(req, res) {
     var id = req.params.id;
     var month = req.params.month;
     var year = req.params.year;
@@ -92,8 +92,8 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/default', function(r
             where: {
                 EmployeeId: id
             }, include: [{
-                model: models.SlotType,
-                as: 'slotType'
+                model: models.Slot,
+                as: 'slot'
             }]
         }).then(rawAvailabilities => {
             var availabilities = {}
@@ -123,7 +123,7 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/default', function(r
 
             Promise.all(promises).then(values => {
                 promises = [];
-                
+
                 // Create then all the availabilities from the default ones
                 for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) {
                     var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
@@ -134,7 +134,7 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/default', function(r
                             promises.push(models.Availability.create({
                                 EmployeeId: id,
                                 day: date,
-                                slotTypeId: availability.slotType.id
+                                slotId: availability.slot.id
                             }));
                         }
                     }
@@ -148,38 +148,38 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/default', function(r
     });
 });
 
-router.post('/:id/availabilities/enabled', function(req, res) {
+router.post('/:id(\\d+)/availabilities/enabled', function(req, res) {
     var employeeId = req.params.id;
     var date = req.body.dateId + " 00:00:00Z";
-    var slotTypeId = req.body.slotTypeId;
+    var slotId = req.body.slotId;
 
     models.Availability.findOne({
         where: {
             EmployeeId: employeeId,
             day: date,
-            slotTypeId: slotTypeId
+            slotId: slotId
         }
     }).then(availability => {
         res.send(availability !== null);
     })
 });
 
-router.post('/:id/availabilities/set', function(req, res) {
+router.post('/:id(\\d+)/availabilities/set', function(req, res) {
     var employeeId = req.params.id;
     var enable = req.body.enable == "true" ? true : false;
     var date = req.body.dateId + " 00:00:00Z";
-    var slotTypeId = req.body.slotTypeId;
+    var slotId = req.body.slotId;
 
     if(enable) {
         models.Availability.findOrCreate({
             where: {
                 EmployeeId: employeeId,
                 day: date,
-                slotTypeId: slotTypeId
+                slotId: slotId
             }, defaults: {
                 EmployeeId: employeeId,
                 day: date,
-                slotTypeId: slotTypeId
+                slotId: slotId
             }
         })
         .spread((availability, created) => {
@@ -189,45 +189,45 @@ router.post('/:id/availabilities/set', function(req, res) {
         models.Availability.destroy({ where: {
             EmployeeId: employeeId,
             day: date,
-            slotTypeId: slotTypeId
+            slotId: slotId
         }}).then(status => {
             res.send(false)
         });
     }
 });
 
-router.get('/:id/availabilities/default', function(req, res) {
+router.get('/:id(\\d+)/availabilities/default', function(req, res) {
     var id = req.params.id;
     models.Employee.findById(id, {include: [{
         model: models.EmployeeCategory,
         as: 'category'
     }]}).then(employee => {
-        models.SlotType.findAll({
+        models.Slot.findAll({
             where: {
                 categoryId: employee.category.id
             }
-        }).then(rawSlotTypes => {
+        }).then(rawSlots => {
             var promises = [];
 
-            if(rawSlotTypes.length == 0) {
-                promises.push(models.SlotType.findAll({
+            if(rawSlots.length == 0) {
+                promises.push(models.Slot.findAll({
                     where: {
                         categoryId: null
                     }
-                }).then(defaultSlotTypes => {
-                    rawSlotTypes = defaultSlotTypes;
+                }).then(defaultSlots => {
+                    rawSlots = defaultSlots;
                 }))
             }
 
             Promise.all(promises).then(values => {
-                var slotTypes = {}
+                var slots = {}
 
-                for(var slotType of rawSlotTypes) {
-                    for(var day of slotType.days) {
-                        if(typeof slotTypes[day] === 'undefined') {
-                            slotTypes[day] = [slotType];
+                for(var slot of rawSlots) {
+                    for(var day of slot.days) {
+                        if(typeof slots[day] === 'undefined') {
+                            slots[day] = [slot];
                         } else {
-                            slotTypes[day].push(slotType)
+                            slots[day].push(slot)
                         }
                     }
                 }
@@ -235,70 +235,45 @@ router.get('/:id/availabilities/default', function(req, res) {
                 res.render('availability/default.ejs',
                 {
                     employee: employee,
-                    slotTypes: slotTypes
+                    slots: slots
                 });
             });
         })
     });
-
-
-
-    // models.Employee.findById(id).then(employee => {
-    //     // models.SlotType.findAll({
-    //     //     include: [
-    //     //         {
-    //     //             model: models.Employee,
-    //     //             as: 'employeesDefault'
-    //     //         }
-    //     //     ]
-    //     // }).then(rawSlotTypes => {
-    //     //     var slotTypes = [];
-    //     //     for(var slotType of rawSlotTypes) {
-    //     //         if(slotType.employeesDefault.includes(id)) {
-    //     //             slotTypes.push(slotType);
-    //     //         }
-    //     //     }
-    //
-    //     res.render('availability/default.ejs',
-    //     {
-    //         employee: employee
-    //     });
-    // });
-    // });
 });
 
-router.post('/:id/availabilities/default/enabled', function(req, res) {
+router.post('/:id(\\d+)/availabilities/default/enabled', function(req, res) {
     var employeeId = req.params.id;
     var day = req.body.day;
-    var slotTypeId = req.body.slotTypeId;
+    var slotId = req.body.slotId;
 
     models.DefaultAvailability.findOne({
         where: {
             EmployeeId: employeeId,
             day: day,
-            slotTypeId: slotTypeId
+            slotId: slotId
         }
     }).then(availability => {
         res.send(availability !== null);
     })
 });
 
-router.post('/:id/availabilities/default/set', function(req, res) {
+router.post('/:id(\\d+)/availabilities/default/set', function(req, res) {
     var employeeId = req.params.id;
     var enable = req.body.enable == "true" ? true : false;
     var day = req.body.day;
-    var slotTypeId = req.body.slotTypeId;
+    var slotId = req.body.slotId;
 
     if(enable) {
         models.DefaultAvailability.findOrCreate({
             where: {
                 EmployeeId: employeeId,
                 day: day,
-                slotTypeId: slotTypeId
+                slotId: slotId
             }, defaults: {
                 EmployeeId: employeeId,
                 day: day,
-                slotTypeId: slotTypeId
+                slotId: slotId
             }
         })
         .spread((availability, created) => {
@@ -308,14 +283,14 @@ router.post('/:id/availabilities/default/set', function(req, res) {
         models.DefaultAvailability.destroy({ where: {
             EmployeeId: employeeId,
             day: day,
-            slotTypeId: slotTypeId
+            slotId: slotId
         }}).then(status => {
             res.send(false)
         });
     }
 });
 
-router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/reset', function(req, res) {
+router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/reset', function(req, res) {
     var id = req.params.id;
     var month = req.params.month;
     var year = req.params.year;
@@ -341,7 +316,7 @@ router.get('/:id/availabilities/:month(\\d{2}):year(\\d{4})/reset', function(req
     });
 });
 
-router.post('/:id/availabilities/type/set', function(req, res) {
+router.post('/:id(\\d+)/availabilities/type/set', function(req, res) {
     var date = req.body.dateId + " 00:00:00Z";
 
     models.Availability.update({
