@@ -166,6 +166,23 @@ router.post('/enabled', function(req, res) {
     })
 });
 
+router.post('/number', function(req, res) {
+    var date = req.body.dateId + " 00:00:00Z";
+    var slotId = req.body.slotId;
+
+    console.log("here " + date + " " + slotId);
+
+    models.Agenda.findOne({
+        where: {
+            day: date,
+            slotId: slotId
+        }
+    }).then(agenda => {
+        console.log(agenda ? agenda.number : '0');
+        res.send(agenda ? agenda.number.toString() : '0');
+    })
+});
+
 router.post('/set', function(req, res) {
     var enable = req.body.enable == "true" ? true : false;
     var date = req.body.dateId + " 00:00:00Z";
@@ -175,10 +192,11 @@ router.post('/set', function(req, res) {
         models.Agenda.findOrCreate({
             where: {
                 day: date,
-                slotId: slotId
+                slotId: slotId,
             }, defaults: {
                 day: date,
-                slotId: slotId
+                slotId: slotId,
+                number: 1
             }
         })
         .spread((availability, created) => {

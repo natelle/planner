@@ -1,7 +1,8 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
     var DefaultAgenda = sequelize.define('DefaultAgenda', {
-        day: DataTypes.TINYINT
+        day: DataTypes.TINYINT,
+        number: DataTypes.SMALLINT
     }, {
         tableName: 'defaultagenda'
     });
