@@ -2,94 +2,158 @@
 
 <h2><%= __("agenda.default") %></h2>
 <br>
-
-<% for(var categoryId in slots) { %>
-<h4><%= categories[categoryId] ? categories[categoryId].name : __("category.default") %></h4>
 <br>
 <table class="table table-sm">
-    <thead>
+    <thead class="thead-dark">
         <tr>
-            <th scope="col"><%= __("availability.day") %></th>
-            <th scope="col" class="text-center"><%= __("availability.slot") %></th>
+            <th scope="col" class="align-middle"><%= __("availability.day") %></th>
+            <th scope="col" class="text-center"><button class="btn btn-info btn-sm button-mode"><b><%= __("agenda.slot") %></b></button></th>
         </tr>
     </thead>
     <tbody>
         <% for(var i=1; i<=7; i++) { %>
             <% var day = i % 7; %>
-            <tr>
-                <th scope="row"><%= __("time.day" + day) %></th>
+            <tr class="table-light">
+                <th class="align-middle"><%= __("time.day" + day) %></th>
                 <td class="type text-center">
-                    <% if(typeof slots[categoryId][day] !== 'undefined') { %>
-                        <div class="btn-group" role="group">
-                            <% for(var slot of slots[categoryId][day]) { %>
+                    <% if(typeof slots[day] !== 'undefined') { %>
+                        <div class="btn-group slots" role="group">
+                            <% for(var slot of slots[day]) { %>
                                 <button type="button" class="btn btn-secondary btn-sm slot" data-day="<%= day %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
+                                <% } %>
+                            </div>
+                            <form class="numbers d-none form-inline justify-content-center">
+                                <% var index=0; for(var slot of slots[day]) { %>
+                                    <div class="input-group input-group-sm form-<%= day + "-" + slot.id %> number">
+                                        <div class="input-group-prepend <%= index > 0 ? "pl-3" : "" %>">
+                                            <span class="input-group-text bg-success text-white " id="inputGroup-sizing-sm"><%= slot.name %></span>
+                                        </div>
+                                        <input type="number" min="1" class="number form-control form-control-sm" data-day="<%= day %>" data-slotId="<%= slot.id %>" >
+                                    </div>
+                                    <% index++ } %>
+                                    <button type="button" class="btn btn-danger btn-sm disabled form-closed"><%= __("time.closed") %></button>
+                                </form>
+                                <% } else { %>
+                                    <button type="button" class="btn btn-secondary btn-sm disabled"><%= __("time.closed") %></button>
+                                    <% } %>
+                                </td>
+                            </tr>
                             <% } %>
-                        </div>
-                    <% } %>
-                </td>
-            </tr>
-        <% } %>
-    </tbody>
-</table>
-<br>
-<% } %>
+                        </tbody>
+                    </table>
 
-            <script>
-            $(document).ready(function() {
-                $('button.slot').each(function() {
-                    var day = $(this).attr("data-day");
-                    var slotId = $(this).attr("data-slotId");
-                    var that = this;
-                    $.post('/agenda/default/enabled', {
-                        slotId: slotId,
-                        day: day
-                    }, function(enabled) {
-                        $(that).removeClass("btn-secondary");
+                    <script>
+                    $(document).ready(function() {
+                        $("button.button-mode").click(function() {
+                            if($("form.numbers").hasClass("d-none")) {
+                                $("div.slots").addClass("d-none");
+                                $("form.numbers").removeClass("d-none");
+                                $(this).html("<%= __("agenda.number") %>");
+                            } else {
+                                $("form.numbers").addClass("d-none");
+                                $("div.slots").removeClass("d-none");
+                                $(this).html("<%= __("agenda.slot") %>");
+                            }
+                        });
 
-                        if(enabled) {
-                            $(that).removeClass("btn-danger");
-                            $(that).addClass("btn-success");
-                        } else {
-                            $(that).removeClass("btn-success");
-                            $(that).addClass("btn-danger");
-                        }
-                    })
-                });
+                        $('button.slot').each(function() {
+                            var day = $(this).attr("data-day");
+                            var slotId = $(this).attr("data-slotId");
+                            var that = this;
+                            $.post('/agenda/default/enabled', {
+                                slotId: slotId,
+                                day: day
+                            }, function(enabled) {
+                                $(that).removeClass("btn-secondary");
 
-                $('button.slot').click(function() {
-                    var enable = !$(this).hasClass("btn-success");
-                    var day = $(this).attr("data-day");
-                    var slotId = $(this).attr("data-slotId");
-                    var that = this;
+                                if(enabled) {
+                                    $(that).removeClass("btn-danger");
+                                    $(that).addClass("btn-success");
+                                } else {
+                                    $(that).removeClass("btn-success");
+                                    $(that).addClass("btn-danger");
+                                }
+                            })
+                        });
 
-                    $(this).addClass("disabled");
+                        $('input.number').each(function() {
+                            var day = $(this).attr("data-day");
+                            var slotId = $(this).attr("data-slotId");
+                            var that = this;
 
-                    if(enable) {
-                        $(this).removeClass("btn-danger");
-                        $(this).addClass("btn-success")
-                    } else {
-                        $(this).removeClass("btn-success");
-                        $(this).addClass("btn-danger")
-                    }
+                            $.post('/agenda/default/number', {
+                                slotId: slotId,
+                                day: day
+                            }, function(number) {
+                                if(number) {
+                                    $(that).val(number);
+                                    $(".form-" + day + "-" + slotId).removeClass('d-none');
+                                    $(that).parent().siblings("button.form-closed").addClass("d-none");
+                                } else {
+                                    $(".form-" + day + "-" + slotId).addClass('d-none');
+                                    if($(that).parent().parent().find("div.d-none").length == $(that).parent().parent().find("div.number").length) {
+                                        $(that).parent().siblings("button.form-closed").removeClass("d-none");
+                                    }
+                                }
 
-                    $.post('/agenda/default/set', {
-                        enable: enable,
-                        slotId: slotId,
-                        day: day
-                    },
-                    function(enabled) {
-                        $(that).removeClass("disabled");
+                            });
+                        });
 
-                        if(enabled) {
-                            $(this).removeClass("btn-danger");
-                            $(this).addClass("btn-success")
-                        } else {
-                            $(this).removeClass("btn-success");
-                            $(this).addClass("btn-danger")
-                        }
+                        $('button.slot').click(function() {
+                            var enable = !$(this).hasClass("btn-success");
+                            var day = $(this).attr("data-day");
+                            var slotId = $(this).attr("data-slotId");
+                            var that = this;
+
+                            $(this).addClass("disabled");
+
+                            if(enable) {
+                                $(this).removeClass("btn-danger");
+                                $(this).addClass("btn-success")
+                            } else {
+                                $(this).removeClass("btn-success");
+                                $(this).addClass("btn-danger");
+                            }
+
+                            $.post('/agenda/default/set', {
+                                enable: enable,
+                                slotId: slotId,
+                                day: day
+                            },
+                            function(enabled) {
+                                $(that).removeClass("disabled");
+
+                                if(enabled) {
+                                    $(this).removeClass("btn-danger");
+                                    $(this).addClass("btn-success")
+                                    $(".form-" + day + "-" + slotId).removeClass('d-none');
+                                    $(that).parent().parent().find("button.form-closed").addClass("d-none");
+                                } else {
+                                    $(this).removeClass("btn-success");
+                                    $(this).addClass("btn-danger");
+                                    $(".form-" + day + "-" + slotId).addClass('d-none');
+
+                                    if($(that).parent().parent().find("div.d-none").length == $(that).parent().parent().find("div.number").length) {
+                                        $(that).parent().parent().find("button.form-closed").removeClass("d-none");
+                                    }
+                                }
+                            });
+                        });
+
+                        $('input.number').change(function() {
+                            var number = $(this).val();
+                            var day = $(this).attr("data-day");
+                            var slotId = $(this).attr("data-slotId");
+                            console.log("day = " + day + " - slotId = " + slotId);
+                            $.post('/agenda/default/set-number', {
+                                number: number,
+                                slotId: slotId,
+                                day: day
+                            }, function(value) {
+                                console.log(value);
+                            });
+                        });
                     });
-                });
-            });
-            </script>
+                    </script>
 
-            <%- include ../footer.ejs %>
+                    <%- include ../footer.ejs %>

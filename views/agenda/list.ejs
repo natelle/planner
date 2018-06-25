@@ -6,7 +6,7 @@
 <br>
 <p class="text-right">
     <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
-    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>"><%= __("agenda.setdefault") %></button>
+    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>"><%= __("agenda.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i></button>
 </p>
 <br>
 <div class="row">
@@ -19,36 +19,41 @@
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
-            <thead>
+            <thead class="thead-dark">
                 <tr>
-                    <th scope="col"><%= __("agenda.date") %></th>
-                    <th scope="col" class="text-center"><button class="btn btn-primary btn-sm button-mode"><b><%= __("agenda.slot") %></b></button></th>
+                    <th scope="col" class="align-middle"><%= __("agenda.date") %></th>
+                    <th scope="col" class="text-center"><button class="btn btn-info btn-sm button-mode"><b><%= __("agenda.slot") %></b></button></th>
                 </tr>
             </thead>
             <tbody>
                 <% for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) { %>
                     <% var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') %>
-                    <tr class="agenda">
-                    <th scope="row" class="date">
-                    <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
-                    </th>
-                    <td class="type text-center">
-                    <% if(typeof slots[d.getDay()] !== 'undefined') { %>
-                        <div class="btn-group slots" role="group">
-                            <% for(var slot of slots[d.getDay()]) { %>
-                                <button type="button" class="btn btn-secondary btn-sm slot" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
-                            <% } %>
-                        </div>
-                        <form class="numbers d-none form-inline justify-content-center">
-                            <% var index=0; for(var slot of slots[d.getDay()]) { %>
-                                    <label class="my-1 mr-2 <%= index > 0 ? "pl-3" : "" %> form-<%= dateId + slot.id %>"><%= slot.name %></label>
-                                    <input type="number" min="1" class="number form-control form-control-sm form-<%= dateId + slot.id %>" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>" style="width: 64px;">
-                            <% index++ } %>
-                        </form>
-                                <% } else { %>
-                                    <button type="button" class="btn btn-secondary btn-sm disabled"><%= __("time.closed") %></button>
-                                    <% } %>
-                                    </td>
+                    <tr class="agenda table-light">
+                        <th class="date align-middle">
+                            <%= __("time.shortday" + d.getDay()) %>  <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+                        </th>
+                        <td class="type text-center">
+                            <% if(typeof slots[d.getDay()] !== 'undefined') { %>
+                                <div class="btn-group slots py-0" role="group">
+                                    <% for(var slot of slots[d.getDay()]) { %>
+                                        <button type="button" class="btn btn-secondary btn-sm slot" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
+                                        <% } %>
+                                    </div>
+                                    <form class="numbers d-none form-inline justify-content-center">
+                                        <% var index=0; for(var slot of slots[d.getDay()]) { %>
+                                            <div class="input-group input-group-sm number-<%= dateId + "-" + slot.id %> number">
+                                                <div class="input-group-prepend <%= index > 0 ? "pl-3" : "" %>">
+                                                    <span class="input-group-text bg-success text-white " id="inputGroup-sizing-sm"><%= slot.name %></span>
+                                                </div>
+                                                <input type="number" min="1" class="number form-control form-control-sm" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>">
+                                            </div>
+                                            <% index++ } %>
+                                            <button type="button" class="btn btn-danger btn-sm disabled number-closed"><%= __("time.closed") %></button>
+                                        </form>
+                                        <% } else { %>
+                                            <button type="button" class="btn btn-secondary btn-sm disabled"><%= __("time.closed") %></button>
+                                            <% } %>
+                                        </td>
                                     </tr>
                                     <% } %>
                                 </tbody>
@@ -66,7 +71,7 @@
                     <script>
                     $(document).ready(function() {
                         updateButtons();
-                        updateForms();
+                        updateNumbers();
 
                         $("button.button-mode").click(function() {
                             if($("form.numbers").hasClass("d-none")) {
@@ -83,11 +88,15 @@
 
 
                         $('button#default').click(function() {
+                            $(this).find("i").removeClass("d-none");
                             var dateId = $(this).attr("data-dateId");
+                            var that = this;
+
                             $.get('/agenda/<%= categoryId %>/' + dateId + '/default',
                             function(status) {
-                                console.log(status);
                                 updateButtons();
+                                updateNumbers();
+                                $(that).find("i").addClass("d-none");
                             });
                         });
 
@@ -116,12 +125,34 @@
                                 $(that).removeClass("disabled");
 
                                 if(enabled) {
+                                    var number = $(that).parent().siblings("form").find("div.number-" + dateId + "-" + slotId + " input");
+                                    updateNumber(dateId, slotId, number);
                                     $(this).removeClass("btn-danger");
-                                    $(this).addClass("btn-success")
+                                    $(this).addClass("btn-success");
+                                    $(".number-" + dateId + "-" + slotId).removeClass('d-none');
+                                    $(that).parent().parent().find("button.number-closed").addClass("d-none");
                                 } else {
                                     $(this).removeClass("btn-success");
-                                    $(this).addClass("btn-danger")
+                                    $(this).addClass("btn-danger");
+                                    $(".number-" + dateId + "-" + slotId).addClass('d-none');
+
+                                    if($(that).parent().parent().find("div.d-none").length == $(that).parent().parent().find("div.number").length) {
+                                        $(that).parent().parent().find("button.number-closed").removeClass("d-none");
+                                    }
                                 }
+                            });
+                        });
+
+                        $('input.number').change(function() {
+                            var number = $(this).val();
+                            var dateId = $(this).attr("data-dateId");
+                            var slotId = $(this).attr("data-slotId");
+
+                            $.post('/agenda/set-number', {
+                                number: number,
+                                slotId: slotId,
+                                dateId: dateId
+                            }, function(value) {
                             });
                         });
 
@@ -140,29 +171,42 @@
                                     if(enabled) {
                                         $(that).removeClass("btn-danger");
                                         $(that).addClass("btn-success");
-                                        $(".form-" + dateId + slotId).removeClass('d-none')
+                                        $(".number-" + dateId + slotId).removeClass('d-none')
                                     } else {
                                         $(that).removeClass("btn-success");
                                         $(that).addClass("btn-danger");
-                                        $(".form-" + dateId + slotId).addClass('d-none')
+                                        $(".number-" + dateId + slotId).addClass('d-none')
                                     }
                                 });
                             });
                         }
 
-                        function updateForms() {
+                        function updateNumbers() {
                             $('input.number').each(function() {
                                 var dateId = $(this).attr("data-dateId");
                                 var slotId = $(this).attr("data-slotId");
                                 var that = this;
-                                console.log("dateId = " + dateId + " - slotId = " + slotId);
-                                $.post('/agenda/number', {
-                                    slotId: slotId,
-                                    dateId: dateId
-                                }, function(value) {
-                                    console.log(value);
-                                    $(that).val(value);
-                                });
+
+                                updateNumber(dateId, slotId, that);
+                            });
+                        }
+
+                        function updateNumber(dateId, slotId, that) {
+                            $.post('/agenda/number', {
+                                slotId: slotId,
+                                dateId: dateId
+                            }, function(number) {
+                                if(number) {
+                                    $(".number-" + dateId + "-" + slotId).removeClass('d-none');
+                                    $(that).val(number);
+                                    $(that).parent().siblings("button.number-closed").addClass("d-none");
+                                } else {
+                                    $(".number-" + dateId + "-" + slotId).addClass('d-none');
+                                    if($(that).parent().parent().find("div.d-none").length == $(that).parent().parent().find("div.number").length) {
+                                        $(that).parent().siblings("button.number-closed").removeClass("d-none");
+                                    }
+                                }
+
                             });
                         }
                     });

@@ -87,7 +87,14 @@
 		"day4": "Jeudi",
 		"day5": "Vendredi",
 		"day6": "Samedi",
-		"day0": "Dimanche"
+		"day0": "Dimanche",
+		"shortday1": "L",
+		"shortday2": "M",
+		"shortday3": "M",
+		"shortday4": "J",
+		"shortday5": "V",
+		"shortday6": "S",
+		"shortday0": "D"
 	},
 	"availability": {
 		"date": "Date",

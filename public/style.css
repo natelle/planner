@@ -1,7 +1,11 @@
 th.date, td.date {
-    width: 100px;
+    width: 120px;
 }
 
 select.custom-select {
     height: 34px;
+}
+
+input.number {
+    width: 55px!important;
 }

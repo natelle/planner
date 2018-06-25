@@ -15,7 +15,9 @@
 		"firstname": "employee.firstname",
 		"lastname": "employee.lastname",
 		"category": "employee.category",
-		"availabilities": "employee.availabilities"
+		"availabilities": "employee.availabilities",
+		"menulist": "employee.menulist",
+		"menucategory": "employee.menucategory"
 	},
 	"agenda": {
 		"agenda": "agenda.agenda",
@@ -23,10 +25,17 @@
 		"reset": "agenda.reset",
 		"date": "agenda.date",
 		"type": "agenda.type",
-		"number": "agenda.number"
+		"number": "agenda.number",
+		"menu": "agenda.menu",
+		"home": "agenda.home",
+		"default": "agenda.default",
+		"setdefault": "agenda.setdefault",
+		"slot": "agenda.slot"
 	},
 	"company": {
-		"menu": "company.menu"
+		"menu": "company.menu",
+		"menuparameter": "company.menuparameter",
+		"menuslot": "company.menuslot"
 	},
 	"time": {
 		"morningabbr": "time.morningabbr",
@@ -35,7 +44,21 @@
 		"allday": "time.allday",
 		"closed": "time.closed",
 		"morning": "time.morning",
-		"afternoon": "time.afternoon"
+		"afternoon": "time.afternoon",
+		"shortday5": "time.shortday5",
+		"shortday6": "time.shortday6",
+		"shortday0": "time.shortday0",
+		"shortday1": "time.shortday1",
+		"shortday2": "time.shortday2",
+		"shortday3": "time.shortday3",
+		"shortday4": "time.shortday4",
+		"day5": "time.day5",
+		"day6": "time.day6",
+		"day0": "time.day0",
+		"day1": "time.day1",
+		"day2": "time.day2",
+		"day3": "time.day3",
+		"day4": "time.day4"
 	},
 	"availability": {
 		"availabilities": {
