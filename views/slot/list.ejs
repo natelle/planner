@@ -10,41 +10,41 @@
 for(var categoryId in slots) {
     var categorySlots = slots[categoryId];
     %>
-    <h4><%= categoryId !== 'default' ? categories[categoryId].name : __("slot.defaultcategory") %></h4>
-    <table class="table">
-    <thead>
-    <tr>
-    <th scope="col"><%= __('slot.name') %></th>
-    <th scope="col"><%= __('slot.begin') %></th>
-    <th scope="col"><%= __('slot.end') %></th>
-    <th scope="col"><%= __('slot.days') %></th>
-    <th scope="col"><%= __n('global.action', 2) %></th>
-    </tr>
-    </thead>
-    <tbody>
-    <%
-    for(var i in categorySlots) {
-        var slot = categorySlots[i];
-        %>
-        <tr>
-        <td><%= slot.name %></td>
-        <td><%= slot.begin ? slot.begin.replace(/:\d+$/, '') : '-' %></td>
-        <td><%= slot.end ? slot.end.replace(/:\d+$/, '') : '-' %></td>
-        <td>
+    <h4 class="mb-3"><%= categoryId !== 'default' ? categories[categoryId].name : __("slot.defaultcategory") %></h4>
+    <table class="table mb-4">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col"><%= __('slot.name') %></th>
+                <th scope="col"><%= __('slot.begin') %></th>
+                <th scope="col"><%= __('slot.end') %></th>
+                <th scope="col"><%= __('slot.days') %></th>
+                <th scope="col"><%= __n('global.action', 2) %></th>
+            </tr>
+        </thead>
+        <tbody>
             <%
-            for(var j in slot.days) {
+            for(var i in categorySlots) {
+                var slot = categorySlots[i];
                 %>
-                <%= __("time.day" + slot.days[j]) %>
+                <tr>
+                    <td><%= slot.name %></td>
+                    <td><%= slot.begin ? slot.begin.replace(/:\d+$/, '') : '-' %></td>
+                    <td><%= slot.end ? slot.end.replace(/:\d+$/, '') : '-' %></td>
+                    <td>
+                        <%
+                        for(var day of slot.days) {
+                            %>
+                            <%= __("time.day" + day) %>
+                            <% } %>
+                        </td>
+                        <td>
+                            <a href="/company/slot/<%= slot.id %>/update" title="<%= __('global.edit') %>"><i class="fas fa-pencil-alt"></i></a>&nbsp;
+                            <a href="/company/slot/<%= slot.id %>/delete" title="<%= __('global.delete') %>"><i class="fas fa-trash-alt"></i></a>&nbsp;
+                        </td>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
             <% } %>
-        </td>
-        <td>
-        <a href="/company/slot/<%= slot.id %>/update" title="<%= __('global.edit') %>"><i class="fas fa-pencil-alt"></i></a>&nbsp;
-        <a href="/company/slot/<%= slot.id %>/delete" title="<%= __('global.delete') %>"><i class="fas fa-trash-alt"></i></a>&nbsp;
-        </td>
-        </tr>
-        <% } %>
-        </tbody>
-        </table>
-        <% } %>
 
-        <%- include ../footer.ejs %>
+            <%- include ../footer.ejs %>

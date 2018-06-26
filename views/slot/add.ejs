@@ -3,75 +3,81 @@
 <h2><%= __("slot.add") %></h2>
 <br>
 <form action="/company/slot/add" method="post">
-    <div class="form-group row">
-        <label class="col-sm-2" for="name"><%= __("slot.name") %></label>
-        <div class="col-sm-10">
-            <input type="text" name="name" class="form-control" id="name" placeholder="<%= __("slot.name") %>">
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-2" for="begin"><%= __("slot.begin") %></label>
-        <div class="col-sm-10">
-            <input type="time" name="begin" class="form-control" id="begin" placeholder="<%= __("slot.begin") %>">
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-2" for="end"><%= __("slot.end") %></label>
-        <div class="col-sm-10">
-            <input type="time" name="end" class="form-control" id="end" placeholder="<%= __("slot.end") %>">
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-2"><%= __("slot.days") %></label>
-        <div class="col-sm-10">
-            <div class="form-check form-check-inline">
-                <input type="checkbox" id="monday" value="1" name="days[]" class="form-check-input" checked>
-                <label class="form-check-label" for="monday"><%= __("time.monday") %></label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="checkbox" id="tuesday" value="2" name="days[]" class="form-check-input" checked>
-                <label class="form-check-label" for="tuesday"><%= __("time.tuesday") %></label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="checkbox" id="wednesday" value="3" name="days[]" class="form-check-input" checked>
-                <label class="form-check-label" for="wednesday"><%= __("time.wednesday") %></label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="checkbox" id="thursday" value="4" name="days[]" class="form-check-input" checked>
-                <label class="form-check-label" for="thursday"><%= __("time.thursday") %></label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="checkbox" id="friday" value="5" name="days[]" class="form-check-input" checked checked>
-                <label class="form-check-label" for="friday"><%= __("time.friday") %></label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="checkbox" id="saturday" value="6" name="days[]" class="form-check-input" checked>
-                <label class="form-check-label" for="saturday"><%= __("time.saturday") %></label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="checkbox" id="sunday" value="0" name="days[]" class="form-check-input" checked>
-                <label class="form-check-label" for="sunday"><%= __("time.sunday") %></label>
-            </div>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-2" for="category"><%= __n("category.category", 1) %></label>
-        <div class="col-sm-10">
-            <select class="custom-select" name="category" id="category">
-                <option value="0"><%= __("slot.defaultcategory") %></option>
-                <%
-                for(var i in categories) {
-                    var category = categories[i];
-                    %>
-                    <option value="<%= category.id %>"><%= category.name %></option>
-                    <% } %>
-                </select>
-            </div>
-        </div>
-        <br>
+    <table class="table table-borderless">
+        <tbody>
+            <tr>
+                <th class="label"><%= __("slot.name") %></th>
+                <td><input type="text" name="name" class="form-control" id="name" placeholder="<%= __("slot.name") %>"></td>
+            </tr>
+            <tr>
+                <th class="label"><%= __("slot.begin") %></th>
+                <td><input type="time" name="begin" class="form-control" id="begin" placeholder="<%= __("slot.begin") %>"></td>
+            </tr>
+            <tr>
+                <th class="label"><%= __("slot.end") %></th>
+                <td><input type="time" name="end" class="form-control" id="end" placeholder="<%= __("slot.end") %>"></td>
+            </tr>
+            <tr>
+                <th class="label"><%= __("slot.days") %></th>
+                <td>
+                    <div class="btn-group ml-4" role="group" aria-label="Basic example">
+                        <button type="button" id="monday" class="btn btn-danger day"><%= __("time.day1") %></button>
+                        <button type="button" id="tuesday" class="btn btn-danger day"><%= __("time.day2") %></button>
+                        <button type="button" id="wednesday" class="btn btn-danger day"><%= __("time.day3") %></button>
+                        <button type="button" id="thursday" class="btn btn-danger day"><%= __("time.day4") %></button>
+                        <button type="button" id="friday" class="btn btn-danger day"><%= __("time.day5") %></button>
+                        <button type="button" id="saturday" class="btn btn-danger day"><%= __("time.day6") %></button>
+                        <button type="button" id="sunday" class="btn btn-danger day"><%= __("time.day0") %></button>
+                    </div>
+
+                    <span class="d-none">
+                        <input type="checkbox" id="input-monday" value="1" name="days[]" class="form-check-input">
+                        <input type="checkbox" id="input-tuesday" value="2" name="days[]" class="form-check-input">
+                        <input type="checkbox" id="input-wednesday" value="3" name="days[]" class="form-check-input">
+                        <input type="checkbox" id="input-thursday" value="4" name="days[]" class="form-check-input">
+                        <input type="checkbox" id="input-friday" value="5" name="days[]" class="form-check-input">
+                        <input type="checkbox" id="input-saturday" value="6" name="days[]" class="form-check-input">
+                        <input type="checkbox" id="input-sunday" value="0" name="days[]" class="form-check-input">
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th class="label"><%= __("slot.category") %></th>
+                <td>
+                    <select class="custom-select" name="category" id="category">
+                        <option value="0"><%= __("slot.defaultcategory") %></option>
+                        <%
+                        for(var i in categories) {
+                            var category = categories[i];
+                            %>
+                            <option value="<%= category.id %>"><%= category.name %></option>
+                            <% } %>
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
         <div class="text-right">
             <button type="submit" class="btn btn-primary text-right"><%= __("global.save") %></button>
         </div>
     </form>
+
+    <script>
+    $(document).ready(function() {
+        $("button.day").click(function() {
+            var day = $(this).attr('id');
+            var checked = $("#input-" + day).prop("checked");
+            if(checked) {
+                $(this).removeClass("btn-success");
+                $(this).addClass("btn-danger");
+                $("#input-" + day).prop("checked", false);
+            } else {
+                $(this).removeClass("btn-danger");
+                $(this).addClass("btn-success");
+                $("#input-" + day).prop("checked", true);
+            }
+        });
+    });
+    </script>
 
     <%- include ../footer.ejs %>

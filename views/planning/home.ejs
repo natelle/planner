@@ -2,6 +2,7 @@
 
 <h2><%= __("planning.home") %></h2>
 <br>
-
+<% var dateId = (parseInt((new Date()).getMonth()) + 1).toString().padStart(2, '0') + (new Date()).getFullYear() %>
+<a href="/planning/generate/1/<%= dateId %>" class="btn btn-primary">Générer</a>
 
 <%- include ../footer.ejs %>

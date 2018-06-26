@@ -94,7 +94,8 @@
 		"shortday4": "J",
 		"shortday5": "V",
 		"shortday6": "S",
-		"shortday0": "D"
+		"shortday0": "D",
+		"day7": "time.day7"
 	},
 	"availability": {
 		"date": "Date",
@@ -114,11 +115,12 @@
 	},
 	"undefinedabbr": "undefinedabbr",
 	"planning": {
-		"home": "planning.home",
+		"home": "Plannings",
 		"proposal": "Proposition de planning",
 		"date": "Date",
 		"type": "Type",
-		"employee": "Effectif"
+		"employee": "Effectif",
+		"menu": "Plannings"
 	},
 	"category": {
 		"listing": "Catégories",
@@ -142,8 +144,9 @@
 		"days": "Jours",
 		"update": "Edition du créneau",
 		"defaultcategory": "Par défaut",
-		"closed": "slot.closed",
-		"default": "slot.default"
+		"closed": "Fermé",
+		"default": "Créneau par défaut",
+		"category": "Catégorie"
 	},
 	"companyoptions": {
 		"show": "companyoptions.show",

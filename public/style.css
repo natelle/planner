@@ -2,6 +2,10 @@ th.date, td.date {
     width: 120px;
 }
 
+th.label {
+    width: 120px;
+}
+
 select.custom-select {
     height: 34px;
 }
