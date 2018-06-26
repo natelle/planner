@@ -148,9 +148,16 @@ Planner.prototype.generate = function() {
     console.log("RESULTS");
     console.log(results);
 
-    var plannings = [];
+    var planning = null;
 
     if(results.feasible) {
+        planning = new models.Planning();
+
+        planning.firstDate = this.firstDate.getFullYear() + '-' + (this.firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+        planning.lastDate = this.lastDate.getFullYear() + '-' + (this.lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+        planning.temp = true;
+        planning.presences = [];
+
         for(var key in results) {
             switch(key) {
                 case 'feasible':
@@ -158,7 +165,7 @@ Planner.prototype.generate = function() {
                 case 'bounded':
                     break;
                 default:
-                    var pattern = /^(\d+)-(\d+)(\w+)$/;
+                    var pattern = /^(\d+)-(\d+)-(\d+)$/;
                     var match;
 
                     if((match = key.match(pattern))) {
@@ -166,18 +173,23 @@ Planner.prototype.generate = function() {
                         var date = new Date(parseInt(match[2]));
                         var slotId = match[3];
 
-                        var planning = new models.Planning();
-                        planning.EmployeeId = id;
-                        planning.day = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') + ' 00:00:00';
-                        planning.slotId = slotId;
+                        // var presence = new models.Availability();
+                        // presence.day = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+                        // presence.slotId = slotId;
+                        // presence.EmployeeId = employeeId;
+                        var presence = {
+                            day: date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') + ' 00:00:00Z',
+                            slotId: slotId,
+                            EmployeeId: employeeId
+                        }
 
-                        plannings.push(planning);
+                        planning.presences.push(presence);
                     }
             }
         }
     }
 
-    return plannings;
+    return planning;
 };
 
 module.exports = Planner;

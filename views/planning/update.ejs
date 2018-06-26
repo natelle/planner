@@ -1,0 +1,32 @@
+<%- include ../header.ejs %>
+
+<h2><%= __("planning.proposal") %></h2>
+<br>
+<table class="table table-sm">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col"><%= __("planning.date") %></th>
+            <th scope="col" class="text-center"><%= __("planning.slot") %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for(var d=planning.firstDate; d<=planning.lastDate; d.setDate(d.getDate() + 1)) { %>
+            <% var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') %>
+            <tr class="availability">
+            <th scope="row" class="date">
+            <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+            </th>
+            <td class="type text-center">
+                
+
+            </td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+
+    <script>
+
+    </script>
+
+    <%- include ../footer.ejs %>

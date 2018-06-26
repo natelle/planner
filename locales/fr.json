@@ -120,7 +120,8 @@
 		"date": "Date",
 		"type": "Type",
 		"employee": "Effectif",
-		"menu": "Plannings"
+		"menu": "Plannings",
+		"slot": "planning.slot"
 	},
 	"category": {
 		"listing": "Catégories",

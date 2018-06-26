@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
             as: 'slot',
             foreignKey: 'slotId'
         });
-        models.Availability.belongsToMany(models.Planning, {through: 'PlanningAvailability'});
+
+        models.Availability.belongsTo(models.Planning);
     };
 
     return Availability;
