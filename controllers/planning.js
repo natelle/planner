@@ -88,13 +88,14 @@ router.get('/generate/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(r
 
         var planning = planner.generate();
 
-
         if(planning) {
+            console.log("categoryId = " + categoryId);
             models.Planning.create({
                 firstDate: planning.firstDate,
                 lastDate: planning.lastDate,
-                temp: planning.temp,
-                presences: planning.presences
+                validated: planning.validated,
+                presences: planning.presences,
+                categoryId: categoryId
             }, {
                 include: [{
                     model: models.Availability,
@@ -115,70 +116,48 @@ router.get('/:id(\\d+)', function(req, res) {
         include: [{
             model: models.Availability,
             as: 'presences',
-            include: [{
-                model: models.Slot,
-                as: 'slot',
-            }]
-        }]
+            include: [
+                {
+                    model: models.Slot,
+                    as: 'slot'
+                },{
+                    model: models.Employee
+                }
+            ]
+        }],
+        order: [
+            [ {model: models.Availability, as: 'presences'}, {model: models.Slot, as: 'slot'}, 'begin', 'ASC' ],
+            [ {model: models.Availability, as: 'presences'}, models.Employee, 'lastName', 'ASC' ],
+        ]
     }).then(planning => {
-        planning.organisePresences();
-        
-        res.render('planning/update.ejs', {
-            planning: planning
-        });
+        models.Slot.findAll({
+            where: {
+                categoryId: planning.getCategoryId()
+            },
+            order: ['begin']
+        }).then(slots => {
+            planning.organisePresences();
+            if(planning.validated) {
+                res.render('planning/update.ejs', {
+                    planning: planning,
+                    slots: slots
+                });
+            } else {
+                res.render('planning/proposal.ejs', {
+                    planning: planning,
+                    slots: slots
+                });
+            }
+        })
     });
 
-
-
-    // promises = [];
-    // console.log(values);
-    //
-    // for(var planning of plannings) {
-    //     promises.push(models.Planning.findById(planning.id,
-    //         {
-    //             include: [
-    //                 {
-    //                     model: models.Slot,
-    //                     as: 'slot'
-    //                 },
-    //                 {
-    //                     model: models.Employee,
-    //                     //as: 'employee'
-    //                 }
-    //             ]}
-    //         ));
-    //     }
-    //
-    //     Promise.all(promises).then(rawPlannings => {
-    //         var plannings = {};
-    //
-    //         for(var planning of rawPlannings) {
-    //             console.log(planning.slot.name);
-    //             var day = planning.day;
-    //
-    //             if(typeof plannings[day] === "undefined") {
-    //                 plannings[day] = {};
-    //             }
-    //
-    //             var slotId = planning.slot.id;
-    //
-    //             if(typeof plannings[day][slotId] === "undefined") {
-    //                 plannings[day][slotId] = [planning];
-    //             } else {
-    //                 plannings[day][slotId].push(planning);
-    //             }
-    //         }
-    //
-    //         res.render('planning/propose.ejs', {
-    //             plannings: plannings,
-    //             employees: employees,
-    //             firstDate: new Date(firstDateFormated),
-    //             lastDate: new Date(lastDateFormated)
-    //         });
-    //     });
-    //         });
-    //     }
-    // });
+    router.get('/:id(\\d+)/validate', function(req, res) {
+        models.Planning.update({
+            validated: true
+        }, {where: { id: req.params.id }}).then(planning => {
+            res.redirect('/planning');
+        });
+    });
 });
 
 module.exports = router;

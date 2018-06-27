@@ -40,7 +40,8 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})', function(req
         models.Slot.findAll({
             where: {
                 categoryId: employee.category.id
-            }
+            },
+            order: ['begin']
         }).then(rawSlots => {
             var promises = [];
 
@@ -48,7 +49,8 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})', function(req
                 promises.push(models.Slot.findAll({
                     where: {
                         categoryId: null
-                    }
+                    },
+                    order: ['begin']
                 }).then(defaultSlots => {
                     rawSlots = defaultSlots;
                 }))
@@ -94,7 +96,8 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/default', func
             }, include: [{
                 model: models.Slot,
                 as: 'slot'
-            }]
+            }],
+            order: [{model: models.Slot, as: 'slot'}, 'begin']
         }).then(rawAvailabilities => {
             var availabilities = {}
 
@@ -205,7 +208,8 @@ router.get('/:id(\\d+)/availabilities/default', function(req, res) {
         models.Slot.findAll({
             where: {
                 categoryId: employee.category.id
-            }
+            },
+            order: ['begin']
         }).then(rawSlots => {
             var promises = [];
 
@@ -213,7 +217,8 @@ router.get('/:id(\\d+)/availabilities/default', function(req, res) {
                 promises.push(models.Slot.findAll({
                     where: {
                         categoryId: null
-                    }
+                    },
+                    order: ['begin']
                 }).then(defaultSlots => {
                     rawSlots = defaultSlots;
                 }))
@@ -316,14 +321,30 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/reset', functi
     });
 });
 
-router.post('/:id(\\d+)/availabilities/type/set', function(req, res) {
-    var date = req.body.dateId + " 00:00:00Z";
+router.get('/availabilities/category/:categoryId(\\d+)/slot/:slotId(\\d+)/:dateId(\\d{4}-\\d{2}-\\d{2})', function(req, res) {
+    var categoryId = req.params.categoryId;
+    categoryId = categoryId !== '0' ? categoryId : null;
+    var slotId = req.params.slotId;
+    var date = req.params.dateId + " 00:00:00Z";
 
-    models.Availability.update({
-        type: req.body.value
-    },
-    {where: { Employeeid: req.params.id, day: date }}).then(employee => {
-        res.send("maj!")
+    // TODO if categoryId == null, not filter
+
+    models.Availability.findAll({
+        include: [{
+            model: models.Employee,
+            where: categoryId ? { categoryId: categoryId } : {}
+        }],
+        where: {
+            day: date,
+            slotId: slotId,
+            planningId: null
+        },
+        order: [
+            [ models.Employee, 'lastName', 'ASC' ],
+            [ models.Employee, 'firstName', 'ASC' ]
+        ]
+    }).then(availabilities => {
+        res.send(availabilities);
     });
 });
 

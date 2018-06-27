@@ -5,7 +5,8 @@ var router  = express.Router();
 router.get('/', function(req, res) {
     models.Slot.findAll({
         attributes: ['categoryId'],
-        group: ['Slot.categoryId']
+        group: ['Slot.categoryId'],
+        order: ['begin']
     }).then(slots => {
         var promises = [];
 
@@ -56,7 +57,8 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(req, res) 
         models.Slot.findAll({
             where: {
                 categoryId: categoryId
-            }
+            },
+            order: ['begin']
         }).then(rawSlots => {
             var slots = {}
 
@@ -240,7 +242,8 @@ router.post('/set-number', function(req, res) {
 router.get('/default', function(req, res) {
     models.Slot.findAll({
         attributes: ['categoryId'],
-        group: ['Slot.categoryId']
+        group: ['Slot.categoryId'],
+        order: ['begin']
     }).then(slots => {
         var promises = [];
 
@@ -268,7 +271,8 @@ router.get('/default/:categoryId(\\d+)', function(req, res) {
         include: [{
             model: models.EmployeeCategory,
             as: 'category'
-        }]
+        }],
+        order: ['begin']
     }).then(rawSlots => {
         var slots = {}
 

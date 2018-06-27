@@ -121,7 +121,9 @@
 		"type": "Type",
 		"employee": "Effectif",
 		"menu": "Plannings",
-		"slot": "planning.slot"
+		"slot": "Créneaux",
+		"validate": "Valider le planning",
+		"addemployee": "planning.addemployee"
 	},
 	"category": {
 		"listing": "Catégories",

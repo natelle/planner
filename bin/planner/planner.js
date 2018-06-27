@@ -155,7 +155,7 @@ Planner.prototype.generate = function() {
 
         planning.firstDate = this.firstDate.getFullYear() + '-' + (this.firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
         planning.lastDate = this.lastDate.getFullYear() + '-' + (this.lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-        planning.temp = true;
+        planning.validated = false;
         planning.presences = [];
 
         for(var key in results) {

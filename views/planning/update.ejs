@@ -13,20 +13,31 @@
         <% for(var d=planning.firstDate; d<=planning.lastDate; d.setDate(d.getDate() + 1)) { %>
             <% var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') %>
             <tr class="availability">
-            <th scope="row" class="date">
-            <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
-            </th>
-            <td class="type text-center">
-                
+                <th scope="row" class="date">
+                    <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+                </th>
+                <td class="type text-center">
+                    <div class="card-deck">
+                    <% var dayPresences = planning.presences[d] %>
+                    <% for(var slotId in dayPresences) { %>
+                        <div class="card">
+                            <div class="card-header"><%= dayPresences[slotId][0].slot.name %></div>
+                            <div class="card-body">
+                                <% for(var presence of dayPresences[slotId]) { %>
+                                    <p class="card-text"><%= presence.Employee.getName() %></p>
+                                <% } %>
+                            </div>
+                        </div>
+                        <% } %>
+                        </div>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
 
-            </td>
-            </tr>
-            <% } %>
-        </tbody>
-    </table>
+        <script>
 
-    <script>
+        </script>
 
-    </script>
-
-    <%- include ../footer.ejs %>
+        <%- include ../footer.ejs %>
