@@ -33,13 +33,13 @@
                             <div class="card" data-slotId="<%= slot.id %>" data-dateId="<%= dateId %>" presenceId="">
                             <div class="card-header py-1">
                             <%= slotPresences[0].slot.name %> (<%= slotPresences.length %>)
-                            <a href="#add-employee" class="float-right add-employee"><i class="fas fa-plus-square"></i></a>
+                            <a href="#add-employee" class="float-right add-employee"><i class="fas fa-pencil-alt"></i></a>
                             </div>
                             <div class="card-body py-1">
                             <% for(var presence of slotPresences) { %>
                                 <p class="card-text mb-1 employee" data-employeeId="<%= presence.Employee.id %>">
                                 <a href="/employee/<%= presence.Employee.id %>/availabilities/<%= availabilityDateId %>">
-                                <small><%= presence.Employee.getName() %></small>
+                                <small><%= presence.Employee.getName() %></small><!-- TODO: add button to replace the person -->
                                 </a>
                                 </p>
                                 <% } %>
@@ -93,12 +93,35 @@
                                         $.get('/employee/availabilities/category/<%= planning.categoryId %>/slot/' + slotId + '/' + dateId, function(availabilities) {
                                             $("div#modal-employees-list").empty();
                                             for(var availability of availabilities) {
-                                                $("div#modal-employees-list").append('<p><button class="btn btn-sm ' + (presentEmployees.includes(availability.Employee.id) ? "btn-success" : "btn-danger") + '">' + availability.Employee.firstName + ' ' + availability.Employee.lastName + "</button></p>");
+                                                $("div#modal-employees-list").append(
+                                                    '<p>' +
+                                                    '<button class="toggle-employee btn btn-sm ' + (presentEmployees.includes(availability.Employee.id) ? "btn-success" : "btn-danger") + '" data-availabilityid="' + availability.id + '">' +
+                                                    availability.Employee.firstName + ' ' + availability.Employee.lastName +
+                                                    '</button>' +
+                                                    '</p>');
                                             }
 
-                                            $('#addEmployeeModal').modal('show')
+                                            $('#addEmployeeModal').modal('show');
+
+                                            $("button.toggle-employee").click(function() {
+                                                var availabilityId = $(this).attr("data-availabilityid");
+
+                                                toggleEmployee(availabilityId);
+                                            });
                                         });
+
+
                                     });
+
+                                    function toggleEmployee(availabilityId) {
+                                        console.log(availabilityId);
+
+                                        $.post("/planning/<%= planning.id %>/toggle-availability", {
+                                            availabilityId: availabilityId
+                                        }, function(value) {
+                                            console.log(value);
+                                        });
+                                    }
                                 });
                                 </script>
 

@@ -130,22 +130,49 @@ router.get('/:id(\\d+)', function(req, res) {
             [ {model: models.Availability, as: 'presences'}, models.Employee, 'lastName', 'ASC' ],
         ]
     }).then(planning => {
-        models.Slot.findAll({
+        var promises = [];
+
+        promises.push(models.Slot.findAll({
             where: {
                 categoryId: planning.getCategoryId()
             },
             order: ['begin']
-        }).then(slots => {
+        }));
+
+        var firstDateFormated = planning.firstDate.getFullYear() + '-' + (planning.firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + planning.firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+        var lastDateFormated = planning.lastDate.getFullYear() + '-' + (planning.lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + planning.lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+        promises.push(models.Availability.findAll({
+            where: {
+                day: {
+                    [models.Sequelize.Op.and]: {
+                        [models.Sequelize.Op.gte]: firstDateFormated,
+                        [models.Sequelize.Op.lte]: lastDateFormated
+                    }
+                }
+            },
+            include: [
+                {
+                    model: models.Slot,
+                    as: 'slot',
+                    where: { categoryId: planning.getCategoryId()}
+                }
+            ],
+            order: [[ {model: models.Slot, as: 'slot'}, 'begin']]
+        }));
+
+        Promise.all(promises).then(values => {
+            var rawAvailabilities = values[1];
+
             planning.organisePresences();
             if(planning.validated) {
                 res.render('planning/update.ejs', {
                     planning: planning,
-                    slots: slots
+                    slots: values[0]
                 });
             } else {
                 res.render('planning/proposal.ejs', {
                     planning: planning,
-                    slots: slots
+                    slots: values[0]
                 });
             }
         })
@@ -157,6 +184,13 @@ router.get('/:id(\\d+)', function(req, res) {
         }, {where: { id: req.params.id }}).then(planning => {
             res.redirect('/planning');
         });
+    });
+
+    router.post('/:id(\\d+)/toggle-availability', function(req, res) {
+        var id = req.params.id;
+        var availabilityId = req.body.availabilityId;
+
+        res.send(id + " " + availabilityId);
     });
 });
 
