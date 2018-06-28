@@ -21,13 +21,20 @@ module.exports = (sequelize, DataTypes) => {
         });
     };
 
+    Planning.prototype.getCreatedAtFormated = function() {
+        var date = this.createdAt;
+
+        return date.getDate() + '/' + (date.getMonth()+1).toString().padStart(2, '0') + '/' + date.getFullYear() +
+        ' ' + date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+    };
+
     Planning.prototype.getCategoryId = function() {
         for(var presence of this.presences) {
             return presence.slot.categoryId;
         }
 
         return false;
-    }
+    };
 
     Planning.prototype.organisePresences = function() {
         var organisedPresences = {};

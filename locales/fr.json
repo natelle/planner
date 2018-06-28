@@ -141,7 +141,8 @@
 		"yearly": "planning.yearly",
 		"generate": "planning.generate",
 		"pending": "planning.pending",
-		"id": "planning.id"
+		"id": "planning.id",
+		"createdat": "planning.createdat"
 	},
 	"category": {
 		"listing": "Catégories",
@@ -172,5 +173,8 @@
 	"companyoptions": {
 		"show": "companyoptions.show",
 		"defaultcategory": "Par défaut"
+	},
+	"general": {
+		"actions": "general.actions"
 	}
 }
