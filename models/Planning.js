@@ -10,7 +10,11 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Planning.associate = function (models) {
-        models.Planning.hasMany(models.Availability, {as: 'presences'});
+        models.Planning.hasMany(models.Availability, {
+            as: 'presences',
+            onUpdate: 'cascade',
+            onDelete: 'cascade'
+        });
         models.Planning.belongsTo(models.EmployeeCategory, {
             as: 'category',
             foreignKey: 'categoryId'

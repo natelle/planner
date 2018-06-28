@@ -7,6 +7,24 @@ router.get('/', function(req, res) {
     res.render('planning/home.ejs');
 });
 
+router.get('/:id(\\d+)/regenerate', function(req, res) {
+    var id = req.params.id;
+
+    models.Planning.findById(id).then(planning => {
+        var categoryId = planning.categoryId;
+        var month = (planning.firstDate.getMonth()+1).toString().padStart(2, '0');
+        var year = planning.firstDate.getFullYear();
+
+        models.Planning.destroy({
+            where: { id: id }
+        }).then(status => {
+            res.redirect('/planning/generate/'+ categoryId + '/' + month + year);
+        });
+    });
+
+
+});
+
 router.get('/generate/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
@@ -89,7 +107,6 @@ router.get('/generate/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(r
         var planning = planner.generate();
 
         if(planning) {
-            console.log("categoryId = " + categoryId);
             models.Planning.create({
                 firstDate: planning.firstDate,
                 lastDate: planning.lastDate,
@@ -186,11 +203,133 @@ router.get('/:id(\\d+)', function(req, res) {
         });
     });
 
-    router.post('/:id(\\d+)/toggle-availability', function(req, res) {
+    router.get('/:id(\\d+)/:dateId(\\d{4}-\\d{2}-\\d{2})/slot/:slotId(\\d+)/presences', function(req, res) {
+        var date = req.params.dateId + " 00:00:00Z";
+        
+        models.Availability.findAll({
+            where: {
+                PlanningId: req.params.id,
+                slotId: req.params.slotId,
+                day: date
+            },
+            include: [{ model: models.Employee }],
+            order: [
+                [ models.Employee, 'lastName', 'ASC' ],
+                [ models.Employee, 'firstName', 'ASC' ],
+            ]
+        }).then(presences => {
+            res.send(presences);
+        });
+    });
+
+    router.get('/:id(\\d+)/presence/:presenceId(\\d+)/alternatives', function(req, res) {
+        var id = req.params.id;
+        var presenceId = req.params.presenceId;
+
+        models.Availability.findById(presenceId).then(originalPresence => {
+            var date = originalPresence.day.getFullYear() + '-' + (originalPresence.day.getMonth()+1).toString().padStart(2, '0') + '-' + originalPresence.day.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+
+            models.Availability.findAll({
+                where: {
+                    PlanningId: null,
+                    slotId: originalPresence.slotId,
+                    day: date
+                },
+                include: [{ model: models.Employee }]
+            }).then(availabilities => {
+                models.Availability.findAll({
+                    where: {
+                        PlanningId: id,
+                        slotId: originalPresence.slotId,
+                        day: date
+                    }
+                }).then(presences => {
+                    var originId = null;
+
+                    for(var presence of presences) {
+                        for(var i in availabilities) {
+                            var availability = availabilities[i];
+                            if(presence.EmployeeId == availability.EmployeeId) {
+                                if(originalPresence.EmployeeId == availability.EmployeeId) {
+                                    originId = availability.id;
+                                }
+                                availabilities.splice(i, 1);
+
+                                break;
+                            }
+                        }
+                    }
+
+                    res.send({availabilities: availabilities, originId: originId});
+                })
+            });
+        });
+    });
+
+    router.post('/:id(\\d+)/presence/:presenceId(\\d+)/replace', function(req, res) {
+        var id = req.params.id;
+        var presenceId = req.params.presenceId;
+        var availabilityId = req.body.availabilityId;
+        var originId = req.body.originId;
+        var enable = req.body.enable;
+
+        if(enable == "true") {
+            models.Availability.findById(availabilityId).then(availability => {
+                models.Availability.update({
+                    EmployeeId: availability.EmployeeId
+                },
+                {where: {
+                    id: presenceId}
+                }).then(presence => {
+                    res.send(true);
+                });
+            });
+        } else {
+            models.Availability.findById(originId).then(availability => {
+                models.Availability.update({
+                    EmployeeId: availability.EmployeeId
+                },
+                {where: {
+                    id: presenceId}
+                }).then(presence => {
+                    res.send(false);
+                });
+            });
+        }
+    });
+
+    router.post('/:id(\\d+)/toggle-presence', function(req, res) {
         var id = req.params.id;
         var availabilityId = req.body.availabilityId;
 
-        res.send(id + " " + availabilityId);
+        models.Availability.findById(availabilityId).then(availability => {
+            var dateFormated = availability.day.getFullYear() + '-' + (availability.day.getMonth()+1).toString().padStart(2, '0') + '-' + availability.day.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+
+            models.Availability.findOrCreate({
+                where: {
+                    slotId: availability.slotId,
+                    day: dateFormated,
+                    EmployeeId: availability.EmployeeId,
+                    PlanningId: id
+                },
+                defaults: {
+                    slotId: availability.slotId,
+                    day: dateFormated,
+                    EmployeeId: availability.EmployeeId,
+                    PlanningId: id
+                }
+            }).spread((presence, created) => {
+                if(!created) {
+                    models.Availability.destroy({
+                        where: { id: presence.id }
+                    }).then(status => {
+                        res.send(false);
+                    });
+                } else {
+                    res.send(presence);
+                }
+            });
+        });
     });
 });
 

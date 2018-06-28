@@ -123,7 +123,9 @@
 		"menu": "Plannings",
 		"slot": "Créneaux",
 		"validate": "Valider le planning",
-		"addemployee": "planning.addemployee"
+		"addemployee": "planning.addemployee",
+		"regenerate": "Regénérer le planning",
+		"replaceemployee": "planning.replaceemployee"
 	},
 	"category": {
 		"listing": "Catégories",
