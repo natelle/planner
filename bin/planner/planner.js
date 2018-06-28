@@ -119,26 +119,26 @@ Planner.prototype.buildModel = function() {
 
 
 
-    // // Shuffling
-    // var variablesArray = [];
-    // for(var i in variables) {
-    //     var variable = {};
-    //     variable[i] = variables[i];
-    //
-    //     var randomIndex = Math.floor(Math.random() * (variablesArray.length + 1));
-    //     variablesArray.splice(randomIndex, 0, variable);
-    // }
-    //
-    // variables = {};
-    //
-    // for(var i in variablesArray) {
-    //     for(var j in variablesArray[i]) {
-    //         variables[j] = variablesArray[i][j];
-    //     }
-    // }
-    //
-    model.variables = variables;
+    // Shuffling
+    var variablesArray = [];
+    for(var i in variables) {
+        var variable = {};
+        variable[i] = variables[i];
 
+        var randomIndex = Math.floor(Math.random() * (variablesArray.length + 1));
+        variablesArray.splice(randomIndex, 0, variable);
+    }
+
+    variables = {};
+
+    for(var i in variablesArray) {
+        for(var j in variablesArray[i]) {
+            variables[j] = variablesArray[i][j];
+        }
+    }
+
+    model.variables = variables;
+    
     return model;
 };
 

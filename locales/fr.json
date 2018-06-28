@@ -95,7 +95,19 @@
 		"shortday5": "V",
 		"shortday6": "S",
 		"shortday0": "D",
-		"day7": "time.day7"
+		"day7": "time.day7",
+		"month1": "Janvier",
+		"month2": "Février",
+		"month3": "Mars",
+		"month4": "Avril",
+		"month5": "Mai",
+		"month6": "Juin",
+		"month7": "Juillet",
+		"month8": "Août",
+		"month9": "Septembre",
+		"month10": "Octobre",
+		"month11": "Novembre",
+		"month12": "Décembre"
 	},
 	"availability": {
 		"date": "Date",
@@ -125,7 +137,11 @@
 		"validate": "Valider le planning",
 		"addemployee": "planning.addemployee",
 		"regenerate": "Regénérer le planning",
-		"replaceemployee": "planning.replaceemployee"
+		"replaceemployee": "planning.replaceemployee",
+		"yearly": "planning.yearly",
+		"generate": "planning.generate",
+		"pending": "planning.pending",
+		"id": "planning.id"
 	},
 	"category": {
 		"listing": "Catégories",

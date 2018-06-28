@@ -1,0 +1,24 @@
+<%- include ../header.ejs %>
+
+<h2><%= __('planning.pending') %></h2>
+<br>
+<p><a class="btn btn-primary" href="#"><%= __('planning.generate') %></a></p>
+<br>
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col"><%= __('planning.id') %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td>
+        <% for(var planning of plannings) {%>
+            <p><%= planning.id %></p>
+            <% } %>
+        </td>
+    </tr>
+        </tbody>
+    </table>
+
+    <%- include ../footer.ejs %>

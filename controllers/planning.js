@@ -4,28 +4,48 @@ const Planner = require('../bin/planner/planner.js');
 var router  = express.Router();
 
 router.get('/', function(req, res) {
-    res.render('planning/home.ejs');
+    models.Slot.findAll({
+        attributes: ['categoryId'],
+        group: ['Slot.categoryId'],
+        order: ['begin']
+    }).then(slots => {
+        var promises = [];
+
+        for(var slot of slots) {
+            promises.push(models.EmployeeCategory.findById(slot.categoryId))
+        }
+
+        Promise.all(promises).then(categories => {
+            res.render('planning/home.ejs',
+            {
+                categories: categories
+            });
+        })
+    });
 });
 
-router.get('/:id(\\d+)/regenerate', function(req, res) {
-    var id = req.params.id;
+router.get('/category/:categoryId(\\d+)', function(req, res) {
+    var categoryId = req.params.categoryId;
+    var year = (new Date()).getFullYear();
 
-    models.Planning.findById(id).then(planning => {
-        var categoryId = planning.categoryId;
-        var month = (planning.firstDate.getMonth()+1).toString().padStart(2, '0');
-        var year = planning.firstDate.getFullYear();
+    res.redirect("/planning/category/" + categoryId + '/' + year);
+});
 
-        models.Planning.destroy({
-            where: { id: id }
-        }).then(status => {
-            res.redirect('/planning/generate/'+ categoryId + '/' + month + year);
+router.get('/category/:categoryId(\\d+)/:year(\\d{4})', function(req, res) {
+    var categoryId = req.params.categoryId;
+    categoryId = categoryId !== '0' ? categoryId : null;
+    var year = req.params.year;
+
+    models.EmployeeCategory.findById(categoryId).then(category => {
+        res.render('planning/list-yearly.ejs',
+        {
+            category: category,
+            year: year
         });
     });
-
-
 });
 
-router.get('/generate/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(req, res) {
+router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
     var month = req.params.month;
@@ -127,6 +147,76 @@ router.get('/generate/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(r
     });
 });
 
+router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/pending", function(req, res) {
+    var month = req.params.month;
+    var year = req.params.year;
+
+    var firstDate = new Date(year, parseInt(month) - 1, 1);
+    var lastDate = new Date(year, parseInt(month), 0);
+
+    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+
+    models.Planning.findAll({
+        where: {
+            firstDate: firstDateFormated,
+            lastDate: lastDateFormated,
+            categoryId: req.params.categoryId,
+            validated: false
+        },
+        order: [
+            [ 'createdAt', 'ASC' ],
+        ]
+    }).then(plannings => {
+        res.render('planning/pending.ejs', {
+            plannings: plannings
+        });
+    })
+});
+
+router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/validated", function(req, res) {
+    var month = req.params.month;
+    var year = req.params.year;
+
+    var firstDate = new Date(year, parseInt(month) - 1, 1);
+    var lastDate = new Date(year, parseInt(month), 0);
+
+    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+
+    models.Planning.findAll({
+        where: {
+            firstDate: firstDateFormated,
+            lastDate: lastDateFormated,
+            categoryId: req.params.categoryId,
+            validated: true
+        },
+        order: [
+            [ 'createdAt', 'ASC' ],
+        ]
+    }).then(plannings => {
+        res.render('planning/pending.ejs', {
+            plannings: plannings
+        });
+    })
+});
+
+router.get('/:id(\\d+)/regenerate', function(req, res) {
+    var id = req.params.id;
+
+    models.Planning.findById(id).then(planning => {
+        var categoryId = planning.categoryId;
+        var month = (planning.firstDate.getMonth()+1).toString().padStart(2, '0');
+        var year = planning.firstDate.getFullYear();
+
+        models.Planning.destroy({
+            where: { id: id }
+        }).then(status => {
+            res.redirect('/planning/generate/category/'+ categoryId + '/' + month + year);
+        });
+    });
+});
+
 router.get('/:id(\\d+)', function(req, res) {
     var id = req.params.id;
     models.Planning.findById(id, {
@@ -199,13 +289,14 @@ router.get('/:id(\\d+)', function(req, res) {
         models.Planning.update({
             validated: true
         }, {where: { id: req.params.id }}).then(planning => {
+            // TODO: change redirect
             res.redirect('/planning');
         });
     });
 
     router.get('/:id(\\d+)/:dateId(\\d{4}-\\d{2}-\\d{2})/slot/:slotId(\\d+)/presences', function(req, res) {
         var date = req.params.dateId + " 00:00:00Z";
-        
+
         models.Availability.findAll({
             where: {
                 PlanningId: req.params.id,

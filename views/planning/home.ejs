@@ -1,8 +1,15 @@
 <%- include ../header.ejs %>
 
-<h2><%= __("planning.home") %></h2>
-<br>
-<% var dateId = (parseInt((new Date()).getMonth()) + 1).toString().padStart(2, '0') + (new Date()).getFullYear() %>
-<a href="/planning/generate/1/<%= dateId %>" class="btn btn-primary">Générer</a>
+    <h2><%= __("agenda.home") %></h2>
+    <br>
 
-<%- include ../footer.ejs %>
+    <% for(var category of categories) {
+        if(category) { %>
+        <h4><a href="/planning/category/<%= category.id %>"><%= category.name %></a></h4>
+        <% } else { %>
+            <h4><a href="/planning/category/0"><%= __("category.default") %></a></h4>
+            <% } %>
+                <br>
+                <% } %>
+
+                    <%- include ../footer.ejs %>

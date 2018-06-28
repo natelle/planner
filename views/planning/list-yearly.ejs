@@ -1,0 +1,57 @@
+<%- include ../header.ejs %>
+
+    <h2><%= __("planning.yearly") %> <%= year %> - <%= category ? category.name : __("category.default") %></h2>
+    <br>
+    <div class="row">
+        <div class="col-md-1">
+            <a href="/planning/category/<%= category ? category.id : 0 %>/<%= parseInt(year) - 1 %>"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+        </div>
+        <div class="col-md-10">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Mois</th>
+                        <th scope="col">Autres</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%
+                var now = new Date();
+                for(var i=1; i<=12; i++) {
+                    %>
+                        <tr>
+                            <td>
+                                <% if(now.getMonth() == (i-1)) { %>
+                                    <b>
+                                <% } %>
+                                    <%= __('time.month' + i.toString()) %> <%= year %>
+                                <% if(now.getMonth() == (i-1)) { %>
+                                    </b>
+                                    <% } %>
+                            </td>
+                            <td>
+                                <% if((new Date(year, i, 0)).getTime() >= (new Date(now.getFullYear(), now.getMonth(), 1)).getTime()) { %>
+                                <a href="/planning/generate/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.generate") %>">
+                                <i class="fas fa-retweet"></i>
+                                </a>
+                                <% } else { %>
+                                    <a href="#"><i class="invisible fas fa-retweet"></i></a>
+                                <% } %>
+                                <a class="ml-3" href="/planning/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>/pending" title="<%= __("planning.generate") %>">
+                                <i class="fas fa-calendar-minus"></i>
+                                </a>
+                                <a class="ml-3" href="/planning/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>/validated" title="<%= __("planning.generate") %>">
+                                <i class="fas fa-calendar-check"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <% } %>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-1">
+            <a href="/planning/category/<%= category ? category.id : 0 %>/<%= parseInt(year) + 1 %>"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+        </div>
+    </div>
+
+    <%- include ../footer.ejs %>
