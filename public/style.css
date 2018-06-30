@@ -13,3 +13,12 @@ select.custom-select {
 input.number {
     width: 55px!important;
 }
+
+td.calendar-day {
+    height: 120px;
+    width: 14.28571428571429%
+}
+
+td.calendar-day button {
+    height: 26px;
+}

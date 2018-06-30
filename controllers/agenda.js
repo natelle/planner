@@ -20,7 +20,7 @@ router.get('/', function(req, res) {
                 categories: categories
             });
         })
-    })
+    });
 });
 
 router.get('/:categoryId(\\d+)', function(req, res) {

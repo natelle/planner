@@ -17,6 +17,9 @@
                 <th scope="col">
                     <%= __('planning.createdat') %>
                 </th>
+                <th class="text-center" scope="col">
+                    <%= __('planning.validated') %>
+                </th>
                 <th scope="col">
                     <%= __n('global.action', 2) %>
                 </th>
@@ -24,7 +27,7 @@
         </thead>
         <tbody>
             <% for(var planning of plannings) { %>
-                <tr>
+                <tr class="<%= planning.validated ? "table-success font-weight-bold" : "" %>">
                     <td>
                         <p>
                             <%= planning.id %>
@@ -32,6 +35,9 @@
                     </td>
                     <td>
                         <%= planning.getCreatedAtFormated() %>
+                    </td>
+                    <td class="text-center">
+                        <i class="fas fa-check <%= planning.validated ? "visible" : "invisible" %>"></i>
                     </td>
                     <td>
                         <a href="/planning/<%= planning.id %>"><i class="fas fa-pencil-alt"></i></a>

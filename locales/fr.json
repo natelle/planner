@@ -142,7 +142,12 @@
 		"generate": "planning.generate",
 		"pending": "planning.pending",
 		"id": "planning.id",
-		"createdat": "planning.createdat"
+		"createdat": "planning.createdat",
+		"edit": "planning.edit",
+		"validated": "planning.validated",
+		"unvalidate": "planning.unvalidate",
+		"calendarview": "planning.calendarview",
+		"classicalview": "planning.classicalview"
 	},
 	"category": {
 		"listing": "Catégories",

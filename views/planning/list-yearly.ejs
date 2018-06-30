@@ -37,8 +37,8 @@
                                 <% } else { %>
                                     <a href="#"><i class="invisible fas fa-retweet"></i></a>
                                 <% } %>
-                                <a class="ml-3" href="/planning/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>/pending" title="<%= __("planning.generate") %>">
-                                <i class="fas fa-calendar-minus"></i>
+                                <a class="ml-3" href="/planning/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.generate") %>">
+                                <i class="fas fa-list-ol"></i>
                                 </a>
                                 <a class="ml-3" href="/planning/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>/validated" title="<%= __("planning.generate") %>">
                                 <i class="fas fa-calendar-check"></i>

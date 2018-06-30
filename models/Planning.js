@@ -64,5 +64,29 @@ module.exports = (sequelize, DataTypes) => {
         this.presences = organisedPresences;
     }
 
+    Planning.prototype.organisePresencesByDate = function() {
+        var organisedPresences = {};
+
+        for(var presence of this.presences) {
+            var day = presence.day.getTime();
+
+            if(typeof organisedPresences[day] === "undefined") {
+                organisedPresences[day] = {};
+            }
+
+            var slotId = presence.slot.id;
+
+            if(typeof organisedPresences[day][slotId] === "undefined") {
+                organisedPresences[day][slotId] = [presence];
+            } else {
+                organisedPresences[day][slotId].push(presence);
+            }
+        }
+
+        console.log(organisedPresences);
+
+        this.presences = organisedPresences;
+    }
+
     return Planning;
 };
