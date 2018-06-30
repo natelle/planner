@@ -23,8 +23,9 @@ var lastDate = new Date(2018, month + 1, 0);
 
         <table class="table table-bordered">
             <%
-    var newWeek = true, currentDate = new Date(Date.UTC(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate()));
-    while(newWeek) {
+    var currentDate = new Date(Date.UTC(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate()));
+    while(currentDate.getMonth() <= month) {
+        var closed = false;
         %>
                 <tr>
                     <%
@@ -37,27 +38,42 @@ var lastDate = new Date(2018, month + 1, 0);
                             </p>
                             <%
             if(open) {
+                closed = false;
                 for(var slotId in planning.presences[currentDate.getTime()]) {
                     var presences = planning.presences[currentDate.getTime()][slotId];
                     %>
                                 <button type="button" data-toggle="popover" data-trigger="focus" title="Employés" data-content="<% for(var j in presences) {%><%= (j>0 ? " <br>" : "") + presences[j].Employee.firstName + " " + presences[j].Employee.lastName %><% } %>"
-                    class="align-text-top py-0 btn btn-primary btn-block my-1">
+                    class="align-text-top py-0 btn btn-success btn-block my-1">
                     <small>
-                    <%= presences[0].slot.name + " (" + presences.length + ")"%>
+                        <%= presences[0].slot.name + " (" + presences.length + ")"%>
                     </small>
                     </button>
                                 <%
                 }
-            }
+            } else if(currentDate.getMonth() == month) {
+                if(!closed) {
+                    var d = new Date(currentDate), size = 1;
+
+                    while(true) {
+                        d.setDate(d.getDate() + 1);
+                        if(d.getDay() != 1 && typeof planning.presences[d.getTime()] === 'undefined' && d.getMonth() == month) {
+                            size++;
+                        } else {
+                            break;
+                        }
+                    }
+                    closed = true;
             %>
+                                    <button class="position-absolute day-<%= size %> my-0 align-text-top py-0 btn btn-danger" disabled><small><%= __("time.closed") %></small></button>
+                                    <%
+                }
+            }
+                                %>
                         </td>
                         <% currentDate.setDate(currentDate.getDate() + 1); %>
                             <% } %>
                 </tr>
-                <%
-            newWeek = (currentDate.getMonth() <= month);
-        }
-        %>
+                <% } %>
         </table>
 
 

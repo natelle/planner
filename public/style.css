@@ -11,14 +11,77 @@ select.custom-select {
 }
 
 input.number {
-    width: 55px!important;
+    width: 55px !important;
 }
 
 td.calendar-day {
     height: 120px;
-    width: 14.28571428571429%
+    width: 14.28571428571429% !important;
 }
 
 td.calendar-day button {
     height: 26px;
+}
+
+button.day-1 {
+    z-index: 1000;
+    opacity: 1!important;
+    width: -moz-calc(100% - 8px);
+    width: -webkit-calc(100% - 8px);
+    width: -o-calc(100% - 8px);
+    width: calc(100% - 8px);
+}
+
+button.day-2 {
+    z-index: 1000;
+    opacity: 1!important;
+    width: -moz-calc(200% - 8px);
+    width: -webkit-calc(200% - 8px);
+    width: -o-calc(200% - 8px);
+    width: calc(200% - 8px);
+}
+
+button.day-3 {
+    z-index: 1000;
+    opacity: 1!important;
+    width: -moz-calc(300% - 8px);
+    width: -webkit-calc(300% - 8px);
+    width: -o-calc(300% - 8px);
+    width: calc(300% - 8px);
+}
+
+button.day-4 {
+    z-index: 1000;
+    opacity: 1!important;
+    width: -moz-calc(400% - 8px);
+    width: -webkit-calc(400% - 8px);
+    width: -o-calc(400% - 8px);
+    width: calc(400% - 8px);
+}
+
+button.day-5 {
+    z-index: 1000;
+    opacity: 1!important;
+    width: -moz-calc(500% - 8px);
+    width: -webkit-calc(500% - 8px);
+    width: -o-calc(500% - 8px);
+    width: calc(500% - 8px);
+}
+
+button.day-6 {
+    z-index: 1000;
+    opacity: 1!important;
+    width: -moz-calc(600% - 8px);
+    width: -webkit-calc(600% - 8px);
+    width: -o-calc(600% - 8px);
+    width: calc(600% - 8px);
+}
+
+button.day-7 {
+    z-index: 1000;
+    opacity: 1!important;
+    width: -moz-calc(700% - 8px);
+    width: -webkit-calc(700% - 8px);
+    width: -o-calc(700% - 8px);
+    width: calc(700% - 8px);
 }
