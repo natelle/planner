@@ -19,15 +19,26 @@
             var employee = employees[i];
             %>
             <tr>
-            <td><%= employee.firstName %></td>
-            <td><%= employee.lastName %></td>
-            <td><%= employee.category.name %></td>
-            <td>
-            <a href="/employee/<%= employee.id %>/update" title="<%= __('global.edit') %>"><i class="fas fa-pencil-alt"></i></a>&nbsp;
-            <a href="/employee/<%= employee.id %>/delete" title="<%= __('global.delete') %>"><i class="fas fa-trash-alt"></i></a>&nbsp;
-            <a href="/employee/<%= employee.id %>/availabilities" title="<%= __n('availability.availabilities', 2) %>"><i class="fas fa-calendar-alt"></i></a>&nbsp;
-            <a href="/employee/<%= employee.id %>/availabilities/default" title="<%= __('availability.default') %>"><i class="fas fa-calendar-check"></i></a>
-            </td>
+                <td><%= employee.firstName %></td>
+                <td><%= employee.lastName %></td>
+                <td><%= employee.category.name %></td>
+                <td>
+                    <a href="/employee/<%= employee.id %>/update" title="<%= __('global.edit') %>">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                    <a class="ml-1" href="/employee/<%= employee.id %>/delete" title="<%= __('global.delete') %>"
+                        ><i class="fas fa-trash-alt"></i>
+                    </a>
+                    <a class="ml-1" href="/employee/<%= employee.id %>/availabilities" title="<%= __n('availability.availabilities', 2) %>">
+                        <i class="fas fa-calendar"></i>
+                        </a>
+                    <a class="ml-1" href="/employee/<%= employee.id %>/availabilities/default" title="<%= __('availability.default') %>">
+                        <i class="fas fa-calendar-check"></i>
+                    </a>
+                    <a class="ml-1" href="/planning/employee/<%= employee.id %>" title="<%= __('planning.list') %>">
+                        <i class="fas fa-calendar-alt"></i>
+                    </a>
+                </td>
             </tr>
             <% } %>
         </tbody>

@@ -1,10 +1,10 @@
 <%- include ../header.ejs %>
 
-    <h2><%= __("planning.yearly") %> <%= year %> - <%= category ? category.name : __("category.default") %></h2>
+    <h2><%= __("planning.yearly") %> <%= year %> - <%= employee.getName() %></h2>
     <br>
     <div class="row">
         <div class="col-md-1">
-            <a href="/planning/category/<%= category ? category.id : 0 %>/<%= parseInt(year) - 1 %>"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+            <a href="/planning/employee/<%= employee.id %>/<%= parseInt(year) - 1 %>"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
         </div>
         <div class="col-md-10">
             <table class="table">
@@ -30,15 +30,8 @@
                                     <% } %>
                             </td>
                             <td>
-                                <% if((new Date(year, i, 0)).getTime() >= (new Date(now.getFullYear(), now.getMonth(), 1)).getTime()) { %>
-                                <a href="/planning/generate/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.generate") %>">
-                                <i class="fas fa-retweet"></i>
-                                </a>
-                                <% } else { %>
-                                    <a href="#"><i class="invisible fas fa-retweet"></i></a>
-                                <% } %>
                                 <% if(typeof plannings[i-1] !== 'undefined') { %>
-                                <a class="ml-3" href="/planning/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.list") %>">
+                                <a class="ml-3" href="/planning/employee/<%= employee.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.list") %>">
                                 <i class="fas fa-list-ol"></i>
                                 </a>
                                 <%
@@ -52,15 +45,10 @@
 
                                 if(hasValidated) {
                                 %>
-                                <a class="ml-3" href="/planning/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>/validated" title="<%= __("planning.validated") %>">
-                                    <i class="fas fa-calendar-check"></i>
+                                <a class="ml-3" href="/planning/employee/<%= employee.id %>/<%= i.toString().padStart(2, '0') + year %>/validated" title="<%= __("planning.validated") %>">
+                                <i class="fas fa-calendar-check"></i>
                                 </a>
                                 <% } %>
-                                <% } %>
-                                <% if(i==6 || (new Date(year, i, 0)).getTime() >= (new Date(now.getFullYear(), now.getMonth(), 1)).getTime()) { %>
-                                <a class="ml-3" href="/planning/create/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.create") %>">
-                                    <i class="fas fa-plus-square"></i>
-                                </a>
                                 <% } %>
                             </td>
                         </tr>
@@ -69,7 +57,7 @@
             </table>
         </div>
         <div class="col-md-1">
-            <a href="/planning/category/<%= category ? category.id : 0 %>/<%= parseInt(year) + 1 %>"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+            <a href="/planning/employee/<%= employee.id %>/<%= parseInt(year) + 1 %>"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
         </div>
     </div>
 

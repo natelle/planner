@@ -147,7 +147,10 @@
 		"validated": "planning.validated",
 		"unvalidate": "planning.unvalidate",
 		"calendarview": "planning.calendarview",
-		"classicalview": "planning.classicalview"
+		"classicalview": "planning.classicalview",
+		"list": "planning.list",
+		"current": "planning.current",
+		"create": "planning.create"
 	},
 	"category": {
 		"listing": "Catégories",

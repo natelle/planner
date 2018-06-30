@@ -20,7 +20,7 @@ td.calendar-day {
 }
 
 td.calendar-day button {
-    height: 26px;
+    min-height: 26px;
 }
 
 button.day-1 {
