@@ -27,7 +27,10 @@
             </thead>
             <tbody>
                 <% for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) { %>
-                    <% var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') %>
+                    <%
+                    //var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0')
+                    var dateId = d.getTime();
+                    %>
                     <tr class="agenda table-light">
                         <th class="date align-middle">
                             <%= __("time.shortday" + d.getDay()) %>  <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>

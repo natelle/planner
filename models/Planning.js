@@ -29,18 +29,14 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     Planning.prototype.getCategoryId = function() {
-        for(var presence of this.presences) {
-            return presence.slot.categoryId;
-        }
-
-        return false;
+        return this.categoryId;
     };
 
     Planning.prototype.organisePresences = function() {
         var organisedPresences = {};
 
         for(var presence of this.presences) {
-            var day = presence.day;
+            var day = presence.day.getTime();
 
             if(typeof organisedPresences[day] === "undefined") {
                 organisedPresences[day] = {};
@@ -56,10 +52,10 @@ module.exports = (sequelize, DataTypes) => {
         }
 
         for (var d = new Date(this.firstDate); d <= this.lastDate; d.setDate(d.getDate() + 1)) {
-            if(typeof organisedPresences[d] === 'undefined') {
-                organisedPresences[d] = {};
+            if(typeof organisedPresences[d.getTime()] === 'undefined') {
+                organisedPresences[d.getTime()] = {};
             }
-        }
+        }        
 
         this.presences = organisedPresences;
     }

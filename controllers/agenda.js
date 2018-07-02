@@ -50,8 +50,8 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(req, res) 
     var month = req.params.month;
     var year = req.params.year;
 
-    var firstDate = new Date(year, parseInt(month) - 1, 1);
-    var lastDate = new Date(year, parseInt(month), 0);
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     models.EmployeeCategory.findById(categoryId).then(category => {
         models.Slot.findAll({
@@ -89,9 +89,9 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
     var month = req.params.month;
     var year = req.params.year;
 
-    var firstDate = new Date(year, parseInt(month) - 1, 1);
-    var lastDate = new Date(year, parseInt(month), 0);
-
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
+    
     models.DefaultAgenda.findAll({
         include: [{
             model: models.Slot,
@@ -115,8 +115,7 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
 
         // Delete first all the availabilities in the month
         for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) {
-            var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-            var day = (new Date(date)).getDay();
+            let date = new Date(d);
 
             promises.push(models.Agenda.destroy({
                 where: {
@@ -134,9 +133,9 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
 
             // Create then all the agendas from the default ones
             for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) {
-                var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-                var day = d.getDay();
-
+                let date = new Date(d);
+                let day = date.getDay();
+                
                 if(typeof agendas[day] !== 'undefined') {
                     for(var agenda of agendas[day]) {
                         promises.push(models.Agenda.create({
@@ -156,7 +155,7 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
 });
 
 router.post('/enabled', function(req, res) {
-    var date = req.body.dateId + " 00:00:00Z";
+    var date = new Date(parseInt(req.body.dateId));
     var slotId = req.body.slotId;
 
     models.Agenda.findOne({
@@ -170,7 +169,7 @@ router.post('/enabled', function(req, res) {
 });
 
 router.post('/number', function(req, res) {
-    var date = req.body.dateId + " 00:00:00Z";
+    var date = new Date(parseInt(req.body.dateId));
     var slotId = req.body.slotId;
 
     models.Agenda.findOne({
@@ -185,8 +184,8 @@ router.post('/number', function(req, res) {
 
 router.post('/set', function(req, res) {
     var enable = req.body.enable == "true" ? true : false;
-    var date = req.body.dateId + " 00:00:00Z";
-    var slotId = req.body.slotId;
+    var date = new Date(parseInt(req.body.dateId));
+    var slotId = req.body.slotId;    
 
     if(enable) {
         var day = (new Date(date)).getDay();
@@ -224,7 +223,7 @@ router.post('/set', function(req, res) {
 
 router.post('/set-number', function(req, res) {
     var number = req.body.number;
-    var date = req.body.dateId + " 00:00:00Z";
+    var date = new Date(parseInt(req.body.dateId));
     var slotId = req.body.slotId;
 
     models.Agenda.update({

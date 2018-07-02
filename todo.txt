@@ -1,5 +1,2 @@
-Les créneaux ajoutés dans le menu créneaux SUFFISENT.
-Enlever la possibilité de spécifier les créneaux de l'entreprise dans les "CompanyOptions"
-(qui deviennent inutiles)
-
-Dans le menu créneaux, utliser des buttons-group au lieu des cases à cocher => plus joli et même un peu plus pratique
+- ajouter le spinner dans availability lors du clic sur ... défaut.
+- planning/failure.ejs

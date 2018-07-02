@@ -1,5 +1,7 @@
 var models = require('../models');
 var express = require('express');
+var i18n = require('i18n');
+
 const Planner = require('../bin/planner/planner.js');
 var router = express.Router();
 
@@ -40,7 +42,7 @@ router.get('/category/:categoryId(\\d+)/:year(\\d{4})', function (req, res) {
         models.Planning.findAll({
             where: {
                 firstDate: {
-                    [models.Sequelize.Op.between]: [year + "-01-01 00:00:00Z", year + "-12-31 00:00:00Z"]
+                    [models.Sequelize.Op.between]: [new Date(year, 0, 1), new Date(year, 11, 31)]
                 },
                 categoryId: categoryId
             }
@@ -49,6 +51,7 @@ router.get('/category/:categoryId(\\d+)/:year(\\d{4})', function (req, res) {
 
             for (var planning of rawPlannings) {
                 var month = planning.firstDate.getMonth();
+
                 if (typeof plannings[month] === 'undefined') {
                     plannings[month] = [planning];
                 } else {
@@ -72,11 +75,8 @@ router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', f
     var month = req.params.month;
     var year = req.params.year;
 
-    var firstDate = new Date(year, parseInt(month) - 1, 1);
-    var lastDate = new Date(year, parseInt(month), 0);
-
-    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth() + 1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth() + 1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     var promises = [];
     var employees, agendas, availabilities, slots;
@@ -84,10 +84,7 @@ router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', f
     promises.push(models.Agenda.findAll({
         where: {
             day: {
-                [models.Sequelize.Op.and]: {
-                    [models.Sequelize.Op.gte]: firstDateFormated,
-                    [models.Sequelize.Op.lte]: lastDateFormated
-                }
+                [models.Sequelize.Op.between]: [firstDate, lastDate]
             }
         },
         include: [{
@@ -102,10 +99,7 @@ router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', f
     promises.push(models.Availability.findAll({
         where: {
             day: {
-                [models.Sequelize.Op.and]: {
-                    [models.Sequelize.Op.gte]: firstDateFormated,
-                    [models.Sequelize.Op.lte]: lastDateFormated
-                }
+                [models.Sequelize.Op.between]: [firstDate, lastDate]
             }
         },
         include: [{
@@ -145,22 +139,22 @@ router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', f
             availabilities: availabilities
         });
 
-        var planning = planner.generate();
+        var generatedPlanning = planner.generate();
 
-        if (planning) {
+        if (generatedPlanning) {
             models.Planning.create({
-                firstDate: planning.firstDate,
-                lastDate: planning.lastDate,
-                validated: planning.validated,
-                presences: planning.presences,
+                firstDate: firstDate,
+                lastDate: lastDate,
+                validated: false,
+                presences: generatedPlanning.presences,
                 categoryId: categoryId
             }, {
                     include: [{
                         model: models.Availability,
                         as: 'presences'
                     }]
-                }).then(createdPlanning => {
-                    res.redirect('/planning/' + createdPlanning.id);
+                }).then(planning => {
+                    res.redirect('/planning/' + planning.id);
                 });
         } else {
             res.render('planning/failure.ejs');
@@ -174,16 +168,13 @@ router.get('/create/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', fun
     var month = req.params.month;
     var year = req.params.year;
 
-    var firstDate = new Date(year, parseInt(month) - 1, 1);
-    var lastDate = new Date(year, parseInt(month), 0);
-
-    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth() + 1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth() + 1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     models.Agenda.findAll({
         where: {
             day: {
-                [models.Sequelize.op.between]: [firstDateFormated, lastDateFormated]
+                [models.Sequelize.Op.between]: [firstDate, lastDate]
             }
         },
         include: [
@@ -195,16 +186,102 @@ router.get('/create/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', fun
                 }
             }
         ]
-    }).then(agendas => {
-       models.Planning.create({
-            firstDate: firstDateFormated,
-            lastDate: lastDateFormated,
+    }).then(rawAgendas => {
+        var agendas = {};
+
+        for (var agenda of rawAgendas) {
+            var day = agenda.day.getTime();
+
+            if (typeof agendas[day] === "undefined") {
+                agendas[day] = {};
+            }
+
+            var slotId = agenda.slot.id;
+
+            if (typeof agendas[day][slotId] === "undefined") {
+                agendas[day][slotId] = [agenda];
+            } else {
+                agendas[day][slotId].push(agenda);
+            }
+        }
+
+        for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
+            if (typeof agendas[d.getTime()] === 'undefined') {
+                agendas[d.getTime()] = {};
+            }
+        }        
+
+        models.Planning.create({
+            firstDate: firstDate,
+            lastDate: lastDate,
             validated: false,
             presences: [],
             categoryId: categoryId
-        }).then(createdPlanning => {
-            res.render('planning.create.ejs', {
-                agendas: agendas
+        }).then(planning => {
+            console.log("planning id = " + planning.id);
+            
+            res.redirect("/planning/create/" + planning.id);
+        });
+    });
+});
+
+router.get('/create/:id(\\d+)', function (req, res) {
+    models.Planning.findById(req.params.id).then(planning => {
+        var promises = [];
+
+        promises.push(models.Slot.findAll({
+            where: {
+                categoryId: planning.getCategoryId()
+            },
+            order: ['begin']
+        }));
+        
+        promises.push(models.Agenda.findAll({
+            where: {
+                day: {
+                    [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
+                }
+            },
+            include: [
+                {
+                    model: models.Slot,
+                    as: 'slot',
+                    where: {
+                        categoryId: planning.getCategoryId()
+                    }
+                }
+            ]
+        }));
+        
+        Promise.all(promises).then(values => {
+            var agendas = {};
+    
+            for (var agenda of values[1]) {
+                var day = agenda.day.getTime();
+    
+                if (typeof agendas[day] === "undefined") {
+                    agendas[day] = {};
+                }
+    
+                var slotId = agenda.slot.id;
+    
+                if (typeof agendas[day][slotId] === "undefined") {
+                    agendas[day][slotId] = [agenda];
+                } else {
+                    agendas[day][slotId].push(agenda);
+                }
+            }
+    
+            for (var d = new Date(planning.firstDate); d <= planning.lastDate; d.setDate(d.getDate() + 1)) {
+                if (typeof agendas[d.getTime()] === 'undefined') {
+                    agendas[d.getTime()] = {};
+                }
+            }
+
+            res.render('planning/create.ejs', {
+                agendas: agendas,
+                planning: planning,
+                slots: values[0]
             });
         });
     });
@@ -216,16 +293,13 @@ router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})", function (
     var month = req.params.month;
     var year = req.params.year;
 
-    var firstDate = new Date(year, parseInt(month) - 1, 1);
-    var lastDate = new Date(year, parseInt(month), 0);
-
-    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth() + 1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth() + 1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     models.Planning.findAll({
         where: {
-            firstDate: firstDateFormated,
-            lastDate: lastDateFormated,
+            firstDate: firstDate,
+            lastDate: lastDate,
             categoryId: categoryId,
         },
         order: [
@@ -245,16 +319,13 @@ router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/validated", 
     var month = req.params.month;
     var year = req.params.year;
 
-    var firstDate = new Date(year, parseInt(month) - 1, 1);
-    var lastDate = new Date(year, parseInt(month), 0);
-
-    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth() + 1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth() + 1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     models.Planning.findOne({
         where: {
-            firstDate: firstDateFormated,
-            lastDate: lastDateFormated,
+            firstDate: firstDate,
+            lastDate: lastDate,
             categoryId: categoryId,
             validated: true
         }
@@ -316,8 +387,15 @@ router.get('/:id(\\d+)', function (req, res) {
             ]
         }],
         order: [
-            [{ model: models.Availability, as: 'presences' }, { model: models.Slot, as: 'slot' }, 'begin', 'ASC'],
-            [{ model: models.Availability, as: 'presences' }, models.Employee, 'lastName', 'ASC'],
+            [
+                { model: models.Availability, as: 'presences' },
+                { model: models.Slot, as: 'slot' },
+                'begin'
+            ],
+            [
+                { model: models.Availability, as: 'presences' },
+                models.Employee,
+                'lastName'],
         ]
     }).then(planning => {
         var promises = [];
@@ -329,15 +407,10 @@ router.get('/:id(\\d+)', function (req, res) {
             order: ['begin']
         }));
 
-        var firstDateFormated = planning.firstDate.getFullYear() + '-' + (planning.firstDate.getMonth() + 1).toString().padStart(2, '0') + '-' + planning.firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-        var lastDateFormated = planning.lastDate.getFullYear() + '-' + (planning.lastDate.getMonth() + 1).toString().padStart(2, '0') + '-' + planning.lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
         promises.push(models.Availability.findAll({
             where: {
                 day: {
-                    [models.Sequelize.Op.and]: {
-                        [models.Sequelize.Op.gte]: firstDateFormated,
-                        [models.Sequelize.Op.lte]: lastDateFormated
-                    }
+                    [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
                 }
             },
             include: [
@@ -354,6 +427,7 @@ router.get('/:id(\\d+)', function (req, res) {
             var rawAvailabilities = values[1];
 
             planning.organisePresences();
+
             if (planning.validated) {
                 res.render('planning/validated.ejs', {
                     planning: planning,
@@ -385,8 +459,16 @@ router.get('/:id(\\d+)/calendar', function (req, res) {
             ]
         }],
         order: [
-            [{ model: models.Availability, as: 'presences' }, { model: models.Slot, as: 'slot' }, 'begin', 'ASC'],
-            [{ model: models.Availability, as: 'presences' }, models.Employee, 'lastName', 'ASC'],
+            [
+                { model: models.Availability, as: 'presences' },
+                { model: models.Slot, as: 'slot' },
+                'begin'
+            ],
+            [
+                { model: models.Availability, as: 'presences' },
+                models.Employee,
+                'lastName'
+            ],
         ]
     }).then(planning => {
         planning.organisePresencesByDate();
@@ -407,22 +489,22 @@ router.get('/:id(\\d+)/validate', function (req, res) {
     models.Planning.findById(id).then(planning => {
         var promises = [];
 
-        promises.push(models.Planning.update({
-            validated: true
-        }, {
+        promises.push(models.Planning.update(
+            {
+                validated: true
+            },
+            {
                 where: { id: id }
-            }));
-
-        var firstDateFormated = planning.firstDate.getFullYear() + '-' + (planning.firstDate.getMonth() + 1).toString().padStart(2, '0') + '-' + planning.firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-        var lastDateFormated = planning.lastDate.getFullYear() + '-' + (planning.lastDate.getMonth() + 1).toString().padStart(2, '0') + '-' + planning.lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+            }
+        ));
 
         promises.push(models.Planning.update({
             validated: false
         }, {
                 where: {
                     categoryId: planning.categoryId,
-                    firstDate: firstDateFormated,
-                    lastDate: lastDateFormated,
+                    firstDate: planning.firstDate,
+                    lastDate: planning.lastDate,
                     validated: true,
                     id: { [models.Sequelize.Op.ne]: id }
                 }
@@ -438,17 +520,19 @@ router.get('/:id(\\d+)/validate', function (req, res) {
 router.get('/:id(\\d+)/unvalidate', function (req, res) {
     var id = req.params.id;
 
-    models.Planning.update({
-        validated: false
-    }, {
+    models.Planning.update(
+        {
+            validated: false
+        },
+        {
             where: { id: id }
         }).then(values => {
             res.redirect('/planning/' + id);
         });
 });
 
-router.get('/:id(\\d+)/:dateId(\\d{4}-\\d{2}-\\d{2})/slot/:slotId(\\d+)/presences', function (req, res) {
-    var date = req.params.dateId + " 00:00:00Z";
+router.get('/:id(\\d+)/:dateId(\\d{12,})/slot/:slotId(\\d+)/presences', function (req, res) {
+    var date = new Date(parseInt(req.params.dateId));
 
     models.Availability.findAll({
         where: {
@@ -471,13 +555,11 @@ router.get('/:id(\\d+)/presence/:presenceId(\\d+)/alternatives', function (req, 
     var presenceId = req.params.presenceId;
 
     models.Availability.findById(presenceId).then(originalPresence => {
-        var date = originalPresence.day.getFullYear() + '-' + (originalPresence.day.getMonth() + 1).toString().padStart(2, '0') + '-' + originalPresence.day.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-
         models.Availability.findAll({
             where: {
                 PlanningId: null,
                 slotId: originalPresence.slotId,
-                day: date
+                day: originalPresence.day
             },
             include: [{ model: models.Employee }]
         }).then(availabilities => {
@@ -485,7 +567,7 @@ router.get('/:id(\\d+)/presence/:presenceId(\\d+)/alternatives', function (req, 
                 where: {
                     PlanningId: id,
                     slotId: originalPresence.slotId,
-                    day: date
+                    day: originalPresence.day
                 }
             }).then(presences => {
                 var originId = null;
@@ -519,9 +601,10 @@ router.post('/:id(\\d+)/presence/:presenceId(\\d+)/replace', function (req, res)
 
     if (enable == "true") {
         models.Availability.findById(availabilityId).then(availability => {
-            models.Availability.update({
-                EmployeeId: availability.EmployeeId
-            },
+            models.Availability.update(
+                {
+                    EmployeeId: availability.EmployeeId
+                },
                 {
                     where: {
                         id: presenceId
@@ -532,9 +615,10 @@ router.post('/:id(\\d+)/presence/:presenceId(\\d+)/replace', function (req, res)
         });
     } else {
         models.Availability.findById(originId).then(availability => {
-            models.Availability.update({
-                EmployeeId: availability.EmployeeId
-            },
+            models.Availability.update(
+                {
+                    EmployeeId: availability.EmployeeId
+                },
                 {
                     where: {
                         id: presenceId
@@ -551,30 +635,42 @@ router.post('/:id(\\d+)/toggle-presence', function (req, res) {
     var availabilityId = req.body.availabilityId;
 
     models.Availability.findById(availabilityId).then(availability => {
-        var dateFormated = availability.day.getFullYear() + '-' + (availability.day.getMonth() + 1).toString().padStart(2, '0') + '-' + availability.day.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-
         models.Availability.findOrCreate({
             where: {
                 slotId: availability.slotId,
-                day: dateFormated,
+                day: availability.day,
                 EmployeeId: availability.EmployeeId,
                 PlanningId: id
             },
             defaults: {
                 slotId: availability.slotId,
-                day: dateFormated,
+                day: availability.day,
                 EmployeeId: availability.EmployeeId,
                 PlanningId: id
             }
         }).spread((presence, created) => {
             if (!created) {
-                models.Availability.destroy({
-                    where: { id: presence.id }
-                }).then(status => {
-                    res.send(false);
+                models.Availability.count({
+                    where: {
+                        slotId: availability.slotId,
+                        day: availability.day,
+                        PlanningId: id
+                    }
+                }).then(c => {
+                    // Must be at least one person present for the date/slot
+                    if (c > 1) {
+                        models.Availability.destroy({
+                            where: { id: presence.id }
+                        }).then(status => {
+                            res.send({ status: true });
+                        });
+                    } else {
+                        res.send({ status: false, message: i18n.__("planning.mustremainone") });
+                    }
                 });
+
             } else {
-                res.send(presence);
+                res.send({ status: true });
             }
         });
     });
@@ -595,7 +691,7 @@ router.get('/employee/:employeeId(\\d+)/:year(\\d{4})', function (req, res) {
         models.Planning.findAll({
             where: {
                 firstDate: {
-                    [models.Sequelize.Op.between]: [year + "-01-01 00:00:00Z", year + "-12-31 00:00:00Z"]
+                    [models.Sequelize.Op.between]: [new Date(year, 0, 1), new Date(year, 11, 31)]
                 },
                 categoryId: employee.categoryId,
             },
@@ -635,17 +731,14 @@ router.get("/employee/:employeeId(\\d+)/:month(\\d{2}):year(\\d{4})", function (
     var month = req.params.month;
     var year = req.params.year;
 
-    var firstDate = new Date(year, parseInt(month) - 1, 1);
-    var lastDate = new Date(year, parseInt(month), 0);
-
-    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth() + 1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth() + 1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     models.Employee.findById(employeeId).then(employee => {
         models.Planning.findAll({
             where: {
-                firstDate: firstDateFormated,
-                lastDate: lastDateFormated
+                firstDate: firstDate,
+                lastDate: lastDate
             },
             include: [
                 {
@@ -674,17 +767,14 @@ router.get("/employee/:employeeId(\\d+)/:month(\\d{2}):year(\\d{4})/validated", 
     var month = req.params.month;
     var year = req.params.year;
 
-    var firstDate = new Date(year, parseInt(month) - 1, 1);
-    var lastDate = new Date(year, parseInt(month), 0);
-
-    var firstDateFormated = firstDate.getFullYear() + '-' + (firstDate.getMonth() + 1).toString().padStart(2, '0') + '-' + firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-    var lastDateFormated = lastDate.getFullYear() + '-' + (lastDate.getMonth() + 1).toString().padStart(2, '0') + '-' + lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     models.Employee.findById(employeeId).then(employee => {
         models.Planning.findOne({
             where: {
-                firstDate: firstDateFormated,
-                lastDate: lastDateFormated,
+                firstDate: firstDate,
+                lastDate: lastDate,
                 categoryId: {
                     [models.Sequelize.Op.or]: [employee.categoryId, null]
                 },

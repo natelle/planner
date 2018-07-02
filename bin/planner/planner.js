@@ -14,10 +14,10 @@ Planner.prototype.findAgendas = function(date) {
     var agendas = [];
 
     for(var agenda of this.agendas) {
-        var dateString = agenda.day.getFullYear() + '-' + (agenda.day.getMonth()+1).toString().padStart(2, '0') + '-' + agenda.day.getDate().toString().padStart(2, '0') + ' 00:00:00';
-        var agendaDate = new Date(dateString);
+        // var dateString = agenda.day.getFullYear() + '-' + (agenda.day.getMonth()+1).toString().padStart(2, '0') + '-' + agenda.day.getDate().toString().padStart(2, '0') + ' 00:00:00';
+        // var agendaDate = new Date(dateString);
 
-        if(agendaDate.getTime() == date.getTime()) {
+        if(agenda.day.getTime() == date.getTime()) {
             agendas.push(agenda);
         }
     }
@@ -59,10 +59,10 @@ Planner.prototype.findAvailabilities = function(date) {
     var availabilities = [];
 
     for(var availability of this.availabilities) {
-        var dateString = availability.day.getFullYear() + '-' + (availability.day.getMonth()+1).toString().padStart(2, '0') + '-' + availability.day.getDate().toString().padStart(2, '0') + ' 00:00:00';
-        var availabilityDate = new Date(dateString);
+        // var dateString = availability.day.getFullYear() + '-' + (availability.day.getMonth()+1).toString().padStart(2, '0') + '-' + availability.day.getDate().toString().padStart(2, '0') + ' 00:00:00';
+        // var availabilityDate = new Date(dateString);
 
-        if(availabilityDate.getTime() == date.getTime()) {
+        if(availability.day.getTime() == date.getTime()) {
             availabilities.push(availability);
         }
     }
@@ -153,8 +153,8 @@ Planner.prototype.generate = function() {
     if(results.feasible) {
         planning = new models.Planning();
 
-        planning.firstDate = this.firstDate.getFullYear() + '-' + (this.firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-        planning.lastDate = this.lastDate.getFullYear() + '-' + (this.lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+        planning.firstDate = this.firstDate;//.getFullYear() + '-' + (this.firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+        planning.lastDate = this.lastDate;//.getFullYear() + '-' + (this.lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
         planning.validated = false;
         planning.presences = [];
 
@@ -178,7 +178,7 @@ Planner.prototype.generate = function() {
                         // presence.slotId = slotId;
                         // presence.EmployeeId = employeeId;
                         var presence = {
-                            day: date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') + ' 00:00:00Z',
+                            day: date,//.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') + ' 00:00:00Z',
                             slotId: slotId,
                             EmployeeId: employeeId
                         }

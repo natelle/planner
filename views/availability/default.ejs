@@ -22,6 +22,8 @@
                                 <button type="button" class="btn btn-secondary btn-sm slot" data-day="<%= day %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
                             <% } %>
                         </div>
+                    <% } else { %>
+                        <button type="button" class="btn btn-secondary btn-sm" disabled><%= __("time.closed") %></button>
                     <% } %>
                 </td>
             </tr>

@@ -4,6 +4,7 @@
     "password": null,
     "database": "planner",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "timezone": "+02:00"
   }
 }
