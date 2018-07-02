@@ -20,6 +20,9 @@
                 <th class="text-center" scope="col">
                     <%= __('planning.validated') %>
                 </th>
+                <th class="text-center" scope="col">
+                    <%= __('planning.generated') %>
+                </th>
                 <th scope="col">
                     <%= __n('global.action', 2) %>
                 </th>
@@ -38,6 +41,9 @@
                     </td>
                     <td class="text-center">
                         <i class="fas fa-check <%= planning.validated ? "visible" : "invisible" %>"></i>
+                    </td>
+                    <td class="text-center">
+                        <i class="fas fa-check <%= planning.generated ? "visible" : "invisible" %>"></i>
                     </td>
                     <td>
                         <a href="/planning/<%= planning.id %>"><i class="fas fa-pencil-alt"></i></a>

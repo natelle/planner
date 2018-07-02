@@ -146,6 +146,7 @@ router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', f
                 firstDate: firstDate,
                 lastDate: lastDate,
                 validated: false,
+                generated: true,
                 presences: generatedPlanning.presences,
                 categoryId: categoryId
             }, {
@@ -209,80 +210,17 @@ router.get('/create/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', fun
             if (typeof agendas[d.getTime()] === 'undefined') {
                 agendas[d.getTime()] = {};
             }
-        }        
+        }
 
         models.Planning.create({
             firstDate: firstDate,
             lastDate: lastDate,
             validated: false,
+            generated: false,
             presences: [],
             categoryId: categoryId
         }).then(planning => {
-            console.log("planning id = " + planning.id);
-            
-            res.redirect("/planning/create/" + planning.id);
-        });
-    });
-});
-
-router.get('/create/:id(\\d+)', function (req, res) {
-    models.Planning.findById(req.params.id).then(planning => {
-        var promises = [];
-
-        promises.push(models.Slot.findAll({
-            where: {
-                categoryId: planning.getCategoryId()
-            },
-            order: ['begin']
-        }));
-        
-        promises.push(models.Agenda.findAll({
-            where: {
-                day: {
-                    [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
-                }
-            },
-            include: [
-                {
-                    model: models.Slot,
-                    as: 'slot',
-                    where: {
-                        categoryId: planning.getCategoryId()
-                    }
-                }
-            ]
-        }));
-        
-        Promise.all(promises).then(values => {
-            var agendas = {};
-    
-            for (var agenda of values[1]) {
-                var day = agenda.day.getTime();
-    
-                if (typeof agendas[day] === "undefined") {
-                    agendas[day] = {};
-                }
-    
-                var slotId = agenda.slot.id;
-    
-                if (typeof agendas[day][slotId] === "undefined") {
-                    agendas[day][slotId] = [agenda];
-                } else {
-                    agendas[day][slotId].push(agenda);
-                }
-            }
-    
-            for (var d = new Date(planning.firstDate); d <= planning.lastDate; d.setDate(d.getDate() + 1)) {
-                if (typeof agendas[d.getTime()] === 'undefined') {
-                    agendas[d.getTime()] = {};
-                }
-            }
-
-            res.render('planning/create.ejs', {
-                agendas: agendas,
-                planning: planning,
-                slots: values[0]
-            });
+            res.redirect("/planning/" + planning.id);
         });
     });
 });
@@ -398,48 +336,108 @@ router.get('/:id(\\d+)', function (req, res) {
                 'lastName'],
         ]
     }).then(planning => {
-        var promises = [];
+        if (planning.generated || planning.validated) {            
+            var promises = [];
 
-        promises.push(models.Slot.findAll({
-            where: {
-                categoryId: planning.getCategoryId()
-            },
-            order: ['begin']
-        }));
+            promises.push(models.Slot.findAll({
+                where: {
+                    categoryId: planning.getCategoryId()
+                },
+                order: ['begin']
+            }));
 
-        promises.push(models.Availability.findAll({
-            where: {
-                day: {
-                    [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
+            promises.push(models.Availability.findAll({
+                where: {
+                    day: {
+                        [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
+                    }
+                },
+                include: [
+                    {
+                        model: models.Slot,
+                        as: 'slot',
+                        where: { categoryId: planning.getCategoryId() }
+                    }
+                ],
+                order: [[{ model: models.Slot, as: 'slot' }, 'begin']]
+            }));
+
+            Promise.all(promises).then(values => {
+                var rawAvailabilities = values[1];
+
+                planning.organisePresences();
+
+                if (planning.validated) {
+                    res.render('planning/validated.ejs', {
+                        planning: planning,
+                        slots: values[0]
+                    });
+                } else {
+                    res.render('planning/proposal.ejs', {
+                        planning: planning,
+                        slots: values[0]
+                    });
                 }
-            },
-            include: [
-                {
-                    model: models.Slot,
-                    as: 'slot',
-                    where: { categoryId: planning.getCategoryId() }
+            });
+        } else {
+            var promises = [];
+
+            promises.push(models.Slot.findAll({
+                where: {
+                    categoryId: planning.getCategoryId()
+                },
+                order: ['begin']
+            }));
+
+            promises.push(models.Agenda.findAll({
+                where: {
+                    day: {
+                        [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
+                    }
+                },
+                include: [
+                    {
+                        model: models.Slot,
+                        as: 'slot',
+                        where: {
+                            categoryId: planning.getCategoryId()
+                        }
+                    }
+                ]
+            }));
+
+            Promise.all(promises).then(values => {
+                var agendas = {};
+
+                for (var agenda of values[1]) {
+                    var day = agenda.day.getTime();
+
+                    if (typeof agendas[day] === "undefined") {
+                        agendas[day] = {};
+                    }
+
+                    var slotId = agenda.slot.id;
+
+                    if (typeof agendas[day][slotId] === "undefined") {
+                        agendas[day][slotId] = [agenda];
+                    } else {
+                        agendas[day][slotId].push(agenda);
+                    }
                 }
-            ],
-            order: [[{ model: models.Slot, as: 'slot' }, 'begin']]
-        }));
 
-        Promise.all(promises).then(values => {
-            var rawAvailabilities = values[1];
+                for (var d = new Date(planning.firstDate); d <= planning.lastDate; d.setDate(d.getDate() + 1)) {
+                    if (typeof agendas[d.getTime()] === 'undefined') {
+                        agendas[d.getTime()] = {};
+                    }
+                }
 
-            planning.organisePresences();
-
-            if (planning.validated) {
-                res.render('planning/validated.ejs', {
+                res.render('planning/create.ejs', {
+                    agendas: agendas,
                     planning: planning,
                     slots: values[0]
                 });
-            } else {
-                res.render('planning/proposal.ejs', {
-                    planning: planning,
-                    slots: values[0]
-                });
-            }
-        });
+            });
+        }
     });
 });
 
@@ -545,7 +543,7 @@ router.get('/:id(\\d+)/:dateId(\\d{12,})/slot/:slotId(\\d+)/presences', function
             [models.Employee, 'lastName', 'ASC'],
             [models.Employee, 'firstName', 'ASC'],
         ]
-    }).then(presences => {
+    }).then(presences => {        
         res.send(presences);
     });
 });

@@ -48,7 +48,7 @@
 %>
                                             <div class="card slot-card" data-slotId="<%= slot.id %>" data-dateId="<%= dateId %>" presenceId="">
                                                 <div class="card-header py-1">
-                                                    <%= slotPresences[0].slot.name %> <span class="number"></span>
+                                                    <%= slotPresences[0].slot.name %> (<span class="number">0</span>/<%= slotPresences[0].number %>)
                                                     <a href="#add-employee" class="float-right add-employee"><i class="fas fa-pencil-alt"></i></a>
                                                 </div>
                                                 <div class="card-body py-1">
@@ -89,6 +89,9 @@
                 <div class="modal-body">
                     <div id="modal-employees-list">
                     </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="message font-weight-bold text-danger"></p>
                 </div>
             </div>
         </div>
@@ -148,17 +151,25 @@ $(document).ready(function() {
                 var availabilityId = $(this).attr("data-availabilityid");
                 var that = this;
 
+                $('#addEmployeeModal div.modal-footer').hide();
+
                 $.post("/planning/<%= planning.id %>/toggle-presence", {
                     availabilityId: availabilityId
                 }, function(value) {
-                    var enabled = $(that).hasClass("btn-success");
-                    if (enabled) {
-                        $(that).addClass("btn-danger");
-                        $(that).removeClass("btn-success");
-                    } else {
+                    var enable = $(that).hasClass("btn-danger") || !value.status;
+                    if (enable) {
                         $(that).addClass("btn-success");
                         $(that).removeClass("btn-danger");
+                    } else {
+                        $(that).addClass("btn-danger");
+                        $(that).removeClass("btn-success");
                     }
+
+                    if(!value.status) {
+                        $('#addEmployeeModal p.message').html(value.message);
+                        $('#addEmployeeModal div.modal-footer').show();
+                    }
+                    
                     updateSlotCard(card);
                 });
             });
@@ -187,7 +198,7 @@ $(document).ready(function() {
                         '</p>';
 
                     card.find('div.card-body').append(htmlPresence);
-                    card.find("span.number").html('(' + presences.length + ')');
+                    card.find("span.number").html(presences.length);
                 }
 
                 card.find('a.replace-employee').click(function() {

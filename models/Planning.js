@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     var Planning = sequelize.define('Planning', {
         firstDate: DataTypes.DATE,
         lastDate: DataTypes.DATE,
-        validated: DataTypes.BOOLEAN
+        validated: DataTypes.BOOLEAN,
+        generated: DataTypes.BOOLEAN
     }, {
         tableName: 'planning',
     });

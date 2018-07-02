@@ -57,7 +57,7 @@
                                 </a>
                                 <% } %>
                                 <% } %>
-                                <% if(i==6 || (new Date(year, i, 0)).getTime() >= (new Date(now.getFullYear(), now.getMonth(), 1)).getTime()) { %>
+                                <% if((new Date(year, i, 0)).getTime() >= (new Date(now.getFullYear(), now.getMonth(), 1)).getTime()) { %>
                                 <a class="ml-3" href="/planning/create/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.create") %>">
                                     <i class="fas fa-plus-square"></i>
                                 </a>

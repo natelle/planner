@@ -177,7 +177,7 @@
             var slotId = card.attr('data-slotId');
             var dateId = card.attr('data-dateId');
             
-            $.get('/employee/availabilities/category/<%= planning.categoryId %>/slot/' + slotId + '/' + dateId, function(availabilities) {                
+            $.get('/employee/availabilities/category/<%= planning.categoryId %>/slot/' + slotId + '/' + dateId, function(availabilities) {                    
                 $.get("/planning/<%= planning.id %>/" + dateId + "/slot/" + slotId + "/presences", function(presences) {
                     card.find('div.card-body').empty();
 
@@ -193,7 +193,7 @@
                             '</p>';
 
                         card.find('div.card-body').append(htmlPresence);
-                        card.find("span.number").html('(' + presence.length ')');
+                        card.find("span.number").html('(' + presences.length + ')');
                     }
 
                     card.find('a.replace-employee').click(function() {

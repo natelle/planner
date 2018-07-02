@@ -151,7 +151,8 @@
 		"list": "planning.list",
 		"current": "planning.current",
 		"create": "planning.create",
-		"mustremainone": "Le créneau doit comporter au moins une personne."
+		"mustremainone": "Le créneau doit comporter au moins une personne.",
+		"generated": "planning.generated"
 	},
 	"category": {
 		"listing": "Catégories",
