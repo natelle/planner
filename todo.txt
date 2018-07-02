@@ -1,2 +1,4 @@
 - ajouter le spinner dans availability lors du clic sur ... défaut.
 - planning/failure.ejs
+- number pour employés 
+- generer planning sur un intervalle précis (du ... au ...)
