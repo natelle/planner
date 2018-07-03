@@ -2,18 +2,26 @@
 
 <h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
 <br>
-<p class="text-right">
-    <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
-    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>"><%= __("availability.setdefault") %></button>
-</p>
-<br>
-<div class="row">
+<div class="row mb-5">
+    <div class="col">
+        <p>
+            <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
+            <button id="default" class="float-right btn btn-primary" data-dateId="<%= dateId %>">
+                <%= __("availability.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
+            </button>
+            <a href="/employee/<%= employee.id %>/availabilities/<%= firstDate.getFullYear() %>" class="float-left ml-3 btn btn-primary">
+                <i class="fas fa-arrow-alt-circle-left"></i>
+            </a>
+        </p>
+    </div>
+</div>
+<div class="row align-items-center">
     <div class="col-md-1">
-        <%
+<%
         var previousMonth = new Date(firstDate);
         previousMonth.setMonth(previousMonth.getMonth()-1);
-        %>
-        <a href="/employee/<%= employee.id %>/availabilities/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+%>
+        <a href="/employee/<%= employee.id %>/availabilities/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-angle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
@@ -47,11 +55,11 @@
                     </table>
                 </div>
                 <div class="col-md-1">
-                    <%
+<%
                     var nextMonth = new Date(firstDate);
                     nextMonth.setMonth(nextMonth.getMonth()+1);
-                    %>
-                    <a href="/employee/<%= employee.id %>/availabilities/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+%>
+                    <a href="/employee/<%= employee.id %>/availabilities/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-angle-right fa-2x"></i></a>
                 </div>
             </div>
 
@@ -60,12 +68,15 @@
                 updateButtons();
 
                 $('button#default').click(function() {
+                    $(this).find("i").removeClass("d-none");
+
                     var dateId = $(this).attr("data-dateId");
-                    console.log(dateId);
+                    var that = this;
+
                     $.get('/employee/<%= employee.id %>/availabilities/' + dateId + '/default',
                     function(status) {
-                        console.log(status);
                         updateButtons();
+                        $(that).find("i").addClass("d-none");
                     });
                 });
 

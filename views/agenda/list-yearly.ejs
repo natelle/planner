@@ -2,23 +2,23 @@
 
 <h2><%= __("agenda.yearly") %> <%= year %> - <%= category ? category.name : __("category.default") %></h2>
 <br>
-<div class="row">
+<div class="row align-items-center">
     <div class="col-md-1">
-        <a href="/agenda/<%= category ? category.id : 0 %>/<%= parseInt(year) - 1 %>"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+        <a href="/agenda/<%= category ? category.id : 0 %>/<%= parseInt(year) - 1 %>"><i class="fas fa-angle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
-        <table class="table">
-            <thead>
+        <table class="table table-sm">
+            <thead class="thead-dark">
                 <tr>
                     <th scope="col">Mois</th>
                     <th scope="col">Autres</th>
                 </tr>
             </thead>
             <tbody>
-                <%
+<%
                 var now = new Date();
                 for(var i=1; i<=12; i++) {
-                    %>
+%>
                     <tr>
                     <td>
                     <a href="/agenda/<%= category ? category.id : 0 %>/<%= i.toString().padStart(2, '0') + year %>">
@@ -35,7 +35,7 @@
             </table>
         </div>
         <div class="col-md-1">
-            <a href="/agenda/<%= category ? category.id : 0 %>/<%= parseInt(year) + 1 %>"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+            <a href="/agenda/<%= category ? category.id : 0 %>/<%= parseInt(year) + 1 %>"><i class="fas fa-angle-right fa-2x"></i></a>
         </div>
     </div>
 

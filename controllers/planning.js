@@ -102,11 +102,16 @@ router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', f
                 [models.Sequelize.Op.between]: [firstDate, lastDate]
             }
         },
-        include: [{
-            model: models.Slot,
-            where: { categoryId: categoryId },
-            as: 'slot'
-        }]
+        include: [
+            {
+                model: models.Slot,
+                where: { categoryId: categoryId },
+                as: 'slot'
+            },
+            {
+                model: models.Employee
+            }
+        ]
     }).then(a => {
         availabilities = a;
     }));
@@ -336,7 +341,7 @@ router.get('/:id(\\d+)', function (req, res) {
                 'lastName'],
         ]
     }).then(planning => {
-        if (planning.generated || planning.validated) {            
+        if (planning.generated || planning.validated) {
             var promises = [];
 
             promises.push(models.Slot.findAll({
@@ -443,6 +448,7 @@ router.get('/:id(\\d+)', function (req, res) {
 
 router.get('/:id(\\d+)/calendar', function (req, res) {
     var id = req.params.id;
+
     models.Planning.findById(id, {
         include: [{
             model: models.Availability,
@@ -471,7 +477,7 @@ router.get('/:id(\\d+)/calendar', function (req, res) {
     }).then(planning => {
         planning.organisePresencesByDate();
         if (planning.validated) {
-            res.render('planning/validated-calendar.ejs', {
+            res.render('planning/calendar.ejs', {
                 planning: planning
             });
         } else {
@@ -543,7 +549,7 @@ router.get('/:id(\\d+)/:dateId(\\d{12,})/slot/:slotId(\\d+)/presences', function
             [models.Employee, 'lastName', 'ASC'],
             [models.Employee, 'firstName', 'ASC'],
         ]
-    }).then(presences => {        
+    }).then(presences => {
         res.send(presences);
     });
 });

@@ -3,11 +3,20 @@
 <h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %> pour l'année <%= year %></h2>
 <br>
 <div class="row">
+    <p>
+        <a href="/employee %>" class="float-left">
+            <i class="fas fa-arrow-circle-left fa-2x"></i>
+        </a>
+    </p>
+</div>
+<div class="row align-items-center">
     <div class="col-md-1">
-        <a href="/employee/<%= employee.id %>/availabilities/<%= parseInt(year) - 1 %>"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+        <a href="/employee/<%= employee.id %>/availabilities/<%= parseInt(year) - 1 %>">
+            <i class="fas fa-angle-left fa-2x"></i>
+        </a>
     </div>
     <div class="col-md-10">
-        <table class="table">
+        <table class="table table-sm">
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">Mois</th>
@@ -15,10 +24,10 @@
                 </tr>
             </thead>
             <tbody>
-                <%
+<%
                 var now = new Date();
                 for(var i=1; i<=12; i++) {
-                    %>
+%>
                     <tr>
                     <td>
                     <a href="/employee/<%= employee.id %>/availabilities/<%= i.toString().padStart(2, '0') + year %>">
@@ -35,7 +44,7 @@
             </table>
         </div>
         <div class="col-md-1">
-            <a href="/employee/<%= employee.id %>/availabilities/<%= parseInt(year) + 1 %>"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+            <a href="/employee/<%= employee.id %>/availabilities/<%= parseInt(year) + 1 %>"><i class="fas fa-angle-right fa-2x"></i></a>
         </div>
     </div>
 

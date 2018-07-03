@@ -93,14 +93,6 @@ Planner.prototype.buildModel = function() {
 
     var variables = {};
 
-    // // TODO
-    //
-    // for(var i in this.employees) {
-    //     var employee = this.employees[i];
-    //
-    //     model.constraints[employee.id] = {"min": (this.employees[i].defaultNumber * 2) };  // TODO: add in employees' model
-    // }
-
     for (var d = new Date(this.firstDate); d <= this.lastDate; d.setDate(d.getDate() + 1)) {
         var availabilities = this.findAvailabilities(d);
 
@@ -109,15 +101,13 @@ Planner.prototype.buildModel = function() {
             var key = d.getTime() + "-" + availability.slotId;
             variables[employeeId + '-' + key] = {};
             variables[employeeId + '-' + key][key] = 1;
-            variables[employeeId + '-' + key][employeeId] = 1;
-            //model.constraints[key] = {max: 1};
-            // TODO: add something like variables[employeeId + '-' + key][time + '-' + employeeId] = difference (to add in Models.Availability);
-            // TODO: it means time variable might be added for agendas too
+            variables[employeeId + '-' + key][employeeId] = availability.slot.getDuration();
+
+            model.constraints[employeeId] = {min: availability.Employee.number};
             model.binaries[employeeId + '-' + key] = 1;
+            model.optimize[employeeId] = "min";
         }
     }
-
-
 
     // Shuffling
     var variablesArray = [];
@@ -145,16 +135,20 @@ Planner.prototype.buildModel = function() {
 Planner.prototype.generate = function() {
     var model = this.buildModel();
     var results = solver.Solve(model);
+    console.log("MODEL");
+    console.log(model);
     console.log("RESULTS");
     console.log(results);
+    
+    
 
     var planning = null;
 
     if(results.feasible) {
         planning = new models.Planning();
 
-        planning.firstDate = this.firstDate;//.getFullYear() + '-' + (this.firstDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.firstDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-        planning.lastDate = this.lastDate;//.getFullYear() + '-' + (this.lastDate.getMonth()+1).toString().padStart(2, '0') + '-' + this.lastDate.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+        planning.firstDate = this.firstDate;
+        planning.lastDate = this.lastDate;
         planning.validated = false;
         planning.presences = [];
 
@@ -172,13 +166,9 @@ Planner.prototype.generate = function() {
                         var employeeId = match[1];
                         var date = new Date(parseInt(match[2]));
                         var slotId = match[3];
-
-                        // var presence = new models.Availability();
-                        // presence.day = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
-                        // presence.slotId = slotId;
-                        // presence.EmployeeId = employeeId;
+                        
                         var presence = {
-                            day: date,//.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') + ' 00:00:00Z',
+                            day: date,
                             slotId: slotId,
                             EmployeeId: employeeId
                         }

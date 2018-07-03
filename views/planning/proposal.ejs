@@ -24,19 +24,19 @@
         </tr>
     </thead>
     <tbody>
-        <%
+<%
         var availabilityDateId = (planning.firstDate.getMonth()+1).toString().padStart(2, '0') + planning.firstDate.getFullYear();
         
         for(var d=planning.firstDate; d<=planning.lastDate; d.setDate(d.getDate() + 1)) {
             var dateId = d.getTime();
-        %>
+%>
             <tr class="availability">
                 <th scope="row" class="date">
                     <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
                 </th>
                 <td class="text-center">
                     <div class="card-deck">
-                        <%
+<%
                         var dayPresences = planning.presences[d.getTime()]
                         if(Object.keys(dayPresences).length > 0 ) {
                             for(var slot of slots) {
@@ -44,7 +44,7 @@
                                     var slotPresences = dayPresences[slot.id]
 
                                     if(typeof slotPresences !== 'undefined') {
-                        %>
+%>
                                         <div class="card slot-card" data-slotId="<%= slot.id %>" data-dateId="<%= dateId %>" presenceId="">
                                             <div class="card-header py-1">
                                                 <%= slotPresences[0].slot.name %> <span class="number"></span>
@@ -55,22 +55,22 @@
                                         </div>
                                     <% } else { %>
                                         <div class="card invisible"></div>
-                            <%
+<%
                                         }
                                     }
                                 }
                             } else {
-                            %>
+%>
                                 <button class="btn btn-secondary disabled mx-auto"><%= __("time.closed") %></button>
-                            <%
+<%
                             }
-                            %>
+%>
                     </div>
                 </td>
             </tr>
-        <%
+<%
         }
-        %>
+%>
     </tbody>
 </table>
 
@@ -165,6 +165,7 @@
                             $('#addEmployeeModal p.message').html(value.message);
                             $('#addEmployeeModal div.modal-footer').show();
                         }
+                        
                         updateSlotCard(card);
                     });
                 });

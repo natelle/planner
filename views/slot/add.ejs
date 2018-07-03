@@ -46,10 +46,10 @@
                 <td>
                     <select class="custom-select" name="category" id="category">
                         <option value="0"><%= __("slot.defaultcategory") %></option>
-                        <%
+<%
                         for(var i in categories) {
                             var category = categories[i];
-                            %>
+%>
                             <option value="<%= category.id %>"><%= category.name %></option>
                             <% } %>
                     </select>

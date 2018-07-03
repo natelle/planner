@@ -6,16 +6,18 @@
 <br>
 <p class="text-right">
     <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
-    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>"><%= __("agenda.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i></button>
+    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>">
+        <%= __("agenda.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
+    </button>
 </p>
 <br>
-<div class="row">
+<div class="row align-items-center">
     <div class="col-md-1">
-        <%
+<%
         var previousMonth = new Date(firstDate);
         previousMonth.setMonth(previousMonth.getMonth()-1);
-        %>
-        <a href="/agenda/<%= categoryId %>/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-left fa-2x"></i></a>
+%>
+        <a href="/agenda/<%= categoryId %>/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-angle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
@@ -26,11 +28,10 @@
                 </tr>
             </thead>
             <tbody>
-                <% for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) { %>
-                    <%
-                    //var dateId = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0')
+<%
+                for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) {
                     var dateId = d.getTime();
-                    %>
+%>
                     <tr class="agenda table-light">
                         <th class="date align-middle">
                             <%= __("time.shortday" + d.getDay()) %>  <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
@@ -63,11 +64,11 @@
                             </table>
                         </div>
                         <div class="col-md-1">
-                            <%
+<%
                             var nextMonth = new Date(firstDate);
                             nextMonth.setMonth(nextMonth.getMonth()+1);
-                            %>
-                            <a href="/agenda/<%= categoryId %>/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-arrow-circle-right fa-2x"></i></a>
+%>
+                            <a href="/agenda/<%= categoryId %>/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-angle-right fa-2x"></i></a>
                         </div>
                     </div>
 
@@ -92,6 +93,7 @@
 
                         $('button#default').click(function() {
                             $(this).find("i").removeClass("d-none");
+                            
                             var dateId = $(this).attr("data-dateId");
                             var that = this;
 

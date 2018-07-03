@@ -4,14 +4,14 @@
     <br>
 
 
-    <%
+<%
     var now = new Date();
     var month = (now.getMonth()+1).toString().padStart(2,0);
     var year = now.getFullYear();
 
     for(var category of categories) {
         if(category) {
-    %>
+%>
             <h4><a href="/planning/category/<%= category.id %>/<%= month + year %>"><%= category.name %></a></h4>
         <% } else { %>
             <h4><a href="/planning/category/0/<%= month + year %>"><%= __("category.default") %></a></h4>

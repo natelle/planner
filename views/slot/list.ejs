@@ -9,7 +9,7 @@
 <%
 for(var categoryId in slots) {
     var categorySlots = slots[categoryId];
-    %>
+%>
     <h4 class="mb-3"><%= categoryId !== 'default' ? categories[categoryId].name : __("slot.defaultcategory") %></h4>
     <table class="table mb-4">
         <thead class="thead-dark">
@@ -17,23 +17,25 @@ for(var categoryId in slots) {
                 <th scope="col"><%= __('slot.name') %></th>
                 <th scope="col"><%= __('slot.begin') %></th>
                 <th scope="col"><%= __('slot.end') %></th>
+                <th scope="col"><%= __('slot.duration') %></th>
                 <th scope="col"><%= __('slot.days') %></th>
                 <th scope="col"><%= __n('global.action', 2) %></th>
             </tr>
         </thead>
         <tbody>
-            <%
+<%
             for(var i in categorySlots) {
                 var slot = categorySlots[i];
-                %>
+%>
                 <tr>
                     <td><%= slot.name %></td>
                     <td><%= slot.begin ? slot.begin.replace(/:\d+$/, '') : '-' %></td>
                     <td><%= slot.end ? slot.end.replace(/:\d+$/, '') : '-' %></td>
+                    <td><%= slot.getDuration() %> <%= __("time.hourabbr") %></td>
                     <td>
-                        <%
+<%
                         for(var day of slot.days) {
-                            %>
+%>
                             <%= __("time.day" + day) %>
                             <% } %>
                         </td>

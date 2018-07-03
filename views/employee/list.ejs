@@ -4,24 +4,26 @@
 <br>
 <p><a class="btn btn-primary" href="/employee/add"><%= __('global.add') %></a></p>
 <br>
-<table class="table">
+<table class="table table-sm">
     <thead class="thead-dark">
         <tr>
             <th scope="col"><%= __('employee.firstname') %></th>
             <th scope="col"><%= __('employee.lastname') %></th>
             <th scope="col"><%= __('employee.category') %></th>
+            <th scope="col"><%= __('employee.number') %></th>
             <th scope="col"><%= __n('global.action', 2) %></th>
         </tr>
     </thead>
     <tbody>
-        <%
+<%
         for(var i in employees) {
             var employee = employees[i];
-            %>
+%>
             <tr>
                 <td><%= employee.firstName %></td>
                 <td><%= employee.lastName %></td>
-                <td><%= employee.category.name %></td>
+                <td><%= employee.category ? employee.category.name : "" %></td>
+                <td><%= employee.number %><%= __("time.hourabbr") %></td>
                 <td>
                     <a href="/employee/<%= employee.id %>/update" title="<%= __('global.edit') %>">
                         <i class="fas fa-pencil-alt"></i>

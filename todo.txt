@@ -1,4 +1,12 @@
-- ajouter le spinner dans availability lors du clic sur ... défaut.
-- planning/failure.ejs
-- number pour employés 
+- planning/failure.ejs (proposer la modification des disponibilités ou de l'agenda ainsi que la création manuelle + retour)
+- jour de la semaine en face des dates + numéro de la semaine à gauche
+- pour les disponibilités (normales/défaut) et l'agenda (idem) : tout cocher/tout décocher
+- ajouter boutons retour (dans div class row + div class col)
 - generer planning sur un intervalle précis (du ... au ...)
+- dans les plannings, ajouter en haut ou bas de tableau un récapitulatif (collapse) du nombre d'heures (+ autres) de chaque employés
+- intégration user 
+- options générales : afficher les heures des créneaux ? (ou systématiquement), ...
+- vue print pour les plannings (vue normale [simple] et calendrier [à voir...])
+- si agenda et/ou availability modifiée, que faire ? dévalider les plannings ?
+- pour les employés, number max ?
+- si pas de résultat, voir quand même ce que propose l'algo

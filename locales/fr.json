@@ -45,7 +45,8 @@
 		"lastName": "employee.lastName",
 		"firstName": "employee.firstName",
 		"menulist": "Liste des employées",
-		"menucategory": "Catégories"
+		"menucategory": "Catégories",
+		"number": "employee.number"
 	},
 	"agenda": {
 		"yearly": "agenda.yearly",
@@ -107,7 +108,13 @@
 		"month9": "Septembre",
 		"month10": "Octobre",
 		"month11": "Novembre",
-		"month12": "Décembre"
+		"month12": "Décembre",
+		"month": "mois",
+		"hour": {
+			"one": "heure",
+			"other": "heures"
+		},
+		"hourabbr": "h"
 	},
 	"availability": {
 		"date": "Date",
@@ -178,7 +185,8 @@
 		"defaultcategory": "Par défaut",
 		"closed": "Fermé",
 		"default": "Créneau par défaut",
-		"category": "Catégorie"
+		"category": "Catégorie",
+		"duration": "slot.duration"
 	},
 	"companyoptions": {
 		"show": "companyoptions.show",
@@ -186,5 +194,8 @@
 	},
 	"general": {
 		"actions": "general.actions"
+	},
+	"action": {
+		"back": "action.back"
 	}
 }
