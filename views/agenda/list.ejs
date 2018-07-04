@@ -15,8 +15,11 @@ Date.prototype.getWeek = function() {
 <h2><%= __("agenda.agenda") %> - <%= category ? category.name : __("category.default") %></h2>
 <br>
 <p class="text-right">
+    <button id="toggleall" data-action="enable" class="ml-3 btn btn-primary">
+        <%= __("agenda.enableall") %>
+    </button>
     <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
-    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>">
+    <button id="default" class="ml-3 btn btn-primary" data-dateId="<%= dateId %>">
         <%= __("agenda.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
     </button>
 </p>
@@ -139,31 +142,27 @@ Date.prototype.getWeek = function() {
                                 $(this).addClass("btn-danger")
                             }
 
-                            $.post('/agenda/set', {
-                                enable: enable,
-                                slotId: slotId,
-                                dateId: dateId
-                            },
-                            function(enabled) {
-                                $(that).removeClass("disabled");
+                            enableSlot(enable, slotId, dateId, this);
+                        });
 
-                                if(enabled) {
-                                    var number = $(that).parent().siblings("form").find("div.number-" + dateId + "-" + slotId + " input");
-                                    updateNumber(dateId, slotId, number);
-                                    $(this).removeClass("btn-danger");
-                                    $(this).addClass("btn-success");
-                                    $(".number-" + dateId + "-" + slotId).removeClass('d-none');
-                                    $(that).parent().parent().find("button.number-closed").addClass("d-none");
-                                } else {
-                                    $(this).removeClass("btn-success");
-                                    $(this).addClass("btn-danger");
-                                    $(".number-" + dateId + "-" + slotId).addClass('d-none');
+                        $("button#toggleall").click(function() {
+                            var action = $(this).attr("data-action");
+                            var enable = action == "enable" ? true : false;
 
-                                    if($(that).parent().parent().find("div.d-none").length == $(that).parent().parent().find("div.number").length) {
-                                        $(that).parent().parent().find("button.number-closed").removeClass("d-none");
-                                    }
-                                }
+                            $('button.slot').each(function() {
+                                var dateId = $(this).attr("data-dateId");
+                                var slotId = $(this).attr("data-slotId");
+
+                                enableSlot(enable, slotId, dateId, this);
                             });
+
+                            if(enable) {
+                                $(this).attr("data-action", "disable");
+                                $(this).html('<%= __("agenda.disableall") %>');
+                            } else {
+                                $(this).attr("data-action", "enable");
+                                $(this).html('</i><%= __("agenda.enableall") %>');
+                            }
                         });
 
                         $('input.number').change(function() {
@@ -178,6 +177,34 @@ Date.prototype.getWeek = function() {
                             }, function(value) {
                             });
                         });
+
+                        function enableSlot(enable, slotId, dateId, button) {
+                            $.post('/agenda/set', {
+                                enable: enable,
+                                slotId: slotId,
+                                dateId: dateId
+                            },
+                            function(enabled) {
+                                $(button).removeClass("disabled");
+
+                                if(enabled) {
+                                    var number = $(button).parent().siblings("form").find("div.number-" + dateId + "-" + slotId + " input");
+                                    updateNumber(dateId, slotId, number);
+                                    $(button).removeClass("btn-danger");
+                                    $(button).addClass("btn-success");
+                                    $(".number-" + dateId + "-" + slotId).removeClass('d-none');
+                                    $(button).parent().parent().find("button.number-closed").addClass("d-none");
+                                } else {
+                                    $(button).removeClass("btn-success");
+                                    $(button).addClass("btn-danger");
+                                    $(".number-" + dateId + "-" + slotId).addClass('d-none');
+
+                                    if($(button).parent().parent().find("div.d-none").length == $(button).parent().parent().find("div.number").length) {
+                                        $(button).parent().parent().find("button.number-closed").removeClass("d-none");
+                                    }
+                                }
+                            });
+                        }
 
                         function updateButtons() {
                             $('button.slot').each(function() {

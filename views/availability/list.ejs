@@ -19,6 +19,9 @@ Date.prototype.getWeek = function() {
             <button id="default" class="float-right btn btn-primary" data-dateId="<%= dateId %>">
                 <%= __("availability.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
             </button>
+            <button id="toggleall" data-action="enable" class="mr-3 btn btn-primary float-right">
+                <%= __("availability.enableall") %>
+            </button>
             <a href="/employee/<%= employee.id %>/availabilities/<%= firstDate.getFullYear() %>" class="float-left ml-3 btn btn-primary">
                 <i class="fas fa-arrow-alt-circle-left"></i>
             </a>
@@ -114,23 +117,47 @@ Date.prototype.getWeek = function() {
                         $(this).addClass("btn-danger")
                     }
 
+                    enableSlot(enable, slotId, dateId, this);
+                });
+
+                $("button#toggleall").click(function() {
+                    var action = $(this).attr("data-action");
+                    var enable = action == "enable" ? true : false;
+
+                    $('button.slot').each(function() {
+                        var dateId = $(this).attr("data-dateId");
+                        var slotId = $(this).attr("data-slotId");
+
+                        enableSlot(enable, slotId, dateId, this);
+                    });
+
+                    if(enable) {
+                        $(this).attr("data-action", "disable");
+                        $(this).html('<%= __("availability.disableall") %>');
+                    } else {
+                        $(this).attr("data-action", "enable");
+                        $(this).html('</i><%= __("availability.enableall") %>');
+                    }
+                });
+
+                function enableSlot(enable, slotId, dateId, button) {
                     $.post('/employee/<%= employee.id %>/availabilities/set', {
                         enable: enable,
                         slotId: slotId,
                         dateId: dateId
                     },
                     function(enabled) {
-                        $(that).removeClass("disabled");
+                        $(button).removeClass("disabled");
 
                         if(enabled) {
-                            $(this).removeClass("btn-danger");
-                            $(this).addClass("btn-success")
+                            $(button).removeClass("btn-danger");
+                            $(button).addClass("btn-success")
                         } else {
-                            $(this).removeClass("btn-success");
-                            $(this).addClass("btn-danger")
+                            $(button).removeClass("btn-success");
+                            $(button).addClass("btn-danger")
                         }
                     });
-                });
+                }
 
                 function updateButtons() {
                     $('button.slot').each(function() {

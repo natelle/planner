@@ -63,7 +63,9 @@
 		"home": "Agendas",
 		"default": "Agenda par défaut",
 		"setdefault": "Remplir avec l'agenda par défaut",
-		"slot": "Créneaux"
+		"slot": "Créneaux",
+		"enableall": "agenda.enableall",
+		"disableall": "agenda.disableall"
 	},
 	"time": {
 		"allday": "Journée",
@@ -130,7 +132,9 @@
 		},
 		"day": "Jour",
 		"default": "Disponibilités par défaut",
-		"setdefault": "Remplir avec les disponibilités par défaut"
+		"setdefault": "Remplir avec les disponibilités par défaut",
+		"enableall": "availability.enableall",
+		"disableall": "availability.disableall"
 	},
 	"undefinedabbr": "undefinedabbr",
 	"planning": {
