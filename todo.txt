@@ -1,4 +1,3 @@
-- pour les disponibilités (normales/défaut) et l'agenda (idem) : tout cocher/tout décocher
 - ajouter boutons retour (dans div class row + div class col)
 - generer planning sur un intervalle précis (du ... au ...)
 - dans les plannings, ajouter en haut ou bas de tableau un récapitulatif (collapse) du nombre d'heures (+ autres) de chaque employés
