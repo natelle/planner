@@ -1,32 +1,44 @@
 <%- include ../header.ejs %>
 
-<h2><%= __('category.listing') %></h2>
-<br>
-<p>
-    <a class="btn btn-primary" href="/employee/category/add"><%= __('global.add') %></a>
-</p>
-<br>
-<table class="table table-sm">
-    <thead class="thead-dark">
-        <tr>
-            <th scope="col"><%= __('category.name') %></th>
-            <th scope="col"><%= __n('global.action', 2) %></th>
-        </tr>
-    </thead>
-    <tbody>
-<%
-        for(var i in categories) {
-            var category = categories[i];
-%>
-            <tr>
-            <td><%= category.name %></td>
-            <td>
-            <a href="/employee/category/<%= category.id %>/update" title="<%= __('global.edit') %>"><i class="fas fa-pencil-alt"></i></a>&nbsp;
-            <a href="/employee/category/<%= category.id %>/delete" title="<%= __('global.delete') %>"><i class="fas fa-trash-alt"></i></a>
-            </td>
-            </tr>
-            <% } %>
-        </tbody>
-    </table>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+    <li class="breadcrumb-item"><a href="/employee"><%= __("employee.menu") %></a></li>
+    <li class="breadcrumb-item active"><%= __("category.menu") %></li>
+  </ol>
+</nav>
 
-    <%- include ../footer.ejs %>
+<div class="row mt-5">
+    <div class="col">
+        <a class="btn btn-primary float-right" href="/employee/category/add">
+            <i class="fas fa-plus"></i>
+        </a>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col">
+        <table class="table table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col"><%= __('category.name') %></th>
+                    <th scope="col"><%= __n('global.action', 2) %></th>
+                </tr>
+            </thead>
+            <tbody>
+            <%
+            for(var i in categories) {
+                var category = categories[i];
+                %>
+                <tr>
+                <td><%= category.name %></td>
+                <td>
+                <a href="/employee/category/<%= category.id %>/update" title="<%= __('global.edit') %>"><i class="fas fa-pencil-alt"></i></a>&nbsp;
+                <a href="/employee/category/<%= category.id %>/delete" title="<%= __('global.delete') %>"><i class="fas fa-trash-alt"></i></a>
+                </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<%- include ../footer.ejs %>

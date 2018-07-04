@@ -177,7 +177,10 @@
 		"category": {
 			"one": "Catégorie",
 			"other": "Catégories"
-		}
+		},
+		"nameexample": "category.nameexample",
+		"menu": "category.menu",
+		"edit": "category.edit"
 	},
 	"nullabbr": "nullabbr",
 	"slot": {
