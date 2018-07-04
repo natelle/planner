@@ -2,6 +2,16 @@
 
 <% var categoryId = category ? category.id : 0 %>
 
+<%
+Date.prototype.getWeek = function() {
+    var date = new Date(this.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+%>
+
 <h2><%= __("agenda.agenda") %> - <%= category ? category.name : __("category.default") %></h2>
 <br>
 <p class="text-right">
@@ -23,16 +33,24 @@
         <table class="table table-sm">
             <thead class="thead-dark">
                 <tr>
-                    <th scope="col" class="align-middle"><%= __("agenda.date") %></th>
+                    <th colspan="2" scope="col" class="align-middle text-center"><%= __("agenda.date") %></th>
                     <th scope="col" class="text-center"><button class="btn btn-info btn-sm button-mode"><b><%= __("agenda.slot") %></b></button></th>
                 </tr>
             </thead>
             <tbody>
 <%
-                for(var d=firstDate; d<=lastDate; d.setDate(d.getDate() + 1)) {
+                for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) {
                     var dateId = d.getTime();
 %>
                     <tr class="agenda table-light">
+<%
+                        if(d.getDay() == 1 || d.getTime() == firstDate.getTime()) {
+                            var days = 8 - (d.getDay() || 7);
+%>
+                            <th rowspan="<%= days %>" class="week-number align-middle"><span class="badge badge-secondary"><%= d.getWeek() %></span></th>
+<%
+                        }
+%>
                         <th class="date align-middle">
                             <%= __("time.shortday" + d.getDay()) %>  <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
                         </th>

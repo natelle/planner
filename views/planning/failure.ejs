@@ -10,18 +10,27 @@ Date.prototype.getWeek = function() {
 }
 %>
 
-    <h2><%= __("planning.create") %></h2>
+    <h2><%= __("planning.failure") %></h2>
     <br>
+<%
+    if(!planning.modified) {    
+%>
+        <div class="alert alert-warning" role="alert">
+            <%= __("planning.failuremessage1") %><br>
+            <%= __("planning.failuremessage2") %><br>
+        </div>
+<%
+    }
+%>
     <br>
-    <p class="text-right">
-        <a class="btn btn-primary" href="/planning/<%= planning.id %>/validate">
-            <%= __('planning.validate') %>
-        </a>
-        <a class="btn btn-primary ml-3" href="/planning/<%= planning.id %>/regenerate">
-            <%= __('planning.generate') %>
-        </a>
-    </p>
-    <br>
+            <p class="text-right">
+                <a class="btn btn-primary" href="/planning/<%= planning.id %>/validate">
+                    <%= __('planning.validate') %>
+                </a>
+                <a class="btn btn-primary ml-3" href="/planning/<%= planning.id %>/regenerate">
+                    <%= __('planning.generate') %>
+                </a>
+            </p>
     <table class="table table-sm">
         <thead class="thead-dark">
             <tr>

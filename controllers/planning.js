@@ -146,25 +146,25 @@ router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', f
 
         var generatedPlanning = planner.generate();
 
-        if (generatedPlanning) {
-            models.Planning.create({
+        models.Planning.create(
+            {
                 firstDate: firstDate,
                 lastDate: lastDate,
                 validated: false,
                 generated: true,
+                success: generatedPlanning.success,
+                modified: false,
                 presences: generatedPlanning.presences,
                 categoryId: categoryId
-            }, {
-                    include: [{
-                        model: models.Availability,
-                        as: 'presences'
-                    }]
-                }).then(planning => {
-                    res.redirect('/planning/' + planning.id);
-                });
-        } else {
-            res.render('planning/failure.ejs');
-        }
+            },
+            {
+                include: [{
+                    model: models.Availability,
+                    as: 'presences'
+                }]
+            }).then(planning => {
+                res.redirect('/planning/' + planning.id);
+            });
     });
 });
 
@@ -341,108 +341,81 @@ router.get('/:id(\\d+)', function (req, res) {
                 'lastName'],
         ]
     }).then(planning => {
-        if (planning.generated || planning.validated) {
-            var promises = [];
+        var promises = [];
 
-            promises.push(models.Slot.findAll({
-                where: {
-                    categoryId: planning.getCategoryId()
-                },
-                order: ['begin']
-            }));
+        promises.push(models.Slot.findAll({
+            where: {
+                categoryId: planning.getCategoryId()
+            },
+            order: ['begin']
+        }));
 
-            promises.push(models.Availability.findAll({
-                where: {
-                    day: {
-                        [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
-                    }
-                },
-                include: [
-                    {
-                        model: models.Slot,
-                        as: 'slot',
-                        where: { categoryId: planning.getCategoryId() }
-                    }
-                ],
-                order: [[{ model: models.Slot, as: 'slot' }, 'begin']]
-            }));
-
-            Promise.all(promises).then(values => {
-                var rawAvailabilities = values[1];
-
-                planning.organisePresences();
-
-                if (planning.validated) {
-                    res.render('planning/validated.ejs', {
-                        planning: planning,
-                        slots: values[0]
-                    });
-                } else {
-                    res.render('planning/proposal.ejs', {
-                        planning: planning,
-                        slots: values[0]
-                    });
+        promises.push(models.Agenda.findAll({
+            where: {
+                day: {
+                    [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
                 }
-            });
-        } else {
-            var promises = [];
-
-            promises.push(models.Slot.findAll({
-                where: {
-                    categoryId: planning.getCategoryId()
-                },
-                order: ['begin']
-            }));
-
-            promises.push(models.Agenda.findAll({
-                where: {
-                    day: {
-                        [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
-                    }
-                },
-                include: [
-                    {
-                        model: models.Slot,
-                        as: 'slot',
-                        where: {
-                            categoryId: planning.getCategoryId()
-                        }
-                    }
-                ]
-            }));
-
-            Promise.all(promises).then(values => {
-                var agendas = {};
-
-                for (var agenda of values[1]) {
-                    var day = agenda.day.getTime();
-
-                    if (typeof agendas[day] === "undefined") {
-                        agendas[day] = {};
-                    }
-
-                    var slotId = agenda.slot.id;
-
-                    if (typeof agendas[day][slotId] === "undefined") {
-                        agendas[day][slotId] = [agenda];
-                    } else {
-                        agendas[day][slotId].push(agenda);
+            },
+            include: [
+                {
+                    model: models.Slot,
+                    as: 'slot',
+                    where: {
+                        categoryId: planning.getCategoryId()
                     }
                 }
+            ]
+        }));
 
-                for (var d = new Date(planning.firstDate); d <= planning.lastDate; d.setDate(d.getDate() + 1)) {
-                    if (typeof agendas[d.getTime()] === 'undefined') {
-                        agendas[d.getTime()] = {};
-                    }
+        Promise.all(promises).then(values => {
+            var agendas = {};
+
+            for (var agenda of values[1]) {
+                var day = agenda.day.getTime();
+
+                if (typeof agendas[day] === "undefined") {
+                    agendas[day] = {};
                 }
 
+                var slotId = agenda.slot.id;
+
+                agendas[day][slotId] = agenda;
+            }
+
+            for (var d = new Date(planning.firstDate); d <= planning.lastDate; d.setDate(d.getDate() + 1)) {
+                if (typeof agendas[d.getTime()] === 'undefined') {
+                    agendas[d.getTime()] = {};
+                }
+            }
+
+            planning.organisePresences();
+
+            if (planning.validated) {
+                res.render('planning/validated.ejs', {
+                    planning: planning,
+                    slots: values[0],
+                    agendas: agendas
+                });
+            } else if (planning.success && planning.generated) {
+                res.render('planning/proposal.ejs', {
+                    planning: planning,
+                    slots: values[0],
+                    agendas: agendas
+                });
+            } else if (!planning.generated) {
                 res.render('planning/create.ejs', {
                     agendas: agendas,
                     planning: planning,
                     slots: values[0]
                 });
-            });
-        }
+            } else if (!planning.success) {
+                res.render('planning/failure.ejs', {
+                    agendas: agendas,
+                    planning: planning,
+                    slots: values[0]
+                });
+            }
+        });
     });
 });
 
@@ -495,7 +468,8 @@ router.get('/:id(\\d+)/validate', function (req, res) {
 
         promises.push(models.Planning.update(
             {
-                validated: true
+                validated: true,
+                modified: true
             },
             {
                 where: { id: id }
@@ -526,7 +500,7 @@ router.get('/:id(\\d+)/unvalidate', function (req, res) {
 
     models.Planning.update(
         {
-            validated: false
+            validated: false,
         },
         {
             where: { id: id }
@@ -603,81 +577,97 @@ router.post('/:id(\\d+)/presence/:presenceId(\\d+)/replace', function (req, res)
     var originId = req.body.originId;
     var enable = req.body.enable;
 
-    if (enable == "true") {
-        models.Availability.findById(availabilityId).then(availability => {
-            models.Availability.update(
-                {
-                    EmployeeId: availability.EmployeeId
-                },
-                {
-                    where: {
-                        id: presenceId
-                    }
-                }).then(presence => {
-                    res.send(true);
+    models.Planning.update(
+        {
+            modified: true
+        },
+        {
+            where: { id: id }
+        }).then(values => {
+            if (enable == "true") {
+                models.Availability.findById(availabilityId).then(availability => {
+                    models.Availability.update(
+                        {
+                            EmployeeId: availability.EmployeeId
+                        },
+                        {
+                            where: {
+                                id: presenceId
+                            }
+                        }).then(presence => {
+                            res.send(true);
+                        });
                 });
-        });
-    } else {
-        models.Availability.findById(originId).then(availability => {
-            models.Availability.update(
-                {
-                    EmployeeId: availability.EmployeeId
-                },
-                {
-                    where: {
-                        id: presenceId
-                    }
-                }).then(presence => {
-                    res.send(false);
+            } else {
+                models.Availability.findById(originId).then(availability => {
+                    models.Availability.update(
+                        {
+                            EmployeeId: availability.EmployeeId
+                        },
+                        {
+                            where: {
+                                id: presenceId
+                            }
+                        }).then(presence => {
+                            res.send(false);
+                        });
                 });
+            }
         });
-    }
 });
 
 router.post('/:id(\\d+)/toggle-presence', function (req, res) {
     var id = req.params.id;
     var availabilityId = req.body.availabilityId;
 
-    models.Availability.findById(availabilityId).then(availability => {
-        models.Availability.findOrCreate({
-            where: {
-                slotId: availability.slotId,
-                day: availability.day,
-                EmployeeId: availability.EmployeeId,
-                PlanningId: id
-            },
-            defaults: {
-                slotId: availability.slotId,
-                day: availability.day,
-                EmployeeId: availability.EmployeeId,
-                PlanningId: id
-            }
-        }).spread((presence, created) => {
-            if (!created) {
-                models.Availability.count({
+    models.Planning.update(
+        {
+            modified: true
+        },
+        {
+            where: { id: id }
+        }).then(values => {
+            models.Availability.findById(availabilityId).then(availability => {
+                models.Availability.findOrCreate({
                     where: {
                         slotId: availability.slotId,
                         day: availability.day,
+                        EmployeeId: availability.EmployeeId,
+                        PlanningId: id
+                    },
+                    defaults: {
+                        slotId: availability.slotId,
+                        day: availability.day,
+                        EmployeeId: availability.EmployeeId,
                         PlanningId: id
                     }
-                }).then(c => {
-                    // Must be at least one person present for the date/slot
-                    if (c > 1) {
-                        models.Availability.destroy({
-                            where: { id: presence.id }
-                        }).then(status => {
-                            res.send({ status: true });
+                }).spread((presence, created) => {
+                    if (!created) {
+                        models.Availability.count({
+                            where: {
+                                slotId: availability.slotId,
+                                day: availability.day,
+                                PlanningId: id
+                            }
+                        }).then(c => {
+                            // Must be at least one person present for the date/slot
+                            if (c > 1) {
+                                models.Availability.destroy({
+                                    where: { id: presence.id }
+                                }).then(status => {
+                                    res.send({ status: true });
+                                });
+                            } else {
+                                res.send({ status: false, message: i18n.__("planning.mustremainone") });
+                            }
                         });
+
                     } else {
-                        res.send({ status: false, message: i18n.__("planning.mustremainone") });
+                        res.send({ status: true });
                     }
                 });
-
-            } else {
-                res.send({ status: true });
-            }
+            });
         });
-    });
 });
 
 router.get('/employee/:employeeId(\\d+)', function (req, res) {

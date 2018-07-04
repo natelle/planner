@@ -1,5 +1,15 @@
 <%- include ../header.ejs %>
 
+<%
+Date.prototype.getWeek = function() {
+    var date = new Date(this.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+%>
+
 <h2><%= __("planning.proposal") %></h2>
 <br>
 <br>
@@ -15,7 +25,7 @@
 <table class="table table-sm">
     <thead class="thead-dark">
         <tr>
-            <th scope="col">
+            <th colspan="2" scope="col" class="text-center">
                 <%= __("planning.date") %>
             </th>
             <th scope="col" class="text-center">
@@ -26,13 +36,22 @@
     <tbody>
 <%
         var availabilityDateId = (planning.firstDate.getMonth()+1).toString().padStart(2, '0') + planning.firstDate.getFullYear();
+        console.log(agendas);
         
-        for(var d=planning.firstDate; d<=planning.lastDate; d.setDate(d.getDate() + 1)) {
+        for(var d=new Date(planning.firstDate); d<=planning.lastDate; d.setDate(d.getDate() + 1)) {
             var dateId = d.getTime();
 %>
             <tr class="availability">
-                <th scope="row" class="date">
-                    <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+<%
+                if(d.getDay() == 1 || d.getTime() == planning.firstDate.getTime()) {
+                    var days = 8 - (d.getDay() || 7);
+%>
+                    <th rowspan="<%= days %>" class="week-number align-middle"><span class="badge badge-secondary"><%= d.getWeek() %></span></th>
+<%
+                }
+%>
+                <th scope="row" class="date text-center align-middle">
+                    <%= __("time.shortday" + d.getDay()) %> <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
                 </th>
                 <td class="text-center">
                     <div class="card-deck">
@@ -41,13 +60,13 @@
                         if(Object.keys(dayPresences).length > 0 ) {
                             for(var slot of slots) {
                                 if(slot.days.includes(d.getDay())) {
-                                    var slotPresences = dayPresences[slot.id]
-
+                                    var slotPresences = dayPresences[slot.id]                                    
+                
                                     if(typeof slotPresences !== 'undefined') {
 %>
-                                        <div class="card slot-card" data-slotId="<%= slot.id %>" data-dateId="<%= dateId %>" presenceId="">
+                                        <div class="card slot-card" data-slotId="<%= slot.id %>" data-dateId="<%= dateId %>" data-agendaNumber="<%= agendas[d.getTime()][slot.id].number %>" presenceId="">
                                             <div class="card-header py-1">
-                                                <%= slotPresences[0].slot.name %> <span class="number"></span>
+                                                <%= slotPresences[0].slot.name %>  (<span class="number">0</span>/<%= agendas[d.getTime()][slot.id].number %>)
                                                 <a href="#add-employee" class="float-right add-employee"><i class="fas fa-pencil-alt"></i></a>
                                             </div>
                                             <div class="card-body py-1">
@@ -61,7 +80,7 @@
                                 }
                             } else {
 %>
-                                <button class="btn btn-secondary disabled mx-auto"><%= __("time.closed") %></button>
+                                <button class="btn btn-secondary btn-sm disabled mx-auto"><%= __("time.closed") %></button>
 <%
                             }
 %>
@@ -177,10 +196,14 @@
         function updateSlotCard(card) {
             var slotId = card.attr('data-slotId');
             var dateId = card.attr('data-dateId');
+            var number = card.attr('data-agendaNumber');
+
+            card.removeClass("border-warning");
             
             $.get('/employee/availabilities/category/<%= planning.categoryId %>/slot/' + slotId + '/' + dateId, function(availabilities) {                    
                 $.get("/planning/<%= planning.id %>/" + dateId + "/slot/" + slotId + "/presences", function(presences) {
                     card.find('div.card-body').empty();
+
 
                     var canReplace = availabilities.length > presences.length;
                     for (var presence of presences) {
@@ -194,7 +217,11 @@
                             '</p>';
 
                         card.find('div.card-body').append(htmlPresence);
-                        card.find("span.number").html('(' + presences.length + ')');
+                        card.find("span.number").html(presences.length);
+
+                        if(presences.length < number) {
+                            card.addClass("border-warning");
+                        }
                     }
 
                     card.find('a.replace-employee').click(function() {

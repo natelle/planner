@@ -2,6 +2,10 @@ th.date, td.date {
     width: 120px;
 }
 
+th.week-number, td.week-number {
+    width: 30px;
+}
+
 th.label {
     width: 120px;
 }

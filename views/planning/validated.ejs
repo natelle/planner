@@ -1,5 +1,15 @@
 <%- include ../header.ejs %>
 
+<%
+Date.prototype.getWeek = function() {
+    var date = new Date(this.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+%>
+
 <h2><%= __("planning.validated") %></h2>
 <br>
 <p class="text-right">
@@ -14,7 +24,7 @@
 <table class="table table-sm">
     <thead class="thead-dark">
         <tr>
-            <th scope="col">
+            <th colspan="2" scope="col" class="text-center">
                 <%= __("planning.date") %>
             </th>
             <th scope="col" class="text-center">
@@ -26,12 +36,20 @@
 <%
         var availabilityDateId = (planning.firstDate.getMonth()+1).toString().padStart(2, '0') + planning.firstDate.getFullYear();
         
-        for(var d=planning.firstDate; d<=planning.lastDate; d.setDate(d.getDate() + 1)) {
+        for(var d=new Date(planning.firstDate); d<=planning.lastDate; d.setDate(d.getDate() + 1)) {
             var dateId = d.getTime();
 %>
             <tr class="availability">
-                <th scope="row" class="date">
-                    <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+<%
+                if(d.getDay() == 1 || d.getTime() == planning.firstDate.getTime()) {
+                    var days = 8 - (d.getDay() || 7);
+%>
+                    <th rowspan="<%= days %>" class="week-number align-middle"><span class="badge badge-secondary"><%= d.getWeek() %></span></th>
+<%
+                }
+%>
+                <th scope="row" class="date text-center align-middle">
+                    <%= __("time.shortday" + d.getDay()) %> <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
                 </th>
                 <td class="text-center">
                     <div class="card-deck">
@@ -60,7 +78,7 @@
                                 }
                             } else {
 %>
-                                <button class="btn btn-secondary disabled mx-auto"><%= __("time.closed") %></button>
+                                <button class="btn btn-secondary btn-sm disabled mx-auto"><%= __("time.closed") %></button>
 <%
                             }
 %>

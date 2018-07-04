@@ -1,5 +1,3 @@
-- planning/failure.ejs (proposer la modification des disponibilités ou de l'agenda ainsi que la création manuelle + retour)
-- jour de la semaine en face des dates + numéro de la semaine à gauche
 - pour les disponibilités (normales/défaut) et l'agenda (idem) : tout cocher/tout décocher
 - ajouter boutons retour (dans div class row + div class col)
 - generer planning sur un intervalle précis (du ... au ...)
@@ -7,6 +5,5 @@
 - intégration user 
 - options générales : afficher les heures des créneaux ? (ou systématiquement), ...
 - vue print pour les plannings (vue normale [simple] et calendrier [à voir...])
-- si agenda et/ou availability modifiée, que faire ? dévalider les plannings ?
+- si agenda et/ou availability modifiée, que faire ? dévalider les plannings ? (ajouté : planning.modified)
 - pour les employés, number max ?
-- si pas de résultat, voir quand même ce que propose l'algo

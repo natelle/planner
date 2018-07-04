@@ -159,7 +159,10 @@
 		"current": "planning.current",
 		"create": "planning.create",
 		"mustremainone": "Le créneau doit comporter au moins une personne.",
-		"generated": "planning.generated"
+		"generated": "planning.generated",
+		"failure": "planning.failure",
+		"failuremessage1": "Attention : il est impossible de générer un planning avec la configuration actuelle.",
+		"failuremessage2": "Le planning proposé s'approche cependant du planning qui aurait été généré si la configuration l'avait permis."
 	},
 	"category": {
 		"listing": "Catégories",

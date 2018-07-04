@@ -5,7 +5,9 @@ module.exports = (sequelize, DataTypes) => {
         firstDate: DataTypes.DATE,
         lastDate: DataTypes.DATE,
         validated: DataTypes.BOOLEAN,
-        generated: DataTypes.BOOLEAN
+        generated: DataTypes.BOOLEAN,
+        success: DataTypes.BOOLEAN,
+        modified: DataTypes.BOOLEAN
     }, {
         tableName: 'planning',
     });
