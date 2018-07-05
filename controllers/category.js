@@ -36,7 +36,6 @@ router.get('/:id(\\d+)/update', function(req, res) {
 });
 
 router.post('/:id(\\d+)/update', function(req, res) {
-    console.log("hello");
     models.EmployeeCategory.update({
         name: req.body.name,
     }, {where: { id: req.params.id }}).then(category => {

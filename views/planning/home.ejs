@@ -1,15 +1,20 @@
 <%- include ../header.ejs %>
 
-    <h2><%= __("agenda.home") %></h2>
-    <br>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+    <li class="breadcrumb-item active"><%= __("planning.menu") %></li>
+  </ol>
+</nav>
 
-    <% for(var category of categories) {
-        if(category) { %>
+<!-- TODO -->
+<% for(var category of categories) {
+    if(category) { %>
         <h4><a href="/planning/category/<%= category.id %>"><%= category.name %></a></h4>
-        <% } else { %>
-            <h4><a href="/planning/category/0"><%= __("category.default") %></a></h4>
-            <% } %>
-                <br>
-                <% } %>
+    <% } else { %>
+        <h4><a href="/planning/category/0"><%= __("category.default") %></a></h4>
+    <% } %>
+    <br>
+<% } %>
 
-                    <%- include ../footer.ejs %>
+<%- include ../footer.ejs %>

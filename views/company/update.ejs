@@ -83,9 +83,7 @@ $(document).ready(function() {
         var index = typeOrder.indexOf($(this).attr("data-value"));
         var nextIndex = (index + 1) % typeOrder.length;
         var value = typeOrder[nextIndex];
-        var form = $(this).attr("data-form");
-
-        console.log(form);
+        var form = $(this).attr("data-form");        
 
         $(this).attr("data-value", value);
         $(this).text(typeTranslations[value]);

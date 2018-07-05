@@ -290,7 +290,7 @@ router.get('/currents', function (req, res) {
         }
 
         Promise.all(promises).then(categories => {
-            res.render('planning/home.ejs',
+            res.render('planning/currents.ejs',
                 {
                     categories: categories
                 });
@@ -317,18 +317,25 @@ router.get('/:id(\\d+)/regenerate', function (req, res) {
 router.get('/:id(\\d+)', function (req, res) {
     var id = req.params.id;
     models.Planning.findById(id, {
-        include: [{
-            model: models.Availability,
-            as: 'presences',
-            include: [
-                {
-                    model: models.Slot,
-                    as: 'slot'
-                }, {
-                    model: models.Employee
-                }
-            ]
-        }],
+        include: [
+            {
+                model: models.Availability,
+                as: 'presences',
+                include: [
+                    {
+                        model: models.Slot,
+                        as: 'slot'
+                    },
+                    {
+                        model: models.Employee
+                    }
+                ]
+            },
+            {
+                model: models.EmployeeCategory,
+                as: 'category'
+            }
+        ],
         order: [
             [
                 { model: models.Availability, as: 'presences' },
@@ -423,18 +430,25 @@ router.get('/:id(\\d+)/calendar', function (req, res) {
     var id = req.params.id;
 
     models.Planning.findById(id, {
-        include: [{
-            model: models.Availability,
-            as: 'presences',
-            include: [
-                {
-                    model: models.Slot,
-                    as: 'slot'
-                }, {
-                    model: models.Employee
-                }
-            ]
-        }],
+        include: [
+            {
+                model: models.Availability,
+                as: 'presences',
+                include: [
+                    {
+                        model: models.Slot,
+                        as: 'slot'
+                    },
+                    {
+                        model: models.Employee
+                    }
+                ]
+            },
+            {
+                model: models.EmployeeCategory,
+                as: 'category'
+            }
+        ],
         order: [
             [
                 { model: models.Availability, as: 'presences' },
@@ -448,16 +462,33 @@ router.get('/:id(\\d+)/calendar', function (req, res) {
             ],
         ]
     }).then(planning => {
-        planning.organisePresencesByDate();
-        if (planning.validated) {
+        var promises = [], presences = [];
+
+        // Check if matching availabilties are still existing
+        for (let presence of planning.presences) {
+            promises.push(models.Availability.findOne({
+                where: {
+                    EmployeeId: presence.EmployeeId,
+                    day: presence.day,
+                    slotId: presence.slotId,
+                    planningId: null
+                }
+            }).then(availability => {
+                presence = presence.toJSON();
+                presence.missing = !availability;
+
+                presences.push(presence);
+            }));
+        }
+
+        Promise.all(promises).then(values => {
+            planning.presences = presences;
+            planning.organisePresencesByDate();
+
             res.render('planning/calendar.ejs', {
                 planning: planning
             });
-        } else {
-            res.render('planning/proposal-calendar.ejs', {
-                planning: planning
-            });
-        }
+        });
     });
 });
 
@@ -523,8 +554,30 @@ router.get('/:id(\\d+)/:dateId(\\d{12,})/slot/:slotId(\\d+)/presences', function
             [models.Employee, 'lastName', 'ASC'],
             [models.Employee, 'firstName', 'ASC'],
         ]
-    }).then(presences => {
-        res.send(presences);
+    }).then(rawPresences => {
+        var promises = [];
+        var presences = [];
+
+        // Check if matching availabilties are still existing
+        for (let presence of rawPresences) {
+            promises.push(models.Availability.findOne({
+                where: {
+                    EmployeeId: presence.EmployeeId,
+                    day: presence.day,
+                    slotId: presence.slotId,
+                    planningId: null
+                }
+            }).then(availability => {
+                presence = presence.toJSON();
+                presence.missing = !availability;
+
+                presences.push(presence);
+            }));
+        }
+
+        Promise.all(promises).then(values => {
+            res.send(presences);
+        });
     });
 });
 

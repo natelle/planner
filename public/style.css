@@ -3,7 +3,7 @@ th.date, td.date {
 }
 
 th.week-number, td.week-number {
-    width: 30px;
+    width: 5%;
 }
 
 th.label {
@@ -20,7 +20,7 @@ input.number {
 
 td.calendar-day {
     height: 120px;
-    width: 14.28571428571429% !important;
+    width: 13.57142857142857% !important;
 }
 
 td.calendar-day button {

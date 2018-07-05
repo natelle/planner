@@ -144,13 +144,12 @@
                             var number = $(this).val();
                             var day = $(this).attr("data-day");
                             var slotId = $(this).attr("data-slotId");
-                            console.log("day = " + day + " - slotId = " + slotId);
+                            
                             $.post('/agenda/default/set-number', {
                                 number: number,
                                 slotId: slotId,
                                 day: day
                             }, function(value) {
-                                console.log(value);
                             });
                         });
                     });

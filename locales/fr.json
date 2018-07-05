@@ -166,7 +166,11 @@
 		"generated": "planning.generated",
 		"failure": "planning.failure",
 		"failuremessage1": "Attention : il est impossible de générer un planning avec la configuration actuelle.",
-		"failuremessage2": "Le planning proposé s'approche cependant du planning qui aurait été généré si la configuration l'avait permis."
+		"failuremessage2": "Le planning proposé s'approche cependant du planning qui aurait été généré si la configuration l'avait permis.",
+		"missingavailability": "planning.missingavailability",
+		"creation": "Création",
+		"calendar": "planning.calendar",
+		"currents": "planning.currents"
 	},
 	"category": {
 		"listing": "Catégories",

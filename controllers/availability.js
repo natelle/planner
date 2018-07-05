@@ -123,7 +123,8 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/default', func
                 promises.push(models.Availability.destroy({
                     where: {
                         EmployeeId: id,
-                        day: date
+                        day: date,
+                        planningId: null
                     }
                 }));
             }
@@ -164,7 +165,8 @@ router.post('/:id(\\d+)/availabilities/enabled', function (req, res) {
         where: {
             EmployeeId: employeeId,
             day: date,
-            slotId: slotId
+            slotId: slotId,
+            planningId: null
         }
     }).then(availability => {
         res.send(availability !== null);
@@ -182,11 +184,13 @@ router.post('/:id(\\d+)/availabilities/set', function (req, res) {
             where: {
                 EmployeeId: employeeId,
                 day: date,
-                slotId: slotId
+                slotId: slotId,
+                planningId: null
             }, defaults: {
                 EmployeeId: employeeId,
                 day: date,
-                slotId: slotId
+                slotId: slotId,
+                planningId: null
             }
         })
             .spread((availability, created) => {
@@ -197,7 +201,8 @@ router.post('/:id(\\d+)/availabilities/set', function (req, res) {
             where: {
                 EmployeeId: employeeId,
                 day: date,
-                slotId: slotId
+                slotId: slotId,
+                planningId: null
             }
         }).then(status => {
             res.send(false)
