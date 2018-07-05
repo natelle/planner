@@ -1,8 +1,8 @@
-var models  = require('../models');
+var models = require('../models');
 var express = require('express');
-var router  = express.Router();
+var router = express.Router();
 
-router.get('/', function(req, res) {
+router.get('/', function (req, res) {
     models.Slot.findAll({
         attributes: ['categoryId'],
         group: ['Slot.categoryId'],
@@ -10,41 +10,41 @@ router.get('/', function(req, res) {
     }).then(slots => {
         var promises = [];
 
-        for(var slot of slots) {
+        for (var slot of slots) {
             promises.push(models.EmployeeCategory.findById(slot.categoryId))
         }
 
         Promise.all(promises).then(categories => {
             res.render('agenda/home.ejs',
-            {
-                categories: categories
-            });
+                {
+                    categories: categories
+                });
         })
     });
 });
 
-router.get('/:categoryId(\\d+)', function(req, res) {
+router.get('/:categoryId(\\d+)', function (req, res) {
     var categoryId = req.params.categoryId;
     var year = (new Date()).getFullYear();
 
     res.redirect(categoryId + '/' + year);
 });
 
-router.get('/:categoryId(\\d+)/:year(\\d{4})', function(req, res) {
+router.get('/:categoryId(\\d+)/:year(\\d{4})', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
     var year = req.params.year;
 
     models.EmployeeCategory.findById(categoryId).then(category => {
         res.render('agenda/list-yearly.ejs',
-        {
-            category: category,
-            year: year
-        });
+            {
+                category: category,
+                year: year
+            });
     });
 });
 
-router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(req, res) {
+router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
     var month = req.params.month;
@@ -62,9 +62,9 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(req, res) 
         }).then(rawSlots => {
             var slots = {}
 
-            for(var slot of rawSlots) {
-                for(var day of slot.days) {
-                    if(typeof slots[day] === 'undefined') {
+            for (var slot of rawSlots) {
+                for (var day of slot.days) {
+                    if (typeof slots[day] === 'undefined') {
                         slots[day] = [slot];
                     } else {
                         slots[day].push(slot)
@@ -73,17 +73,17 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function(req, res) 
             }
 
             res.render('agenda/list.ejs',
-            {
-                category: category,
-                slots: slots,
-                firstDate: firstDate,
-                lastDate: lastDate
-            });
+                {
+                    category: category,
+                    slots: slots,
+                    firstDate: firstDate,
+                    lastDate: lastDate
+                });
         })
     });
 });
 
-router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(req, res) {
+router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
     var month = req.params.month;
@@ -91,7 +91,7 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
 
     var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
     var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
-    
+
     models.DefaultAgenda.findAll({
         include: [{
             model: models.Slot,
@@ -101,10 +101,10 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
     }).then(rawAgendas => {
         var agendas = {}
 
-        for(var agenda of rawAgendas) {
+        for (var agenda of rawAgendas) {
             var day = agenda.day;
 
-            if(typeof agendas[day] === 'undefined') {
+            if (typeof agendas[day] === 'undefined') {
                 agendas[day] = [agenda];
             } else {
                 agendas[day].push(agenda)
@@ -114,7 +114,7 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
         var promises = [];
 
         // Delete first all the availabilities in the month
-        for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) {
+        for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
             let date = new Date(d);
 
             promises.push(models.Agenda.destroy({
@@ -132,12 +132,12 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
             promises = [];
 
             // Create then all the agendas from the default ones
-            for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) {
+            for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
                 let date = new Date(d);
                 let day = date.getDay();
-                
-                if(typeof agendas[day] !== 'undefined') {
-                    for(var agenda of agendas[day]) {
+
+                if (typeof agendas[day] !== 'undefined') {
+                    for (var agenda of agendas[day]) {
                         promises.push(models.Agenda.create({
                             day: date,
                             number: agenda.number,
@@ -154,7 +154,7 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/default', function(re
     })
 });
 
-router.post('/enabled', function(req, res) {
+router.post('/enabled', function (req, res) {
     var date = new Date(parseInt(req.body.dateId));
     var slotId = req.body.slotId;
 
@@ -168,7 +168,7 @@ router.post('/enabled', function(req, res) {
     })
 });
 
-router.post('/number', function(req, res) {
+router.post('/number', function (req, res) {
     var date = new Date(parseInt(req.body.dateId));
     var slotId = req.body.slotId;
 
@@ -182,12 +182,12 @@ router.post('/number', function(req, res) {
     })
 });
 
-router.post('/set', function(req, res) {
+router.post('/set', function (req, res) {
     var enable = req.body.enable == "true" ? true : false;
     var date = new Date(parseInt(req.body.dateId));
-    var slotId = req.body.slotId;    
+    var slotId = req.body.slotId;
 
-    if(enable) {
+    if (enable) {
         var day = (new Date(date)).getDay();
 
         models.DefaultAgenda.findOne({
@@ -206,22 +206,24 @@ router.post('/set', function(req, res) {
                     number: agenda ? agenda.number : 1
                 }
             })
-            .spread((availability, created) => {
-                res.send(true)
-            });
+                .spread((availability, created) => {
+                    res.send(true)
+                });
         })
 
     } else {
-        models.Agenda.destroy({ where: {
-            day: date,
-            slotId: slotId
-        }}).then(status => {
+        models.Agenda.destroy({
+            where: {
+                day: date,
+                slotId: slotId
+            }
+        }).then(status => {
             res.send(false)
         });
     }
 });
 
-router.post('/set-number', function(req, res) {
+router.post('/set-number', function (req, res) {
     var number = req.body.number;
     var date = new Date(parseInt(req.body.dateId));
     var slotId = req.body.slotId;
@@ -229,16 +231,16 @@ router.post('/set-number', function(req, res) {
     models.Agenda.update({
         number: number
     }, {
-        where: {
-            day: date,
-            slotId: slotId
-        }
-    }).then(agenda => {
-        res.send(true);
-    });
+            where: {
+                day: date,
+                slotId: slotId
+            }
+        }).then(agenda => {
+            res.send(true);
+        });
 });
 
-router.get('/default', function(req, res) {
+router.get('/default', function (req, res) {
     models.Slot.findAll({
         attributes: ['categoryId'],
         group: ['Slot.categoryId'],
@@ -246,53 +248,56 @@ router.get('/default', function(req, res) {
     }).then(slots => {
         var promises = [];
 
-        for(var slot of slots) {
+        for (var slot of slots) {
             promises.push(models.EmployeeCategory.findById(slot.categoryId))
         }
 
         Promise.all(promises).then(categories => {
             res.render('agenda/home-default.ejs',
-            {
-                categories: categories
-            });
+                {
+                    categories: categories
+                });
         })
     })
 });
 
-router.get('/default/:categoryId(\\d+)', function(req, res) {
+router.get('/default/:categoryId(\\d+)', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
 
-    models.Slot.findAll({
-        where: {
-            categoryId: categoryId
-        },
-        include: [{
-            model: models.EmployeeCategory,
-            as: 'category'
-        }],
-        order: ['begin']
-    }).then(rawSlots => {
-        var slots = {}
+    models.EmployeeCategory.findById(categoryId).then(category => {
+        models.Slot.findAll({
+            where: {
+                categoryId: categoryId
+            },
+            include: [{
+                model: models.EmployeeCategory,
+                as: 'category'
+            }],
+            order: ['begin']
+        }).then(rawSlots => {
+            var slots = {}
 
-        for(var slot of rawSlots) {
-            for(var day of slot.days) {
-                if(typeof slots[day] === 'undefined') {
-                    slots[day] = [slot];
-                } else {
-                    slots[day].push(slot)
+            for (var slot of rawSlots) {
+                for (var day of slot.days) {
+                    if (typeof slots[day] === 'undefined') {
+                        slots[day] = [slot];
+                    } else {
+                        slots[day].push(slot)
+                    }
                 }
             }
-        }
 
-        res.render('agenda/default.ejs',
-        {
-            slots: slots
+            res.render('agenda/default.ejs',
+                {
+                    slots: slots,
+                    category: category
+                });
         });
     });
 });
 
-router.post('/default/enabled', function(req, res) {
+router.post('/default/enabled', function (req, res) {
     var day = req.body.day;
     var slotId = req.body.slotId;
 
@@ -306,7 +311,7 @@ router.post('/default/enabled', function(req, res) {
     })
 });
 
-router.post('/default/number', function(req, res) {
+router.post('/default/number', function (req, res) {
     var day = req.body.day;
     var slotId = req.body.slotId;
 
@@ -320,12 +325,12 @@ router.post('/default/number', function(req, res) {
     })
 });
 
-router.post('/default/set', function(req, res) {
+router.post('/default/set', function (req, res) {
     var enable = req.body.enable == "true" ? true : false;
     var day = req.body.day;
     var slotId = req.body.slotId;
 
-    if(enable) {
+    if (enable) {
         models.DefaultAgenda.findOrCreate({
             where: {
                 day: day,
@@ -336,20 +341,22 @@ router.post('/default/set', function(req, res) {
                 number: 1
             }
         })
-        .spread((agenda, created) => {
-            res.send(true)
-        });
+            .spread((agenda, created) => {
+                res.send(true)
+            });
     } else {
-        models.DefaultAgenda.destroy({ where: {
-            day: day,
-            slotId: slotId
-        }}).then(status => {
+        models.DefaultAgenda.destroy({
+            where: {
+                day: day,
+                slotId: slotId
+            }
+        }).then(status => {
             res.send(false)
         });
     }
 });
 
-router.post('/default/set-number', function(req, res) {
+router.post('/default/set-number', function (req, res) {
     var number = req.body.number;
     var day = req.body.day;
     var slotId = req.body.slotId;
@@ -357,13 +364,13 @@ router.post('/default/set-number', function(req, res) {
     models.DefaultAgenda.update({
         number: number
     }, {
-        where: {
-            day: day,
-            slotId: slotId
-        }
-    }).then(agenda => {
-        res.send(true);
-    });
+            where: {
+                day: day,
+                slotId: slotId
+            }
+        }).then(agenda => {
+            res.send(true);
+        });
 });
 
 module.exports = router;

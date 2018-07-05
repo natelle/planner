@@ -1,8 +1,15 @@
 <%- include ../header.ejs %>
 
-<h2><%= __("agenda.yearly") %> <%= year %> - <%= category ? category.name : __("category.default") %></h2>
-<br>
-<div class="row align-items-center">
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+        <li class="breadcrumb-item"><a href="/agenda"><%= __("agenda.menu") %></a></li>
+        <li class="breadcrumb-item"><a href="/agenda/"><%= __("availability.menu") %></a></li>
+        <li class="breadcrumb-item active"><%= year %></li>
+    </ol>
+</nav>
+
+<div class="row align-items-center mt-5">
     <div class="col-md-1">
         <a href="/agenda/<%= category ? category.id : 0 %>/<%= parseInt(year) - 1 %>"><i class="fas fa-angle-left fa-2x"></i></a>
     </div>
