@@ -46,7 +46,10 @@
 		"firstName": "employee.firstName",
 		"menulist": "Liste des employées",
 		"menucategory": "Catégories",
-		"number": "employee.number"
+		"number": "employee.number",
+		"home": "employee.home",
+		"creation": "employee.creation",
+		"edition": "employee.edition"
 	},
 	"agenda": {
 		"yearly": "agenda.yearly",
@@ -134,7 +137,8 @@
 		"default": "Disponibilités par défaut",
 		"setdefault": "Remplir avec les disponibilités par défaut",
 		"enableall": "availability.enableall",
-		"disableall": "availability.disableall"
+		"disableall": "availability.disableall",
+		"menu": "Disponibilités"
 	},
 	"undefinedabbr": "undefinedabbr",
 	"planning": {

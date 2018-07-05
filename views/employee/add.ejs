@@ -1,8 +1,14 @@
 <%- include ../header.ejs %>
 
-<h2>Création d'un salarié</h2>
-<br>
-<form action="/employee/add" method="post">
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+        <li class="breadcrumb-item"><a href="/employee"><%= __("employee.home") %></a></li>
+        <li class="breadcrumb-item"><%= __("employee.creation") %></li>
+    </ol>
+</nav>
+
+<form action="/employee/add" method="post" class="mt-5 mb-3">
     <div class="form-group row">
         <label class="col-sm-2" for="lastName"><%= __("employee.lastname") %></label>
         <div class="col-sm-10">
@@ -31,11 +37,9 @@
         <label class="col-sm-2" for="exampleFormControlSelect1"><%= __("employee.category") %></label>
         <div class="col-sm-10">
             <select class=" custom-select" name="category" id="exampleFormControlSelect1" style="height:34px">
-<%
-                for(var i in categories) {
-                    var category = categories[i];
-%>
-                <option value="<%= category.id %>"><%= category.name %></option>
+                <% for(var i in categories) {
+                    var category = categories[i]; %>
+                    <option value="<%= category.id %>"><%= category.name %></option>
                 <% } %>
             </select>
         </div>
@@ -51,8 +55,8 @@
             </div>
         </div>
     </div>
-    <br>
-    <div class="text-right">
+
+    <div class="text-right mt-3">
         <button type="submit" class="btn btn-primary text-right"><%= __("global.save") %></button>
     </div>
 </form>

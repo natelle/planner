@@ -32,6 +32,14 @@ module.exports = (sequelize, DataTypes) => {
             tableName: 'slot',
         });
 
+    Slot.prototype.getLabel = function() {
+        return this.name + " " + this.getTimeLabel();
+    }
+
+    Slot.prototype.getTimeLabel = function() {
+        return this.begin.replace(/:00$/, "") + "-" + this.end.replace(/:00$/, "");
+    }
+
     Slot.prototype.getDuration = function () {
         var dateBegin = new Date("2000-01-01T" + this.begin);
         var dateEnd = new Date("2000-01-01T" + this.end);

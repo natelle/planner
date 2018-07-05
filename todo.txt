@@ -4,5 +4,5 @@
 - intégration user (3)
 - options générales : afficher les heures des créneaux ? (ou systématiquement), ... (1)
 - vue print pour les plannings (vue normale [simple] et calendrier [à voir...]) (1)
-- si agenda  modifié, que faire ? dévalider les plannings ? (ajouté : planning.modified)
 - pour les employés, number max ?
+- voir pour le titre de la page (head title) + navbar (onglet courant=)

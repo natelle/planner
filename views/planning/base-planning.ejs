@@ -21,7 +21,7 @@ Date.prototype.getWeek = function() {
     <tbody>
 <%
         var availabilityDateId = (planning.firstDate.getMonth()+1).toString().padStart(2, '0') + planning.firstDate.getFullYear();
-        
+
         for(var d=new Date(planning.firstDate); d<=planning.lastDate; d.setDate(d.getDate() + 1)) {
             var dateId = d.getTime();
 %>
@@ -44,14 +44,15 @@ Date.prototype.getWeek = function() {
                         if(Object.keys(dayPresences).length > 0 ) {
                             for(var slot of slots) {
                                 if(slot.days.includes(d.getDay())) {
-                                    var slotPresences = dayPresences[slot.id]                                    
-                
+                                    var slotPresences = dayPresences[slot.id]
+
                                     if(typeof slotPresences !== 'undefined') {
 %>
                                         <div class="card slot-card" data-slotId="<%= slot.id %>" data-dateId="<%= dateId %>" data-agendaNumber="<%= slotPresences.number %>" presenceId="">
                                             <div class="card-header py-1">
-                                                <%= slotPresences.slot.name %>  (<span class="number">0</span>/<%= slotPresences.number %>)
-                                                <a href="#add-employee" class="float-right add-employee"><i class="fas fa-pencil-alt"></i></a>
+                                                <span class="float-left font-weight-bold">(<span class="number">0</span>/<%= slotPresences.number %>)</span>
+                                                <%= slotPresences.slot.name %> <small>(<%= slotPresences.slot.getTimeLabel() %>)</small>
+                                                <a href="#add-employee" class="float-right add-employee"><i class="fas fa-user-edit"></i></a>
                                             </div>
                                             <div class="card-body py-1">
                                             </div>
@@ -142,7 +143,7 @@ Date.prototype.getWeek = function() {
                         '</button>' +
                         '</p>');
                 }
-                
+
                 $('#addEmployeeModal div.modal-footer').hide();
                 $('#addEmployeeModal').modal('show');
 
@@ -168,7 +169,7 @@ Date.prototype.getWeek = function() {
                             $('#addEmployeeModal p.message').html(value.message);
                             $('#addEmployeeModal div.modal-footer').show();
                         }
-                        
+
                         updateSlotCard(card);
                     });
                 });
@@ -181,8 +182,9 @@ Date.prototype.getWeek = function() {
             var number = card.attr('data-agendaNumber');
 
             card.removeClass("border-warning border-danger");
-            
-            $.get('/employee/availabilities/category/<%= planning.categoryId %>/slot/' + slotId + '/' + dateId, function(availabilities) {                    
+            card.find("span.number").parent().removeClass("text-danger text-danger");
+
+            $.get('/employee/availabilities/category/<%= planning.categoryId %>/slot/' + slotId + '/' + dateId, function(availabilities) {
                 $.get("/planning/<%= planning.id %>/" + dateId + "/slot/" + slotId + "/presences", function(presences) {
                     card.find('div.card-body').empty();
                     //card.find("div.card-body").addClass("d-none");
@@ -191,7 +193,7 @@ Date.prototype.getWeek = function() {
                     for (var presence of presences) {
                         var htmlPresence = '<p class="card-text mb-1 presence" data-presenceId="' + presence.id + '" data-employeeId="' + presence.Employee.id + '">' +
                             '<a '  +  (presence.missing ? 'class="text-warning"' : "") +
-                            ' href="/employee/' + presence.Employee.id + '/availabilities/<%= availabilityDateId %>" ' + 
+                            ' href="/employee/' + presence.Employee.id + '/availabilities/<%= availabilityDateId %>" ' +
                             (presence.missing ? 'data-toggle="tooltip" data-placement="bottom" data-original-title="<%= __("planning.missingavailability") %>"' : '') + '>' +
                             '<small>' + presence.Employee.firstName + ' ' + presence.Employee.lastName + '</small>' +
                             '<a href="#exchange" class="replace-employee">' +
@@ -203,13 +205,16 @@ Date.prototype.getWeek = function() {
                         $('a[data-toggle=tooltip]').tooltip();
 
                         card.find('div.card-body').append(htmlPresence);
-                        card.find("span.number").html(presences.length);
                     }
+
+                    card.find("span.number").html(presences.length);
 
                     if(presences.filter(presence => !presence.missing).length == 0) {
                         card.addClass("border-danger");
+                        card.find("span.number").parent().addClass("text-danger");
                     } else if(presences.filter(presence => !presence.missing).length < number) {
                         card.addClass("border-warning");
+                        card.find("span.number").parent().addClass("text-warning");
                     }
 
                     if(presences.length > 0) {

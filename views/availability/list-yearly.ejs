@@ -1,15 +1,16 @@
 <%- include ../header.ejs %>
 
-<h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %> pour l'année <%= year %></h2>
-<br>
-<div class="row">
-    <p>
-        <a href="/employee %>" class="float-left">
-            <i class="fas fa-arrow-circle-left fa-2x"></i>
-        </a>
-    </p>
-</div>
-<div class="row align-items-center">
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+        <li class="breadcrumb-item"><a href="/employee"><%= __("employee.menu") %></a></li>
+        <li class="breadcrumb-item"><%= employee.getName() %></li>
+        <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>/availabilities"><%= __("availability.menu") %></a></li>
+        <li class="breadcrumb-item active"><%= year %></li>
+    </ol>
+</nav>
+
+<div class="row align-items-center mt-5">
     <div class="col-md-1">
         <a href="/employee/<%= employee.id %>/availabilities/<%= parseInt(year) - 1 %>">
             <i class="fas fa-angle-left fa-2x"></i>

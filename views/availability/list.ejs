@@ -10,24 +10,27 @@ Date.prototype.getWeek = function() {
 }
 %>
 
-<h2>Disponibilités de <%= employee.firstName %> <%= employee.lastName %></h2>
-<br>
-<div class="row mb-5">
-    <div class="col">
-        <p>
-            <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
-            <button id="default" class="float-right btn btn-primary" data-dateId="<%= dateId %>">
-                <%= __("availability.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
-            </button>
-            <button id="toggleall" data-action="enable" class="mr-3 btn btn-primary float-right">
-                <%= __("availability.enableall") %>
-            </button>
-            <a href="/employee/<%= employee.id %>/availabilities/<%= firstDate.getFullYear() %>" class="float-left ml-3 btn btn-primary">
-                <i class="fas fa-arrow-alt-circle-left"></i>
-            </a>
-        </p>
-    </div>
-</div>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+        <li class="breadcrumb-item"><a href="/employee"><%= __("employee.menu") %></a></li>
+        <li class="breadcrumb-item"><%= employee.getName() %></li>
+        <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>/availabilities"><%= __("availability.menu") %></a></li>
+        <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>/availabilities/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
+        <li class="breadcrumb-item"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
+    </ol>
+</nav>
+
+<p class="mt-5 mb-3 text-right">
+    <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
+    <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>">
+        <%= __("availability.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
+    </button>
+    <button id="toggleall" data-action="enable" class="mr-3 btn btn-primary">
+        <%= __("availability.enableall") %>
+    </button>
+</p>
+
 <div class="row align-items-center">
     <div class="col-md-1">
 <%
