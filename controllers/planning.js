@@ -109,13 +109,23 @@ router.get('/category/:categoryId(\\d+)/:year(\\d{4})', function (req, res) {
 });
 
 router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function (req, res) {
-    var categoryId = req.params.categoryId;
-    categoryId = categoryId !== '0' ? categoryId : null;
     var month = req.params.month;
     var year = req.params.year;
 
     var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
     var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
+
+    res.redirect('/planning/generate/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
+});
+
+router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(\\d{12,})', function (req, res) {
+    var categoryId = req.params.categoryId;
+    categoryId = categoryId !== '0' ? categoryId : null;
+    // var month = req.params.month;
+    // var year = req.params.year;
+
+    var firstDate = new Date(parseInt(req.params.firstDate));
+    var lastDate = new Date(parseInt(req.params.lastDate));
 
     var promises = [];
     var employees, agendas, availabilities, slots;

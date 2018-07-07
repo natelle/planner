@@ -59,9 +59,6 @@ Planner.prototype.findAvailabilities = function (date) {
     var availabilities = [];
 
     for (var availability of this.availabilities) {
-        // var dateString = availability.day.getFullYear() + '-' + (availability.day.getMonth()+1).toString().padStart(2, '0') + '-' + availability.day.getDate().toString().padStart(2, '0') + ' 00:00:00';
-        // var availabilityDate = new Date(dateString);
-
         if (availability.day.getTime() == date.getTime()) {
             availabilities.push(availability);
         }
@@ -139,8 +136,6 @@ Planner.prototype.generate = function () {
     console.log(model);
     console.log("RESULTS");
     console.log(results);
-
-
 
     var planning = new models.Planning();
 
