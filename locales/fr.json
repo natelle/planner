@@ -17,7 +17,7 @@
 		"name": "Nom",
 		"phone": "Téléphone",
 		"show": "Information de l'entreprise",
-		"edit": "Information de l'entreprise",
+		"edit": "Edition",
 		"defaultagenda": "Horaires par défaut",
 		"defaultnumber": "company.defaultnumber",
 		"defaultNumber": "company.defaultNumber",
@@ -174,7 +174,8 @@
 		"missingavailability": "planning.missingavailability",
 		"creation": "Création",
 		"calendar": "planning.calendar",
-		"currents": "planning.currents"
+		"currents": "planning.currents",
+		"category": "planning.category"
 	},
 	"category": {
 		"listing": "Catégories",
@@ -204,7 +205,9 @@
 		"closed": "Fermé",
 		"default": "Créneau par défaut",
 		"category": "Catégorie",
-		"duration": "slot.duration"
+		"duration": "slot.duration",
+		"menu": "slot.menu",
+		"edition": "slot.edition"
 	},
 	"companyoptions": {
 		"show": "companyoptions.show",
@@ -214,6 +217,16 @@
 		"actions": "general.actions"
 	},
 	"action": {
-		"back": "action.back"
+		"back": "action.back",
+		"action": {
+			"one": "action.action",
+			"other": "action.action"
+		}
+	},
+	"actions": {
+		"action": {
+			"one": "actions.action",
+			"other": "actions.action"
+		}
 	}
 }

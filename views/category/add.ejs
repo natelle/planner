@@ -1,15 +1,15 @@
 <%- include ../header.ejs %>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
     <li class="breadcrumb-item"><a href="/employee"><%= __("employee.menu") %></a></li>
     <li class="breadcrumb-item"><a href="/employee/category"><%= __("category.menu") %></a></li>
-    <li class="breadcrumb-item active" aria-current="page"><%= __("category.add") %></li>
+    <li class="breadcrumb-item active"><%= __("category.add") %></li>
   </ol>
 </nav>
 
-<div class="row mt-5">
+<div class="row">
     <div class="col">
         <form action="/employee/category/add" method="post">
             <div class="form-group row">

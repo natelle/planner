@@ -1,6 +1,6 @@
 <%- include ../header.ejs %>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
     <li class="breadcrumb-item"><a href="/planning"><%= __("planning.menu") %></a></li>
@@ -10,20 +10,15 @@
     <li class="breadcrumb-item active"><%= __("planning.failure") %></li>
   </ol>
 </nav>
-<br>
 
-<%
-if(!planning.modified) {    
-%>
+<% if(!planning.modified) { %>
     <div class="alert alert-warning" role="alert">
         <%= __("planning.failuremessage1") %><br>
         <%= __("planning.failuremessage2") %><br>
     </div>
-<%
-    }
-%>
-<br>
-<p class="text-right mt-5 mb-3">
+<% } %>
+
+<p class="text-right mb-3">
     <a class="btn btn-primary" href="/planning/<%= planning.id %>/validate">
         <%= __('planning.validate') %>
     </a>

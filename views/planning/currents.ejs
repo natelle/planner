@@ -1,13 +1,12 @@
 <%- include ../header.ejs %>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
     <li class="breadcrumb-item"><a href="/planning"><%= __("planning.menu") %></a></li>
-    <li class="breadcrumb-item"><%= __("planning.currents") %></li>
+    <li class="breadcrumb-item active"><%= __("planning.currents") %></li>
   </ol>
 </nav>
-
 
 <%
     var now = new Date();

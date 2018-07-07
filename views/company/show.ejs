@@ -1,11 +1,16 @@
 <%- include ../header.ejs %>
 
-<h2><%= __("company.show") %></h2>
-<br>
-<p>
+<nav aria-label="breadcrumb" class="mb-5">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+    <li class="breadcrumb-item active"><%= __("company.menu") %></li>
+  </ol>
+</nav>
+
+<p class="text-right mb-3">
     <a class="btn btn-primary" href="/company/update" role="button"><%= __("global.edit") %></a>
 </p>
-<br>
+
 <table class="table table-borderless">
   <tbody>
     <tr>
@@ -21,37 +26,6 @@
         <td><%= company.phone ? company.phone : "-" %></td>
     </tr>
   </tbody>
-</table>
-<br>
-<h4><%= __("company.defaultnumber") %></h4>
-<br>
-<p><%= company.defaultNumber %> <%= __n("employee.employee", company.defaultNumber) %></p>
-<br>
-<h4><%= __("company.defaultagenda") %></h4>
-<br>
-<table class="table table-bordered defaultDays text-center">
-    <thead>
-        <tr>
-            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.monday") %></th>
-            <th class="text-center" style="width: 14.29%" cope="col"><%= __("time.tuesday") %></th>
-            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.wednesday") %></th>
-            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.thursday") %></th>
-            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.friday") %></th>
-            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.saturday") %></th>
-            <th class="text-center" style="width: 14.29%" scope="col"><%= __("time.sunday") %></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><%= __(company.defaultDay1) %></td>
-            <td><%= __(company.defaultDay2) %></td>
-            <td><%= __(company.defaultDay3) %></td>
-            <td><%= __(company.defaultDay4) %></td>
-            <td><%= __(company.defaultDay5) %></td>
-            <td><%= __(company.defaultDay6) %></td>
-            <td><%= __(company.defaultDay0) %></td>
-        </tr>
-    </tbody>
 </table>
 
 <%- include ../footer.ejs %>

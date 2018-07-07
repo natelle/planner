@@ -27,6 +27,11 @@ td.calendar-day button {
     min-height: 26px;
 }
 
+button.employee-presence {
+    z-index: 1000;
+    opacity: 1!important;
+}
+
 button.day-1 {
     z-index: 1000;
     opacity: 1!important;

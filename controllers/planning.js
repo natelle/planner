@@ -14,14 +14,51 @@ router.get('/', function (req, res) {
         var promises = [];
 
         for (var slot of slots) {
-            promises.push(models.EmployeeCategory.findById(slot.categoryId))
+            promises.push(models.EmployeeCategory.findById(slot.categoryId));
         }
 
         Promise.all(promises).then(categories => {
-            res.render('planning/home.ejs',
-                {
-                    categories: categories
-                });
+            promises = [];
+
+            var now = new Date();
+            now.setHours(0, 0, 0, 0);
+            var firstDate = new Date(now).setDate(1);
+            var lastDate = new Date(now);
+            lastDate.setMonth(now.getMonth() + 1);
+            lastDate.setDate(0);
+
+            for (var category of categories) {
+                if (!category) {
+                    category = { id: 0 };
+                }
+                promises.push(models.Planning.findOne({
+                    where: {
+                        firstDate: {
+                            [models.Sequelize.Op.between]: [firstDate, lastDate]
+                        },
+                        categoryId: category.id,
+                        validated: true
+                    }
+                }));
+            }
+
+            Promise.all(promises).then(rawPlannings => {
+                var plannings = {};
+
+                for (var planning of rawPlannings) {
+                    if (planning) {
+                        var categoryId = planning.categoryId ? planning.categoryId : 0;
+                        plannings[categoryId] = planning;
+                    }
+                }
+
+                res.render('planning/home.ejs',
+                    {
+                        plannings: plannings,
+                        categories: categories
+                    }
+                );
+            });
         })
     });
 });
@@ -45,7 +82,8 @@ router.get('/category/:categoryId(\\d+)/:year(\\d{4})', function (req, res) {
                     [models.Sequelize.Op.between]: [new Date(year, 0, 1), new Date(year, 11, 31)]
                 },
                 categoryId: categoryId
-            }
+            },
+            order: [['validated', "DESC"]]
         }).then(rawPlannings => {
             var plannings = {};
 
@@ -64,7 +102,8 @@ router.get('/category/:categoryId(\\d+)/:year(\\d{4})', function (req, res) {
                     plannings: plannings,
                     category: category,
                     year: year
-                });
+                }
+            );
         });
     });
 });
@@ -100,7 +139,8 @@ router.get('/generate/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', f
         where: {
             day: {
                 [models.Sequelize.Op.between]: [firstDate, lastDate]
-            }
+            },
+            planningId: null
         },
         include: [
             {
@@ -239,21 +279,30 @@ router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})", function (
     var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
     var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
-    models.Planning.findAll({
-        where: {
-            firstDate: firstDate,
-            lastDate: lastDate,
-            categoryId: categoryId,
-        },
-        order: [
-            ['validated', 'DESC'],
-            ['createdAt', 'ASC']
-        ]
-    }).then(plannings => {
-        res.render('planning/list.ejs', {
-            plannings: plannings
+    models.EmployeeCategory.findById(categoryId).then(category => {
+        if (!category) {
+            category = { id: 0, name: i18n.__("category.default") };
+        }
+
+        models.Planning.findAll({
+            where: {
+                firstDate: firstDate,
+                lastDate: lastDate,
+                categoryId: categoryId,
+            },
+            order: [
+                ['validated', 'DESC'],
+                ['createdAt', 'ASC']
+            ]
+        }).then(plannings => {
+            res.render('planning/list.ejs', {
+                plannings: plannings,
+                category: category,
+                firstDate: firstDate,
+                lastDate: lastDate
+            });
         });
-    })
+    });
 });
 
 router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/validated", function (req, res) {
@@ -423,6 +472,36 @@ router.get('/:id(\\d+)', function (req, res) {
                 });
             }
         });
+    });
+});
+
+router.get('/:id(\\d+)/delete', function (req, res) {
+    var id = req.params.id;
+
+    console.log("id = " + id);
+
+
+    models.Planning.findById(id).then(planning => {
+        console.log(planning);
+
+
+        if (planning) {
+            var dateId = (planning.firstDate.getMonth() + 1).toString().padStart(2, '0') + planning.firstDate.getFullYear();
+
+            models.Planning.destroy({
+                where: {
+                    id: req.params.id
+                }
+            }).then(status => {
+                console.log("AFTER");
+
+                console.log(planning);
+
+                res.redirect('/planning/category/' + planning.categoryId + '/' + dateId);
+            });
+        } else {
+            res.sendStatus(404);
+        }
     });
 });
 
@@ -739,8 +818,7 @@ router.get('/employee/:employeeId(\\d+)/:year(\\d{4})', function (req, res) {
             where: {
                 firstDate: {
                     [models.Sequelize.Op.between]: [new Date(year, 0, 1), new Date(year, 11, 31)]
-                },
-                categoryId: employee.categoryId,
+                }
             },
             include: [
                 {
@@ -750,12 +828,14 @@ router.get('/employee/:employeeId(\\d+)/:year(\\d{4})', function (req, res) {
                         EmployeeId: employeeId
                     }
                 }
-            ]
+            ],
+            order: [['validated', "DESC"]]
         }).then(rawPlannings => {
             var plannings = {};
 
             for (var planning of rawPlannings) {
                 var month = planning.firstDate.getMonth();
+
                 if (typeof plannings[month] === 'undefined') {
                     plannings[month] = [planning];
                 } else {
@@ -768,7 +848,8 @@ router.get('/employee/:employeeId(\\d+)/:year(\\d{4})', function (req, res) {
                     plannings: plannings,
                     employee: employee,
                     year: year
-                });
+                }
+            );
         });
     });
 });
@@ -803,9 +884,107 @@ router.get("/employee/:employeeId(\\d+)/:month(\\d{2}):year(\\d{4})", function (
         }).then(plannings => {
             res.render('planning/list-employee.ejs', {
                 plannings: plannings,
-                employee: employee
+                employee: employee,
+                firstDate: firstDate,
+                lastDate: lastDate
             });
         })
+    });
+});
+
+router.get("/:id(\\d+)/employee/:employeeId(\\d+)", function (req, res) {
+    var id = req.params.id;
+    var employeeId = req.params.employeeId;
+
+    console.log("in employee planning");
+    
+
+    models.Planning.findById(id, {
+        include: [
+            {
+                model: models.Availability,
+                as: 'presences',
+                where: {
+                    EmployeeId: employeeId
+                },
+                include: [
+                    {
+                        model: models.Slot,
+                        as: 'slot'
+                    }
+                ]
+            },
+            {
+                model: models.EmployeeCategory,
+                as: 'category'
+            }
+        ],
+        order: [
+            [
+                { model: models.Availability, as: 'presences' },
+                { model: models.Slot, as: 'slot' },
+                'begin'
+            ]
+        ]
+    }).then(planning => {
+        var promises = [], presences = [];
+
+        // Check if matching availabilties are still existing
+        for (let presence of planning.presences) {
+            promises.push(models.Availability.findOne({
+                where: {
+                    EmployeeId: presence.EmployeeId,
+                    day: presence.day,
+                    slotId: presence.slotId,
+                    planningId: null
+                }
+            }).then(availability => {
+                presence = presence.toJSON();
+                presence.missing = !availability;
+
+                presences.push(presence);
+            }));
+        }
+
+        Promise.all(promises).then(values => {
+            planning.presences = presences;
+            planning.organisePresencesByDate();
+
+            models.Agenda.findAll({
+                where: {
+                    day: {
+                        [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
+                    },
+                },
+                include: [
+                    {
+                        model: models.Slot,
+                        as: 'slot',
+                        where: {
+                            categoryId: planning.categoryId
+                        }
+                    }
+                ]
+            }).then(rawAgendas => {
+                var agendas = {};
+
+                for(var agenda of rawAgendas) {
+                    if(typeof agendas[agenda.day.getTime()] === "undefined") {
+                        agendas[agenda.day.getTime()] = [agenda];
+                    } else {
+                        agendas[agenda.day.getTime()].push(agenda);
+                    }
+                }                
+
+                models.Employee.findById(employeeId).then(employee => {
+                    res.render('planning/employee.ejs', {
+                        planning: planning,
+                        employee: employee,
+                        agendas: agendas
+                    });
+                });
+            });
+        });
     });
 });
 

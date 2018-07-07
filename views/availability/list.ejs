@@ -10,18 +10,18 @@ Date.prototype.getWeek = function() {
 }
 %>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb"v>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
         <li class="breadcrumb-item"><a href="/employee"><%= __("employee.menu") %></a></li>
         <li class="breadcrumb-item"><%= employee.getName() %></li>
         <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>/availabilities"><%= __("availability.menu") %></a></li>
         <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>/availabilities/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
-        <li class="breadcrumb-item"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
+        <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
     </ol>
 </nav>
 
-<p class="mt-5 mb-3 text-right">
+<p class="mb-3 text-right">
     <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
     <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>">
         <%= __("availability.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>

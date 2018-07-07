@@ -7,18 +7,11 @@
     <li class="breadcrumb-item"><a href="/planning/category/<%= planning.category.id %>"><%= planning.category.name %></a></li>
     <li class="breadcrumb-item"><a href="/planning/category/<%= planning.category.id %>/<%= planning.firstDate.getFullYear() %>"><%= planning.firstDate.getFullYear() %></a></li>
     <li class="breadcrumb-item"><%= __("time.month" + (planning.firstDate.getMonth() + 1)) %></li>
+    <li class="breadcrumb-item"><a href="/planning/<%= planning.id %>"><%= planning.id %></a></li>
+    <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>"><%= employee.getName() %></a></li>
     <li class="breadcrumb-item active"><%= __("planning.calendar") %></li>
   </ol>
 </nav>
-
-<p class="text-right mb-3">
-    <a class="btn btn-primary" href="/planning/<%= planning.id %>/unvalidate">
-        <%= __('planning.unvalidate') %>
-    </a>
-    <a class="btn btn-primary ml-3" href="/planning/<%= planning.id %>">
-        <%= __('planning.classicalview') %>
-    </a>
-</p>
 
 <%
 function getRealDay(day) {
@@ -48,7 +41,7 @@ var lastDate = new Date(Date.UTC(2018, month + 1, 0));
         <th class="week-number align-middle border-top-0 border-left-0 border-bottom-0"><span class="badge badge-secondary"><%= currentDate.getWeek() %></span></th>
 <%
             for(var i=1; i<=7; i++) {
-                var open = typeof planning.presences[currentDate.getTime()] !== 'undefined';                
+                var open = typeof agendas[currentDate.getTime()] !== 'undefined';                
 %>
                 <td class="calendar-day py-1 px-1 <%= currentDate.getMonth() != month ? " table-active " : " " %> col <%= currentDate.getMonth() == month ? "font-weight-bold " : " " %>">
                     <p>
@@ -61,11 +54,9 @@ var lastDate = new Date(Date.UTC(2018, month + 1, 0));
                         for(var slotId in planning.presences[currentDate.getTime()]) {
                             var presences = planning.presences[currentDate.getTime()][slotId];
 %>
-                            <button type="button" data-toggle="popover" data-trigger="focus" title="Employés" data-content="<% for(var j in presences) {%><%= (j>0 ? " <br>" : "") + presences[j].Employee.firstName + " " + presences[j].Employee.lastName %><% } %>"
-                                class="align-text-top py-0 btn btn-success btn-block my-1">
-                                <small>
-                                    <%= presences[0].slot.name + " (" + presences.length + ")"%>
-                                </small>
+                            <button type="button" class="align-text-top py-0 btn btn-success btn-block my-1 employee-presence" disabled>
+                                <div><small><%= presences[0].slot.name %></small></div>
+                                <div><small><%= "(" + presences[0].slot.begin.replace(/:00$/, "") + "-" + presences[0].slot.end.replace(/:00$/, "") + ")" %></small></div>
                             </button>
 <%
                         }
@@ -100,16 +91,5 @@ var lastDate = new Date(Date.UTC(2018, month + 1, 0));
     }
 %>
 </table>
-
-<script>
-    $(document).ready(function() {
-        $(function() {
-            $('[data-toggle="popover"]').popover({
-                html: true
-            });
-        });
-    });
-
-</script>
 
 <%- include ../footer.ejs %>

@@ -1,13 +1,13 @@
 <%- include ../header.ejs %>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-        <li class="breadcrumb-item"><%= __("employee.menu") %></li>
+        <li class="breadcrumb-item active"><%= __("employee.menu") %></li>
     </ol>
 </nav>
 
-<p class="text-right mt-5 mb-3">
+<p class="text-right mb-3">
     <a class="btn btn-primary" href="/employee/add">
         <i class="fas fa-plus"></i>
     </a>
@@ -49,8 +49,8 @@
                     </a>
                 </td>
             </tr>
-            <% } %>
-        </tbody>
-    </table>
+        <% } %>
+    </tbody>
+</table>
 
-    <%- include ../footer.ejs %>
+<%- include ../footer.ejs %>

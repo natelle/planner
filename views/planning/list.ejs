@@ -1,56 +1,71 @@
 <%- include ../header.ejs %>
 
-    <h2><%= __('planning.pending') %></h2>
-    <br>
-    <p>
-        <a class="btn btn-primary" href="#">
-            <%= __('planning.generate') %>
-        </a>
-    </p>
-    <br>
-    <table class="table table-sm">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">
-                    <%= __('planning.id') %>
-                </th>
-                <th scope="col">
-                    <%= __('planning.createdat') %>
-                </th>
-                <th class="text-center" scope="col">
-                    <%= __('planning.validated') %>
-                </th>
-                <th class="text-center" scope="col">
-                    <%= __('planning.generated') %>
-                </th>
-                <th scope="col">
-                    <%= __n('global.action', 2) %>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <% for(var planning of plannings) { %>
-                <tr class="<%= planning.validated ? "table-success font-weight-bold" : "" %>">
-                    <td>
-                        <p>
-                            <%= planning.id %>
-                        </p>
-                    </td>
-                    <td>
-                        <%= planning.getCreatedAtFormated() %>
-                    </td>
-                    <td class="text-center">
-                        <i class="fas fa-check <%= planning.validated ? "visible" : "invisible" %>"></i>
-                    </td>
-                    <td class="text-center">
-                        <i class="fas fa-check <%= planning.generated ? "visible" : "invisible" %>"></i>
-                    </td>
-                    <td>
-                        <a href="/planning/<%= planning.id %>"><i class="fas fa-pencil-alt"></i></a>
-                    </td>
-                </tr>
-                <% } %>
-        </tbody>
-    </table>
+<nav aria-label="breadcrumb" class="mb-5">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+    <li class="breadcrumb-item"><a href="/planning"><%= __("planning.menu") %></a></li>
+    <li class="breadcrumb-item"><a href="/planning/category/<%= category.id %>"><%= category.name %></a></li>
+    <li class="breadcrumb-item"><a href="/planning/category/<%= category.id %>/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
+    <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
+  </ol>
+</nav>
 
-    <%- include ../footer.ejs %>
+<p class="text-right mb-3">
+    <a class="btn btn-primary" href="/planning/generate/category/<%= category.id %>/<%= (firstDate.getMonth() + 1).toString().padStart(2, '0') + firstDate.getFullYear() %>">
+        <i class="fas fa-retweet"></i>
+    </a>
+</p>
+
+<table class="table table-sm">
+    <thead class="thead-dark">
+        <tr>
+            <th class="text-center">#</th>
+            <th class="text-center">
+                <%= __('planning.createdat') %>
+            </th>
+            <th class="text-center">
+                <%= __('planning.validated') %>
+            </th>
+            <th class="text-center">
+                <%= __('planning.type') %>
+            </th>
+            <th class="text-center">
+                <%= __n('global.action', 2) %>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for(var planning of plannings) { %>
+            <tr class="<%= planning.validated ? "table-success font-weight-bold" : "" %>">
+                <td class="text-center">
+                    <%= planning.id %>
+                </td>
+                <td class="text-center">
+                    <%= planning.getCreatedAtFormated() %>
+                </td>
+                <td class="text-center">
+                    <i class="fas fa-check <%= planning.validated ? "visible" : "invisible" %>"></i>
+                </td>
+                <td class="text-center">
+                    <% if(planning.generated && planning.success) { %>
+                        <i class="fas fa-retweet"></i>
+                    <% } else if(planning.generated && !planning.success) { %>
+                        <i class="fas fa-exclamation-triangle"></i>
+                    <% } else { %>
+                        <i class="fas fa-times"></i>
+                    <% } %>
+                </td>
+                <td class="text-center">
+                    <a href="/planning/<%= planning.id %>">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                    <a href="/planning/<%= planning.id %>/delete" class="ml-1">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+            <% } %>
+    </tbody>
+</table>
+
+<%- include ../footer.ejs %>

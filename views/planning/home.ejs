@@ -1,20 +1,40 @@
 <%- include ../header.ejs %>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
     <li class="breadcrumb-item active"><%= __("planning.menu") %></li>
   </ol>
 </nav>
 
-<!-- TODO -->
-<% for(var category of categories) {
-    if(category) { %>
-        <h4><a href="/planning/category/<%= category.id %>"><%= category.name %></a></h4>
-    <% } else { %>
-        <h4><a href="/planning/category/0"><%= __("category.default") %></a></h4>
-    <% } %>
-    <br>
-<% } %>
+<table class="table table-sm">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col"><%= __('planning.category') %></th>
+            <th scope="col"><%= __n('global.action', 2) %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for(var category of categories) {
+            if(!category) {
+                category = { name: __("category.default"), id: 0 };
+            }
+        %>
+            <tr>
+                <th><%= category.name %></th>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/planning/category/<%= category.id %>">
+                        <%= __('planning.yearly') %>
+                    </a>
+                    <% if(typeof plannings[category.id] !== "undefined") { %>
+                        <a class="btn btn-primary btn-sm" href="/planning/<%= plannings[category.id].id %>">
+                            <%= __('planning.validated') %>
+                        </a>
+                    <% } %>
+                </td>
+            </tr>
+        <% } %>
+    </tbody>
+</table>
 
 <%- include ../footer.ejs %>

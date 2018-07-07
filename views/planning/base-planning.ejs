@@ -182,7 +182,7 @@ Date.prototype.getWeek = function() {
             var number = card.attr('data-agendaNumber');
 
             card.removeClass("border-warning border-danger");
-            card.find("span.number").parent().removeClass("text-danger text-danger");
+            card.find("span.number").parent().removeClass("text-warning text-danger");
 
             $.get('/employee/availabilities/category/<%= planning.categoryId %>/slot/' + slotId + '/' + dateId, function(availabilities) {
                 $.get("/planning/<%= planning.id %>/" + dateId + "/slot/" + slotId + "/presences", function(presences) {

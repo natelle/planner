@@ -12,7 +12,7 @@ Date.prototype.getWeek = function() {
 }
 %>
 
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
         <li class="breadcrumb-item"><a href="/agenda"><%= __("agenda.menu") %></a></li>
@@ -22,7 +22,7 @@ Date.prototype.getWeek = function() {
     </ol>
 </nav>
 
-<p class="mt-5 mb-3 text-right">
+<p class="mb-3 text-right">
     <button id="toggleall" data-action="enable" class="ml-3 btn btn-primary">
         <%= __("agenda.enableall") %>
     </button>
