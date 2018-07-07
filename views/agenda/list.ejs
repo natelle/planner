@@ -11,13 +11,12 @@ Date.prototype.getWeek = function() {
     return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
 }
 %>
-
 <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
         <li class="breadcrumb-item"><a href="/agenda"><%= __("agenda.menu") %></a></li>
-        <li class="breadcrumb-item"><a href="/agenda/"><%= __("availability.menu") %></a></li>
-        <li class="breadcrumb-item"><a href="/agenda/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
+        <li class="breadcrumb-item"><a href="/agenda/<%= category.id %>"><%= category.name %></a></li>
+        <li class="breadcrumb-item"><a href="/agenda/<%= category.id %>/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
         <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
     </ol>
 </nav>

@@ -82,8 +82,6 @@ module.exports = (sequelize, DataTypes) => {
             }
         }
 
-        console.log(organisedPresences);
-
         this.presences = organisedPresences;
     }
 

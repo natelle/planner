@@ -7,3 +7,9 @@
 - voir pour le titre de la page (head title) + navbar (onglet courant=)
 - gérer les erreurs 404 (notamment lorsque findById ne renvoie rien)
 - voir pour planning sur une autre période (semaine)
+- pour la génération des plannings : options pour matcher les agendas : equals: number ou min: number 
+- dans le calendrier, faire comme calendrier pour employee : utiliser agenda pour if(open)
+- afficher dans le calendrier plusieurs plannings (validés) sur un mois (si petit planning)
+- créer une page intermédiaire pour generate/create pour choisir le début et la fin
+- voir comment définir number pour les employés sur autre période que le mois
+- pour la vue calendrier, afficher autant de mois que nécessaire

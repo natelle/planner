@@ -36,6 +36,10 @@ router.get('/:categoryId(\\d+)/:year(\\d{4})', function (req, res) {
     var year = req.params.year;
 
     models.EmployeeCategory.findById(categoryId).then(category => {
+        if(!category) {
+            category = { id: 0, name: i18n.__('category.default') };
+        }
+
         res.render('agenda/list-yearly.ejs',
             {
                 category: category,
@@ -54,6 +58,10 @@ router.get('/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function (req, res)
     var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     models.EmployeeCategory.findById(categoryId).then(category => {
+        if(!category) {
+            category = { id: 0, name: i18n.__("category.default")};
+        }    
+
         models.Slot.findAll({
             where: {
                 categoryId: categoryId

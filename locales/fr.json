@@ -175,7 +175,9 @@
 		"creation": "Création",
 		"calendar": "planning.calendar",
 		"currents": "planning.currents",
-		"category": "planning.category"
+		"category": "planning.category",
+		"firstdate": "planning.firstdate",
+		"lastdate": "planning.lastdate"
 	},
 	"category": {
 		"listing": "Catégories",

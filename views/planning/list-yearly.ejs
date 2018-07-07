@@ -9,6 +9,11 @@
   </ol>
 </nav>
 
+<p class="text-right mb-3">
+    <a class="btn btn-primary" href="/planning/generate/category/<%= category.id %>"><%= __("planning.generate") %></a>
+    <a class="btn btn-primary ml-1" href="/planning/create/category/<%= category.id %>"><%= __("planning.create") %></a>
+</p>
+
 <div class="row align-items-center">
     <div class="col-md-1">
         <a href="/planning/category/<%= category ? category.id : 0 %>/<%= parseInt(year) - 1 %>"><i class="fas fa-angle-left fa-2x"></i></a>

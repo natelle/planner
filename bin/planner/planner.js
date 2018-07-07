@@ -6,7 +6,7 @@ var Planner = function (params) {
     this.lastDate = params.lastDate;
     this.employees = params.employees;
     this.slots = params.slots,
-        this.agendas = params.agendas;
+    this.agendas = params.agendas;
     this.availabilities = params.availabilities;
 };
 
@@ -14,9 +14,6 @@ Planner.prototype.findAgendas = function (date) {
     var agendas = [];
 
     for (var agenda of this.agendas) {
-        // var dateString = agenda.day.getFullYear() + '-' + (agenda.day.getMonth()+1).toString().padStart(2, '0') + '-' + agenda.day.getDate().toString().padStart(2, '0') + ' 00:00:00';
-        // var agendaDate = new Date(dateString);
-
         if (agenda.day.getTime() == date.getTime()) {
             agendas.push(agenda);
         }
@@ -156,7 +153,7 @@ Planner.prototype.generate = function () {
                 var pattern = /^(\d+)-(\d+)-(\d+)$/;
                 var match;
 
-                if ((match = key.match(pattern))) {
+                if ((match = key.match(pattern)) && results[key] == 1) {                   
                     var employeeId = match[1];
                     var date = new Date(parseInt(match[2]));
                     var slotId = match[3];

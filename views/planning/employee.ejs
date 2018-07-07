@@ -41,7 +41,7 @@ var lastDate = new Date(Date.UTC(2018, month + 1, 0));
         <th class="week-number align-middle border-top-0 border-left-0 border-bottom-0"><span class="badge badge-secondary"><%= currentDate.getWeek() %></span></th>
 <%
             for(var i=1; i<=7; i++) {
-                var open = typeof agendas[currentDate.getTime()] !== 'undefined';                
+                var open = typeof agendas[currentDate.getTime()] !== 'undefined'  && currentDate.getMonth() == month;                
 %>
                 <td class="calendar-day py-1 px-1 <%= currentDate.getMonth() != month ? " table-active " : " " %> col <%= currentDate.getMonth() == month ? "font-weight-bold " : " " %>">
                     <p>
