@@ -191,7 +191,27 @@
 		},
 		"nameexample": "category.nameexample",
 		"menu": "category.menu",
-		"edit": "category.edit"
+		"edit": "category.edit",
+		"interval": {
+			"type": {
+				"day": "jours",
+				"week": "semaines",
+				"month": "mois",
+				"d": {
+					"one": "jour",
+					"other": "jours"
+				},
+				"w": {
+					"one": "semaine",
+					"other": "semaines"
+				},
+				"m": {
+					"one": "mois",
+					"other": "mois"
+				}
+			},
+			"name": "category.interval.name"
+		}
 	},
 	"nullabbr": "nullabbr",
 	"slot": {

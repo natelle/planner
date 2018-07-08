@@ -6,16 +6,24 @@ th.week-number, td.week-number {
     width: 5%;
 }
 
+input[type=date] {
+    width: 180px;
+}
+
 th.label {
     width: 120px;
 }
 
-select.custom-select {
-    height: 34px;
-}
-
 input.number {
     width: 55px !important;
+}
+
+input[name=intervalnumber] {
+    max-width: 70px;
+}
+
+select[name=intervaltype] {
+    max-width: 150px;
 }
 
 td.calendar-day {

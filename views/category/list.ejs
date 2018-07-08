@@ -17,21 +17,25 @@
     <thead class="thead-dark">
         <tr>
             <th scope="col"><%= __('category.name') %></th>
+            <th scope="col"><%= __('category.interval') %></th>
             <th scope="col"><%= __n('global.action', 2) %></th>
         </tr>
     </thead>
     <tbody>
-    <%
-    for(var i in categories) {
-        var category = categories[i];
-        %>
-        <tr>
-        <td><%= category.name %></td>
-        <td>
-        <a href="/employee/category/<%= category.id %>/update" title="<%= __('global.edit') %>"><i class="fas fa-pencil-alt"></i></a>&nbsp;
-        <a href="/employee/category/<%= category.id %>/delete" title="<%= __('global.delete') %>"><i class="fas fa-trash-alt"></i></a>
-        </td>
-        </tr>
+        <% for(var i in categories) {
+            var category = categories[i]; %>
+            <tr>
+                <td><%= category.name %></td>
+                <td><%= category.interval.number %> <%= __n('category.interval.type.' + category.interval.type, category.interval.number) %></td>
+                <td>
+                    <a href="/employee/category/<%= category.id %>/update" title="<%= __('global.edit') %>">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                    <a href="/employee/category/<%= category.id %>/delete" class="ml-1" title="<%= __('global.delete') %>">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
         <% } %>
     </tbody>
 </table>
