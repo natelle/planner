@@ -22,14 +22,11 @@
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label" for="exampleFormControlSelect1"><%= __("category.interval.name") %></label>
                 <div class="col-sm-10">
-                    <div class="input-group justify-content-end">
-                        <input name="intervalnumber" type="number" step="1" min="1" value="1" class="form-control">
-                        <select class="custom-select" name="intervaltype">
-                            <option value="d"><%= __("category.interval.type.day") %></option>
-                            <option value="w"><%= __("category.interval.type.week") %></option>
-                            <option value="m" selected><%= __("category.interval.type.month") %></option>
-                        </select>
-                    </div>
+                    <select class="custom-select" name="interval">
+                        <option value="day"><%= __("category.interval.day") %></option>
+                        <option value="week"><%= __("category.interval.week") %></option>
+                        <option value="month" selected><%= __("category.interval.month") %></option>
+                    </select>
                 </div>
             </div>
 

@@ -1,0 +1,138 @@
+<%- include ../header.ejs %>
+
+<nav aria-label="breadcrumb" class="mb-5">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
+    <li class="breadcrumb-item"><a href="/planning"><%= __("planning.menu") %></a></li>
+    <li class="breadcrumb-item"><a href="/planning/category/<%= category.id %>"><%= category.name %></a></li>
+    <li class="breadcrumb-item active"><%= year %></li>
+  </ol>
+</nav>
+
+<p class="text-right mb-3">
+    <a class="btn btn-primary" href="/planning/generate/category/<%= category.id %>"><%= __("planning.generate") %></a>
+    <a class="btn btn-primary ml-1" href="/planning/create/category/<%= category.id %>"><%= __("planning.create") %></a>
+</p>
+
+<div class="row align-items-center">
+    <div class="col-md-1">
+        <a href="/planning/category/<%= category ? category.id : 0 %>/week/<%= (parseInt(month) - 1) < 0 ? "12" : (parseInt(month) - 1).toString().padStart(2, '0') %><%= (parseInt(month) - 1) < 0 ? parseInt(year) - 1 : year %>"><i class="fas fa-angle-left fa-2x"></i></a>
+    </div>
+    <div class="col-md-10">
+        <table class="table table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Mois</th>
+                    <th scope="col">Autres</th>
+                </tr>
+            </thead>
+            <tbody>
+<%
+            Date.prototype.getWeek = function() {
+                var date = new Date(this.getTime());
+                date.setHours(0, 0, 0, 0);
+                date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+                var week1 = new Date(date.getFullYear(), 0, 4);
+                return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+            }
+
+            function getFirstDateWeek(week, year) {
+                var simple = new Date(year, 0, 1 + (week - 1) * 7);
+                var dow = simple.getDay();
+                var weekStart = simple;
+
+                if (dow <= 4) {
+                    weekStart.setDate(simple.getDate() - simple.getDay() + 1);
+                } else {
+                    weekStart.setDate(simple.getDate() + 8 - simple.getDay());
+                }
+
+                return new Date(Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()));
+            }
+
+            function getLastDateWeek(week, year) {
+                var simple = new Date(year, 0, 1 + (week - 1) * 7);
+                var dow = simple.getDay();
+                var weekStart = simple;
+
+                if (dow <= 4) {
+                    weekStart.setDate(simple.getDate() - simple.getDay() + 1);
+                } else {
+                    weekStart.setDate(simple.getDate() + 8 - simple.getDay());
+                }
+
+                var firstDate = new Date(Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()));
+                var lastDate = new Date(firstDate);
+                lastDate.setDate(firstDate.getDate() + 6);
+
+                return lastDate;
+            }
+
+            var now = new Date();
+
+            var firstDateWeek = new Date(Date.UTC(year, month, 1));
+            var firstWeek = firstDateWeek.getWeek();
+            var lastDateWeek = new Date(Date.UTC(year, month + 1, 0));
+            var lastWeek = lastDateWeek.getWeek();
+
+            for(var i=firstWeek; i<=lastWeek; i++) {
+%>
+                    <tr>
+                        <td>
+                            <% var firstDateWeek = getFirstDateWeek(i, 2018);
+                            var lastDateWeek = getLastDateWeek(i, 2018);
+                            lastDateWeek.setDate(lastDateWeek.getDate() + 1);
+                            if(now.getTime() >= firstDateWeek.getTime() && now.getTime() < lastDateWeek.getTime()) { %>
+                                <b>
+                            <% } %>
+                                <%= __('time.week') %> <%= i %>
+                            <% if(now.getTime() >= firstDateWeek.getTime() && now.getTime() < lastDateWeek.getTime()) { %>
+                                </b>
+                            <% } %>
+                        </td>
+                        <td>
+                            <%# if(firstDateWeek.getTime() >= now.getTime()) { %>
+                            <a href="/planning/generate/category/<%= category.id %>/month-<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.generate") %>">
+                            <i class="fas fa-retweet"></i>
+                            </a>
+                            <%# } else { %>
+                                <!--<a href="#"><i class="invisible fas fa-retweet"></i></a>-->
+                            <%# } %>
+                            <% if(typeof plannings[i-1] !== 'undefined') { %>
+                            <a class="ml-3" href="/planning/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.list") %>">
+                            <i class="fas fa-list-ol"></i>
+                            </a>
+<%
+                            var hasValidated = plannings[i-1].length > 0 && plannings[i-1][0].validated;
+
+                            // for(var planning of plannings[i-1]) {
+                            //     if(planning.validated) {
+                            //         hasValidated = true;
+                            //         break;
+                            //     }
+                            // }
+
+                            if(hasValidated) {
+%>
+                            <a class="ml-3" href="/planning/<%= plannings[i-1][0].id %>" title="<%= __("planning.validated") %>">
+                                <i class="fas fa-calendar-check"></i>
+                            </a>
+                            <% } %>
+                            <% } %>
+                            <%# if((new Date(year, i, 0)).getTime() >= (new Date(now.getFullYear(), now.getMonth(), 1)).getTime()) { %>
+                            <a class="ml-3" href="/planning/create/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.create") %>">
+                                <i class="fas fa-plus-square"></i>
+                            </a>
+                            <%# } %>
+                        </td>
+                    </tr>
+                    <% } %>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-1">
+        <a href="/planning/category/<%= category ? category.id : 0 %>/week/<%= (parseInt(month) + 1 > 11) ? "01" : (parseInt(month) + 2).toString().padStart(2, '0')  %><%= (parseInt(month) + 1) > 11 ? parseInt(year) + 1 : year %>"><i class="fas fa-angle-right fa-2x"></i></a>
+    </div>
+</div>
+
+<%- include ../footer.ejs %>

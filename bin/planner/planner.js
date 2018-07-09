@@ -8,6 +8,7 @@ var Planner = function (params) {
     this.slots = params.slots,
     this.agendas = params.agendas;
     this.availabilities = params.availabilities;
+    this.category = params.category;
 };
 
 Planner.prototype.findAgendas = function (date) {
@@ -95,9 +96,25 @@ Planner.prototype.buildModel = function () {
             var key = d.getTime() + "-" + availability.slotId;
             variables[employeeId + '-' + key] = {};
             variables[employeeId + '-' + key][key] = 1;
-            variables[employeeId + '-' + key][employeeId] = availability.slot.getDuration();
 
-            model.constraints[employeeId] = { min: availability.Employee.number };
+            var subkey;
+            console.log("###############interval = " + this.category.interval);
+            
+            switch(this.category.interval) {
+                case "day":
+                    subkey = d.getTime();
+                    break;
+                case "week":
+                    subkey = d.getWeek();
+                    break;
+                case "month":
+                    subkey = d.getMonth();
+                    break;
+            }
+
+            variables[employeeId + '-' + key][employeeId + '-' + subkey] = availability.slot.getDuration();
+
+            model.constraints[employeeId + '-' + subkey] = { min: availability.Employee.number };
             model.binaries[employeeId + '-' + key] = 1;
             model.optimize[employeeId] = "min";
         }
@@ -171,5 +188,13 @@ Planner.prototype.generate = function () {
 
     return planning;
 };
+
+Date.prototype.getWeek = function() {
+    var date = new Date(this.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
 
 module.exports = Planner;

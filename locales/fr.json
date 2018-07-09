@@ -101,7 +101,6 @@
 		"shortday5": "V",
 		"shortday6": "S",
 		"shortday0": "D",
-		"day7": "time.day7",
 		"month1": "Janvier",
 		"month2": "Février",
 		"month3": "Mars",
@@ -119,7 +118,9 @@
 			"one": "heure",
 			"other": "heures"
 		},
-		"hourabbr": "h"
+		"hourabbr": "h",
+		"week": "Semaine",
+		"day": "Jour"
 	},
 	"availability": {
 		"date": "Date",
@@ -193,24 +194,10 @@
 		"menu": "category.menu",
 		"edit": "category.edit",
 		"interval": {
-			"type": {
-				"day": "jours",
-				"week": "semaines",
-				"month": "mois",
-				"d": {
-					"one": "jour",
-					"other": "jours"
-				},
-				"w": {
-					"one": "semaine",
-					"other": "semaines"
-				},
-				"m": {
-					"one": "mois",
-					"other": "mois"
-				}
-			},
-			"name": "category.interval.name"
+			"day": "jours",
+			"week": "semaines",
+			"month": "mois",
+			"name": "Intervalle"
 		}
 	},
 	"nullabbr": "nullabbr",

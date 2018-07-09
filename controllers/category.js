@@ -22,7 +22,7 @@ router.get('/add', function (req, res) {
 router.post('/add', function (req, res) {
     models.EmployeeCategory.create({
         name: req.body.name,
-        interval: { number: req.body.intervalnumber, type: req.body.intervaltype }
+        interval: req.body.interval
     }).then(category => {
         res.redirect('/employee/category');
     });
@@ -42,7 +42,7 @@ router.post('/:id(\\d+)/update', function (req, res) {
     models.EmployeeCategory.update(
         {
             name: req.body.name,
-            interval: { number: req.body.intervalnumber, type: req.body.intervaltype }
+            interval: req.body.interval
         },
         {
             where: {

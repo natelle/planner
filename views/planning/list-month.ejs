@@ -16,7 +16,7 @@
 
 <div class="row align-items-center">
     <div class="col-md-1">
-        <a href="/planning/category/<%= category ? category.id : 0 %>/<%= parseInt(year) - 1 %>"><i class="fas fa-angle-left fa-2x"></i></a>
+        <a href="/planning/category/<%= category ? category.id : 0 %>/month/<%= parseInt(year) - 1 %>"><i class="fas fa-angle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
@@ -43,7 +43,7 @@
                         </td>
                         <td>
                             <% if((new Date(year, i, 0)).getTime() >= (new Date(now.getFullYear(), now.getMonth(), 1)).getTime()) { %>
-                            <a href="/planning/generate/category/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.generate") %>">
+                            <a href="/planning/generate/category/<%= category.id %>/month-<%= i.toString().padStart(2, '0') + year %>" title="<%= __("planning.generate") %>">
                             <i class="fas fa-retweet"></i>
                             </a>
                             <% } else { %>
@@ -82,7 +82,7 @@
         </table>
     </div>
     <div class="col-md-1">
-        <a href="/planning/category/<%= category ? category.id : 0 %>/<%= parseInt(year) + 1 %>"><i class="fas fa-angle-right fa-2x"></i></a>
+        <a href="/planning/category/<%= category ? category.id : 0 %>/month/<%= parseInt(year) + 1 %>"><i class="fas fa-angle-right fa-2x"></i></a>
     </div>
 </div>
 

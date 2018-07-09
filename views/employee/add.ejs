@@ -36,7 +36,7 @@
     <div class="form-group row">
         <label class="col-sm-2" for="category"><%= __("employee.category") %></label>
         <div class="col-sm-10">
-            <select class="custom-select" name="category" id="category" style="height:34px">
+            <select class="custom-select" name="category" id="category">
                 <% for(var i in categories) {
                     var category = categories[i]; %>
                     <option value="<%= category.id %>"><%= category.name %></option>
@@ -68,7 +68,7 @@
         <% var array = "";
         for(var i in categories) {
             var category = categories[i];
-            var interval = (category.interval.number > 1 ? (category.interval.number + ' ') : "") + __n('category.interval.type.' + category.interval.type, category.interval.number);
+            var interval = __('category.interval.' + category.interval);
             array += (i>0 ? ", " : "") + category.id + ":'" + interval + "'";
         } %>
 
