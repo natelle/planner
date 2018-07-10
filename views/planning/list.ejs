@@ -5,8 +5,31 @@
     <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
     <li class="breadcrumb-item"><a href="/planning"><%= __('planning.menu') %></a></li>
     <li class="breadcrumb-item"><a href="/planning/category/<%= category.id %>"><%= category.name %></a></li>
-    <li class="breadcrumb-item"><a href="/planning/category/<%= category.id %>/month/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
-    <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
+    <% if(category.interval == "month") { %>
+        <li class="breadcrumb-item">
+            <a href="/planning/category/<%= category.id %>/global/<%= firstDate.getTime() %>">
+                <%= firstDate.getFullYear() %>
+            </a>
+        </li>
+        <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
+    <% } else if(category.interval == "week") { %>
+        <li class="breadcrumb-item"><%= firstDate.getFullYear() %></li>
+        <li class="breadcrumb-item">
+            <a href="/planning/category/<%= category.id %>/global/<%= firstDate.getTime() %>">
+                <%= __('time.month' + (firstDate.getMonth() + 1)) %>
+            </a>
+        </li>
+        <li class="breadcrumb-item active"><%= __('time.week') + ' ' + firstDate.getWeek() %></li>
+    <% } else if(category.interval == "day") { %>
+        <li class="breadcrumb-item"><%= firstDate.getFullYear() %></li>
+        <li class="breadcrumb-item">
+            <a href="/planning/category/<%= category.id %>/global/<%= firstDate.getTime() %>">
+                <%= __('time.month' + (firstDate.getMonth() + 1)) %>
+            </a>
+        </li>
+        <% var day = firstDate.getDay() %>
+        <li class="breadcrumb-item active"><%= __('time.day' + (day ? day : 7)) + ' ' + firstDate.getDate() %></li>
+    <% } %>
   </ol>
 </nav>
 

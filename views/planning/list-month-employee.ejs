@@ -4,20 +4,15 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
     <li class="breadcrumb-item"><a href="/planning"><%= __('planning.menu') %></a></li>
-    <li class="breadcrumb-item"><a href="/planning/category/<%= category.id %>"><%= category.name %></a></li>
+    <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>"><%= employee.getName() %></a></li>
     <li class="breadcrumb-item active"><%= year %></li>
   </ol>
 </nav>
 
-<p class="text-right mb-3">
-    <a class="btn btn-primary" href="/planning/generate/category/<%= category.id %>"><%= __('planning.generate') %></a>
-    <a class="btn btn-primary ml-1" href="/planning/create/category/<%= category.id %>"><%= __('planning.create') %></a>
-</p>
-
 <div class="row align-items-center">
     <div class="col-md-1">
         <% var previousDate = new Date(Date.UTC(year-1, 0, 1)) %>
-        <a href="/planning/category/<%= category ? category.id : 0 %>/global/<%= previousDate.getTime() %>"><i class="fas fa-angle-left fa-2x"></i></a>
+        <a href="/planning/employee/<%= employee.id %>/global/<%= previousDate.getTime() %>"><i class="fas fa-angle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
@@ -43,19 +38,12 @@
                             <% } %>
                         </td>
                         <td>
-                            <% if(maxDate.getTime() >= now.getTime()) { %>
-                                <a href="/planning/generate/category/<%= category.id %>/month-<%= i.toString().padStart(2, '0') + year %>" title="<%= __('planning.generate') %>">
-                                    <i class="fas fa-retweet"></i>
-                                </a>
-                                <a class="ml-3" href="/planning/create/category/<%= category.id %>/month-<%= i.toString().padStart(2, '0') + year %>" title="<%= __('planning.create') %>">
-                                    <i class="fas fa-plus-square"></i>
-                                </a>
-                            <% } %>
                             <% if(typeof plannings[i-1] !== 'undefined') { %>
-                                <a class="ml-3" href="/planning/category/<%= category.id %>/<%= minDate.getTime() %>" title="<%= __('planning.list') %>">
+                                <a class="ml-3" href="/planning/employee/<%= employee.id %>/<%= minDate.getTime() %>" title="<%= __('planning.list') %>">
                                     <i class="fas fa-list-ol"></i>
                                 </a>
                                 <% if(plannings[i-1][0].validated) { %>
+                                    <!-- TODO: change the page for an employee centered page-->
                                     <a class="ml-3" href="/planning/<%= plannings[i-1][0].id %>" title="<%= __('planning.validated') %>">
                                         <i class="fas fa-calendar-check"></i>
                                     </a>
@@ -69,7 +57,7 @@
     </div>
     <div class="col-md-1">
         <% var nextDate = new Date(Date.UTC(year+1, 0, 1)) %>
-        <a href="/planning/category/<%= category ? category.id : 0 %>/global/<%= nextTime.getTime() %>"><i class="fas fa-angle-right fa-2x"></i></a>
+        <a href="/planning/employee/<%= employee.id %>/global/<%= nextDate.getTime() %>"><i class="fas fa-angle-right fa-2x"></i></a>
     </div>
 </div>
 

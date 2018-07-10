@@ -141,7 +141,6 @@ router.get('/category/:categoryId(\\d+)/:date(\\d{12,})', function (req, res) {
     categoryId = categoryId !== '0' ? categoryId : null;
 
     var date = new Date(parseInt(req.params.date));
-    date.setHours(0, 0, 0, 0);
 
     models.EmployeeCategory.findById(categoryId).then(category => {
         var interval = category.interval, dateMin, dateMax;
@@ -1033,22 +1032,44 @@ router.post('/:id(\\d+)/toggle-presence', function (req, res) {
 });
 
 router.get('/employee/:employeeId(\\d+)', function (req, res) {
-    var employeeId = req.params.employeeId;
-    var year = (new Date()).getFullYear();
-
-    res.redirect("/planning/employee/" + employeeId + '/' + year);
+    res.redirect("/planning/employee/" + req.params.employeeId + '/global/' + (new Date).getTime());
 });
 
-router.get('/employee/:employeeId(\\d+)/:year(\\d{4})', function (req, res) {
+router.get('/employee/:employeeId(\\d+)/global/:date(\\d{12,})', function (req, res) {
     var employeeId = req.params.employeeId;
-    var year = req.params.year;
 
-    models.Employee.findById(employeeId).then(employee => {
+    var date = new Date(parseInt(req.params.date));
+
+    models.Employee.findById(employeeId, {
+        include: [
+            {
+                model: models.EmployeeCategory,
+                as: 'category'
+            }
+        ]
+    }).then(employee => {
+        var interval = employee.category.interval, dateMin, dateMax;
+
+        switch (interval) {
+            case "month":
+                dateMin = new Date(Date.UTC(date.getFullYear(), 0, 1));
+                dateMax = new Date(Date.UTC(date.getFullYear(), 11, 31));
+                break;
+            case "week":
+            case "day":
+                dateMin = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1));
+                dateMax = new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 0));
+                break;
+            default:
+                throw "Category interval not supported."
+        }
+
         models.Planning.findAll({
             where: {
                 firstDate: {
-                    [models.Sequelize.Op.between]: [new Date(year, 0, 1), new Date(year, 11, 31)]
-                }
+                    [models.Sequelize.Op.between]: [dateMin, dateMax]
+                },
+                interval: employee.category.interval
             },
             include: [
                 {
@@ -1064,20 +1085,33 @@ router.get('/employee/:employeeId(\\d+)/:year(\\d{4})', function (req, res) {
             var plannings = {};
 
             for (var planning of rawPlannings) {
-                var month = planning.firstDate.getMonth();
+                var key;
 
-                if (typeof plannings[month] === 'undefined') {
-                    plannings[month] = [planning];
+                switch (interval) {
+                    case "month":
+                        key = planning.firstDate.getMonth();
+                        break;
+                    case "week":
+                        key = planning.firstDate.getWeek();
+                        break;
+                    case "day":
+                        key = planning.firstDate.getDate();
+                        break;
+                }
+
+                if (typeof plannings[key] === 'undefined') {
+                    plannings[key] = [planning];
                 } else {
-                    plannings[month].push(planning);
+                    plannings[key].push(planning);
                 }
             }
 
-            res.render('planning/list-yearly-employee.ejs',
+            res.render('planning/list-' + interval + '-employee.ejs',
                 {
                     plannings: plannings,
                     employee: employee,
-                    year: year
+                    month: date.getMonth(),
+                    year: date.getFullYear()
                 }
             );
         });

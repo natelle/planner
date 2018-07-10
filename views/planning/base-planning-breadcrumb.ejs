@@ -7,7 +7,11 @@
             <%= planning.firstDate.getFullYear() %>
         </a>
     </li>
-    <li class="breadcrumb-item"><%= __("time.month" + (planning.firstDate.getMonth() + 1)) %></li>
+    <li class="breadcrumb-item">
+        <a href="/planning/category/<%= planning.category.id %>/global/<%= planning.firstDate.getTime() %>">
+            <%= __("time.month" + (planning.firstDate.getMonth() + 1)) %>
+        </a>
+    </li>
 <% } else if(planning.interval == "week") { %>
     <li class="breadcrumb-item"><%= planning.firstDate.getFullYear() %></li>
     <li class="breadcrumb-item">
@@ -15,7 +19,11 @@
             <%= __('time.month' + (planning.firstDate.getMonth() + 1)) %>
         </a>
     </li>
-    <li class="breadcrumb-item"><%= __('time.week') + ' ' + planning.firstDate.getWeek() %></li>
+    <li class="breadcrumb-item">
+        <a href="/planning/category/<%= planning.category.id %>/<%= planning.firstDate.getTime() %>">
+            <%= __('time.week') + ' ' + planning.firstDate.getWeek() %>
+        </a>    
+    </li>
 <% } else if(planning.interval == "day") { %>
     <li class="breadcrumb-item"><%= planning.firstDate.getFullYear() %></li>
     <li class="breadcrumb-item">
@@ -24,5 +32,9 @@
         </a>
     </li>
     <% var day = planning.firstDate.getDay() %>
-    <li class="breadcrumb-item"><%= __('time.day' + (day ? day : 7)) + ' ' + planning.firstDate.getDate() %></li>
+    <li class="breadcrumb-item">
+        <a href="/planning/category/<%= planning.category.id %>/global/<%= planning.firstDate.getTime() %>">
+            <%= __('time.day' + (day ? day : 7)) + ' ' + planning.firstDate.getDate() %>
+        </a>        
+    </li>
 <% } %>

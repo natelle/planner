@@ -9,12 +9,7 @@
 		"delete": "Supprimer",
 		"edit": "Modifier",
 		"home": "Accueil",
-		"save": "Enregistrer",
-		"others": "global.others",
-		"actions": {
-			"one": "global.actions",
-			"other": "global.actions"
-		}
+		"save": "Enregistrer"
 	},
 	"company": {
 		"email": "Email",
@@ -72,8 +67,8 @@
 		"default": "Agenda par défaut",
 		"setdefault": "Remplir avec l'agenda par défaut",
 		"slot": "Créneaux",
-		"enableall": "agenda.enableall",
-		"disableall": "agenda.disableall"
+		"enableall": "Tout cocher",
+		"disableall": "Tout décocher"
 	},
 	"time": {
 		"allday": "Journée",
@@ -118,15 +113,14 @@
 		"month10": "Octobre",
 		"month11": "Novembre",
 		"month12": "Décembre",
-		"month": "mois",
+		"month": "Mois",
 		"hour": {
 			"one": "heure",
 			"other": "heures"
 		},
 		"hourabbr": "h",
 		"week": "Semaine",
-		"day": "Jour",
-		"monthNaN": "time.monthNaN"
+		"day": "Jour"
 	},
 	"availability": {
 		"date": "Date",
@@ -143,11 +137,10 @@
 		"day": "Jour",
 		"default": "Disponibilités par défaut",
 		"setdefault": "Remplir avec les disponibilités par défaut",
-		"enableall": "availability.enableall",
-		"disableall": "availability.disableall",
+		"enableall": "Tout cocher",
+		"disableall": "Tout décocher",
 		"menu": "Disponibilités"
 	},
-	"undefinedabbr": "undefinedabbr",
 	"planning": {
 		"home": "Plannings",
 		"proposal": "Proposition de planning",
@@ -157,36 +150,35 @@
 		"menu": "Plannings",
 		"slot": "Créneaux",
 		"validate": "Valider le planning",
-		"addemployee": "planning.addemployee",
+		"addemployee": "Ajouter un employé",
 		"regenerate": "Regénérer le planning",
-		"replaceemployee": "planning.replaceemployee",
+		"replaceemployee": "Remplacer un employé",
 		"yearly": "planning.yearly",
-		"generate": "planning.generate",
-		"pending": "planning.pending",
-		"id": "planning.id",
-		"createdat": "planning.createdat",
-		"edit": "planning.edit",
-		"validated": "planning.validated",
+		"generate": "Générer",
+		"pending": "En attente de validation",
+		"id": "#",
+		"createdat": "Créé le",
+		"edit": "Editer",
+		"validated": "Validé",
 		"unvalidate": "planning.unvalidate",
-		"calendarview": "planning.calendarview",
-		"classicalview": "planning.classicalview",
-		"list": "planning.list",
-		"current": "planning.current",
-		"create": "planning.create",
+		"calendarview": "Vue calendrier",
+		"classicalview": "Vue classique",
+		"list": "Liste des plannings",
+		"current": "Planning courant",
+		"create": "Créer",
 		"mustremainone": "Le créneau doit comporter au moins une personne.",
-		"generated": "planning.generated",
-		"failure": "planning.failure",
+		"generated": "Généré",
+		"failure": "Echec de la génération",
 		"failuremessage1": "Attention : il est impossible de générer un planning avec la configuration actuelle.",
 		"failuremessage2": "Le planning proposé s'approche cependant du planning qui aurait été généré si la configuration l'avait permis.",
-		"missingavailability": "planning.missingavailability",
+		"missingavailability": "Disponibilités manquantes",
 		"creation": "Création",
-		"calendar": "planning.calendar",
-		"currents": "planning.currents",
-		"category": "planning.category",
-		"firstdate": "planning.firstdate",
-		"lastdate": "planning.lastdate",
-		"gloalview": "planning.gloalview",
-		"globalview": "planning.globalview"
+		"calendar": "Calendrier",
+		"currents": "Plannings courants",
+		"category": "Catégorie",
+		"firstdate": "Débute le",
+		"lastdate": "Fini le",
+		"globalview": "Vue globale"
 	},
 	"category": {
 		"listing": "Catégories",
@@ -199,8 +191,8 @@
 			"other": "Catégories"
 		},
 		"nameexample": "category.nameexample",
-		"menu": "category.menu",
-		"edit": "category.edit",
+		"menu": "Catégorie",
+		"edit": "Editer",
 		"interval": {
 			"day": "jours",
 			"week": "semaines",
@@ -208,7 +200,6 @@
 			"name": "Intervalle"
 		}
 	},
-	"nullabbr": "nullabbr",
 	"slot": {
 		"list": "Liste des créneaux",
 		"name": "Nom",
@@ -222,28 +213,15 @@
 		"closed": "Fermé",
 		"default": "Créneau par défaut",
 		"category": "Catégorie",
-		"duration": "slot.duration",
-		"menu": "slot.menu",
-		"edition": "slot.edition"
-	},
-	"companyoptions": {
-		"show": "companyoptions.show",
-		"defaultcategory": "Par défaut"
-	},
-	"general": {
-		"actions": "general.actions"
+		"duration": "Durée",
+		"menu": "Créneaux",
+		"edition": "Edition"
 	},
 	"action": {
-		"back": "action.back",
+		"back": "Retour",
 		"action": {
-			"one": "action.action",
-			"other": "action.action"
-		}
-	},
-	"actions": {
-		"action": {
-			"one": "actions.action",
-			"other": "actions.action"
+			"one": "Action",
+			"other": "Actions"
 		}
 	}
 }
