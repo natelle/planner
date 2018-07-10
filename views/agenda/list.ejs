@@ -13,8 +13,8 @@ Date.prototype.getWeek = function() {
 %>
 <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-        <li class="breadcrumb-item"><a href="/agenda"><%= __("agenda.menu") %></a></li>
+        <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+        <li class="breadcrumb-item"><a href="/agenda"><%= __('agenda.menu') %></a></li>
         <li class="breadcrumb-item"><a href="/agenda/<%= category.id %>"><%= category.name %></a></li>
         <li class="breadcrumb-item"><a href="/agenda/<%= category.id %>/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
         <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
@@ -23,11 +23,11 @@ Date.prototype.getWeek = function() {
 
 <p class="mb-3 text-right">
     <button id="toggleall" data-action="enable" class="ml-3 btn btn-primary">
-        <%= __("agenda.enableall") %>
+        <%= __('agenda.enableall') %>
     </button>
     <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
     <button id="default" class="ml-3 btn btn-primary" data-dateId="<%= dateId %>">
-        <%= __("agenda.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
+        <%= __('agenda.setdefault') %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
     </button>
 </p>
 <br>
@@ -43,8 +43,8 @@ Date.prototype.getWeek = function() {
         <table class="table table-sm">
             <thead class="thead-dark">
                 <tr>
-                    <th colspan="2" scope="col" class="align-middle text-center"><%= __("agenda.date") %></th>
-                    <th scope="col" class="text-center"><button class="btn btn-info btn-sm button-mode"><b><%= __("agenda.slot") %></b></button></th>
+                    <th colspan="2" scope="col" class="align-middle text-center"><%= __('agenda.date') %></th>
+                    <th scope="col" class="text-center"><button class="btn btn-info btn-sm button-mode"><b><%= __('agenda.slot') %></b></button></th>
                 </tr>
             </thead>
             <tbody>
@@ -80,10 +80,10 @@ Date.prototype.getWeek = function() {
                                                 <input type="number" min="1" class="number form-control form-control-sm" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>">
                                             </div>
                                             <% index++ } %>
-                                            <button type="button" class="btn btn-danger btn-sm disabled number-closed"><%= __("time.closed") %></button>
+                                            <button type="button" class="btn btn-danger btn-sm disabled number-closed"><%= __('time.closed') %></button>
                                         </form>
                                         <% } else { %>
-                                            <button type="button" class="btn btn-secondary btn-sm disabled"><%= __("time.closed") %></button>
+                                            <button type="button" class="btn btn-secondary btn-sm disabled"><%= __('time.closed') %></button>
                                             <% } %>
                                         </td>
                                     </tr>
@@ -109,11 +109,11 @@ Date.prototype.getWeek = function() {
                             if($("form.numbers").hasClass("d-none")) {
                                 $("div.slots").addClass("d-none");
                                 $("form.numbers").removeClass("d-none");
-                                $(this).html("<%= __("agenda.number") %>");
+                                $(this).html("<%= __('agenda.number') %>");
                             } else {
                                 $("form.numbers").addClass("d-none");
                                 $("div.slots").removeClass("d-none");
-                                $(this).html("<%= __("agenda.slot") %>");
+                                $(this).html("<%= __('agenda.slot') %>");
                             }
                         });
 
@@ -165,10 +165,10 @@ Date.prototype.getWeek = function() {
 
                             if(enable) {
                                 $(this).attr("data-action", "disable");
-                                $(this).html('<%= __("agenda.disableall") %>');
+                                $(this).html('<%= __('agenda.disableall') %>');
                             } else {
                                 $(this).attr("data-action", "enable");
-                                $(this).html('</i><%= __("agenda.enableall") %>');
+                                $(this).html('</i><%= __('agenda.enableall') %>');
                             }
                         });
 

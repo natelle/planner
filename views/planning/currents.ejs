@@ -2,9 +2,9 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-    <li class="breadcrumb-item"><a href="/planning"><%= __("planning.menu") %></a></li>
-    <li class="breadcrumb-item active"><%= __("planning.currents") %></li>
+    <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+    <li class="breadcrumb-item"><a href="/planning"><%= __('planning.menu') %></a></li>
+    <li class="breadcrumb-item active"><%= __('planning.currents') %></li>
   </ol>
 </nav>
 
@@ -18,7 +18,7 @@
 %>
             <h4><a href="/planning/category/<%= category.id %>/<%= month + year %>"><%= category.name %></a></h4>
         <% } else { %>
-            <h4><a href="/planning/category/0/<%= month + year %>"><%= __("category.default") %></a></h4>
+            <h4><a href="/planning/category/0/<%= month + year %>"><%= __('category.default') %></a></h4>
         <% } %>
         <br>
      <% } %>

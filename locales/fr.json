@@ -9,7 +9,12 @@
 		"delete": "Supprimer",
 		"edit": "Modifier",
 		"home": "Accueil",
-		"save": "Enregistrer"
+		"save": "Enregistrer",
+		"others": "global.others",
+		"actions": {
+			"one": "global.actions",
+			"other": "global.actions"
+		}
 	},
 	"company": {
 		"email": "Email",
@@ -120,7 +125,8 @@
 		},
 		"hourabbr": "h",
 		"week": "Semaine",
-		"day": "Jour"
+		"day": "Jour",
+		"monthNaN": "time.monthNaN"
 	},
 	"availability": {
 		"date": "Date",
@@ -178,7 +184,9 @@
 		"currents": "planning.currents",
 		"category": "planning.category",
 		"firstdate": "planning.firstdate",
-		"lastdate": "planning.lastdate"
+		"lastdate": "planning.lastdate",
+		"gloalview": "planning.gloalview",
+		"globalview": "planning.globalview"
 	},
 	"category": {
 		"listing": "Catégories",

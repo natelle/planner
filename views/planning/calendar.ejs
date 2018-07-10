@@ -2,12 +2,12 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-    <li class="breadcrumb-item"><a href="/planning"><%= __("planning.menu") %></a></li>
+    <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+    <li class="breadcrumb-item"><a href="/planning"><%= __('planning.menu') %></a></li>
     <li class="breadcrumb-item"><a href="/planning/category/<%= planning.category.id %>"><%= planning.category.name %></a></li>
     <li class="breadcrumb-item"><a href="/planning/category/<%= planning.category.id %>/month/<%= planning.firstDate.getFullYear() %>"><%= planning.firstDate.getFullYear() %></a></li>
     <li class="breadcrumb-item"><%= __("time.month" + (planning.firstDate.getMonth() + 1)) %></li>
-    <li class="breadcrumb-item active"><%= __("planning.calendar") %></li>
+    <li class="breadcrumb-item active"><%= __('planning.calendar') %></li>
   </ol>
 </nav>
 
@@ -94,7 +94,7 @@ for(var month of months) {
                                 
                                 closed = true;
     %>
-                                <button class="position-absolute day-<%= size %> my-0 align-text-top py-0 btn btn-danger" disabled><small><%= __("time.closed") %></small></button>
+                                <button class="position-absolute day-<%= size %> my-0 align-text-top py-0 btn btn-danger" disabled><small><%= __('time.closed') %></small></button>
     <%
                             }
                         }

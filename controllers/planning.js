@@ -64,98 +64,169 @@ router.get('/', function (req, res) {
 });
 
 router.get('/category/:categoryId(\\d+)', function (req, res) {
-    var categoryId = req.params.categoryId;
-    var year = (new Date()).getFullYear();
-
-    models.EmployeeCategory.findById(categoryId).then(category => {
-        res.redirect("/planning/category/" + categoryId + '/month/' + year);
-    });
+    res.redirect("/planning/category/" + req.params.categoryId + '/global/' + (new Date).getTime());
 });
 
-router.get('/category/:categoryId(\\d+)/month/:year(\\d{4})', function (req, res) {
+router.get('/category/:categoryId(\\d+)/global/:date(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
-    var year = req.params.year;
+
+    var date = new Date(parseInt(req.params.date));
 
     models.EmployeeCategory.findById(categoryId).then(category => {
+        var interval = category.interval, dateMin, dateMax;
+
+        switch (interval) {
+            case "month":
+                dateMin = new Date(Date.UTC(date.getFullYear(), 0, 1));
+                dateMax = new Date(Date.UTC(date.getFullYear(), 11, 31));
+                break;
+            case "week":
+            case "day":
+                dateMin = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1));
+                dateMax = new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 0));
+                break;
+            default:
+                throw "Category interval not supported."
+        }
+
         models.Planning.findAll({
             where: {
                 firstDate: {
-                    [models.Sequelize.Op.between]: [
-                        new Date(Date.UTC(year, 0, 1)),
-                        new Date(Date.UTC(year, 11, 31))
-                    ]
+                    [models.Sequelize.Op.between]: [dateMin, dateMax]
                 },
-                categoryId: categoryId
+                categoryId: category.id,
+                interval: category.interval
             },
             order: [['validated', "DESC"]]
         }).then(rawPlannings => {
             var plannings = {};
 
             for (var planning of rawPlannings) {
-                var month = planning.firstDate.getMonth();
+                var key;
 
-                if (typeof plannings[month] === 'undefined') {
-                    plannings[month] = [planning];
+                switch (interval) {
+                    case "month":
+                        key = planning.firstDate.getMonth();
+                        break;
+                    case "week":
+                        key = planning.firstDate.getWeek();
+                        break;
+                    case "day":
+                        key = planning.firstDate.getDate();
+                        break;
+                }
+
+                if (typeof plannings[key] === 'undefined') {
+                    plannings[key] = [planning];
                 } else {
-                    plannings[month].push(planning);
+                    plannings[key].push(planning);
                 }
             }
 
-            res.render('planning/list-month.ejs',
+            res.render('planning/list-' + interval + '.ejs',
                 {
                     plannings: plannings,
                     category: category,
-                    year: year
+                    month: date.getMonth(),
+                    year: date.getFullYear()
                 }
             );
         });
     });
 });
 
-router.get('/category/:categoryId(\\d+)/week/:month(\\d{2}):year(\\d{4})', function (req, res) {
+router.get('/category/:categoryId(\\d+)/:date(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
-    var month = parseInt(req.params.month) - 1;
-    var year = req.params.year;
-console.log("here in weekly");
+
+    var date = new Date(parseInt(req.params.date));
+    date.setHours(0, 0, 0, 0);
 
     models.EmployeeCategory.findById(categoryId).then(category => {
+        var interval = category.interval, dateMin, dateMax;
+
+        switch (interval) {
+            case "month":
+                dateMin = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1));
+                dateMax = new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 0));
+                break;
+            case "week":
+                var week = date.getWeek();
+
+                dateMin = getFirstDateWeek(week, date.getFullYear());
+                dateMax = getLastDateWeek(week, date.getFullYear());
+                break;
+            case "day":
+                dateMin = new Date(date);
+                dateMax = new Date(date);
+                break;
+            default:
+                throw "Category interval not supported."
+        }
+
         models.Planning.findAll({
             where: {
                 firstDate: {
-                    [models.Sequelize.Op.between]: [
-                        new Date(Date.UTC(year, month, 1)),
-                        new Date(Date.UTC(year, month + 1, 0))
-                    ]
+                    [models.Sequelize.Op.between]: [dateMin, dateMax]
                 },
-                categoryId: categoryId
+                categoryId: category.id,
+                interval: category.interval
             },
-            order: [['validated', "DESC"]]
-        }).then(rawPlannings => {            
-            var plannings = {};
-
-            for (var planning of rawPlannings) {
-                var week = planning.firstDate.getWeek();
-
-                if (typeof plannings[week] === 'undefined') {
-                    plannings[week] = [planning];
-                } else {
-                    plannings[week].push(planning);
-                }
-            }
-            
-            res.render('planning/list-week.ejs',
-                {
-                    plannings: plannings,
-                    category: category,
-                    month: month,
-                    year: year
-                }
-            );
+            order: [
+                ['validated', "DESC"],
+                ['createdAt', 'ASC']
+            ]
+        }).then(plannings => {
+            res.render('planning/list.ejs', {
+                plannings: plannings,
+                category: category,
+                firstDate: dateMin,
+                lastDate: dateMax
+            });
         });
     });
 });
+
+
+router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})", function (req, res) {
+    var categoryId = req.params.categoryId;
+    categoryId = categoryId !== '0' ? categoryId : null;
+    var month = req.params.month;
+    var year = req.params.year;
+
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
+
+    models.EmployeeCategory.findById(categoryId).then(category => {
+        if (!category) {
+            category = { id: 0, name: i18n.__("category.default") };
+        }
+
+        models.Planning.findAll({
+            where: {
+                firstDate: firstDate,
+                lastDate: lastDate,
+                categoryId: category.id,
+                interval: category.interval
+            },
+            order: [
+                ['validated', 'DESC'],
+                ['createdAt', 'ASC']
+            ]
+        }).then(plannings => {
+            res.render('planning/list.ejs', {
+                plannings: plannings,
+                category: category,
+                firstDate: firstDate,
+                lastDate: lastDate
+            });
+        });
+    });
+});
+
+
+// Planning generations
 
 router.get('/generate/category/:categoryId(\\d+)', function (req, res) {
     models.EmployeeCategory.findById(req.params.categoryId).then(category => {
@@ -317,7 +388,8 @@ router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(
                 success: generatedPlanning.success,
                 modified: false,
                 presences: generatedPlanning.presences,
-                categoryId: categoryId
+                categoryId: category.id,
+                interval: category.interval
             },
             {
                 include: [{
@@ -330,16 +402,8 @@ router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(
     });
 });
 
-router.get('/create/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})', function (req, res) {
-    var categoryId = req.params.categoryId;
-    var month = req.params.month;
-    var year = req.params.year;
 
-    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
-    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
-
-    res.redirect('/planning/create/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
-});
+// Planning creation
 
 router.get('/create/category/:categoryId(\\d+)', function (req, res) {
     models.EmployeeCategory.findById(req.params.categoryId).then(category => {
@@ -362,6 +426,49 @@ router.post('/create/category/:categoryId(\\d+)', function (req, res) {
     res.redirect("/planning/create/category/" + req.params.categoryId + "/" + firstDate.getTime() + "-" + lastDate.getTime());
 });
 
+router.get('/create/category/:categoryId(\\d+)/day-:day(\\d{2}):month(\\d{2}):year(\\d{4})', function (req, res) {
+    var day = req.params.day;
+    var month = req.params.month;
+    var year = req.params.year;
+
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, parseInt(day)));
+    var lastDate = new Date(Date.UTC(year, parseInt(month) - 1, parseInt(day)));
+
+    res.redirect('/planning/create/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
+});
+
+router.get('/create/category/:categoryId(\\d+)/week-:week(\\d{2}):year(\\d{4})', function (req, res) {
+    var week = req.params.week;
+    var year = req.params.year;
+
+    var simple = new Date(year, 0, 1 + (week - 1) * 7);
+    var dow = simple.getDay();
+    var weekStart = simple;
+
+    if (dow <= 4) {
+        weekStart.setDate(simple.getDate() - simple.getDay() + 1);
+    } else {
+        weekStart.setDate(simple.getDate() + 8 - simple.getDay());
+    }
+
+    var firstDate = new Date(Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()));
+    var lastDate = new Date(firstDate);
+    lastDate.setDate(firstDate.getDate() + 6);
+
+    res.redirect('/planning/create/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
+});
+
+router.get('/create/category/:categoryId(\\d+)/month-:month(\\d{2}):year(\\d{4})', function (req, res) {
+    var categoryId = req.params.categoryId;
+    var month = req.params.month;
+    var year = req.params.year;
+
+    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
+    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
+
+    res.redirect('/planning/create/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
+});
+
 router.get('/create/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
@@ -369,114 +476,61 @@ router.get('/create/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(\\
     var firstDate = new Date(parseInt(req.params.firstDate));
     var lastDate = new Date(parseInt(req.params.lastDate));
 
-    models.Agenda.findAll({
-        where: {
-            day: {
-                [models.Sequelize.Op.between]: [firstDate, lastDate]
-            }
-        },
-        include: [
-            {
-                model: models.Slot,
-                as: 'slot',
-                where: {
-                    categoryId: categoryId
+    models.EmployeeCategory.findById(categoryId).then(category => {
+        models.Agenda.findAll({
+            where: {
+                day: {
+                    [models.Sequelize.Op.between]: [firstDate, lastDate]
+                }
+            },
+            include: [
+                {
+                    model: models.Slot,
+                    as: 'slot',
+                    where: {
+                        categoryId: categoryId
+                    }
+                }
+            ]
+        }).then(rawAgendas => {
+            var agendas = {};
+
+            for (var agenda of rawAgendas) {
+                var day = agenda.day.getTime();
+
+                if (typeof agendas[day] === "undefined") {
+                    agendas[day] = {};
+                }
+
+                var slotId = agenda.slot.id;
+
+                if (typeof agendas[day][slotId] === "undefined") {
+                    agendas[day][slotId] = [agenda];
+                } else {
+                    agendas[day][slotId].push(agenda);
                 }
             }
-        ]
-    }).then(rawAgendas => {
-        var agendas = {};
 
-        for (var agenda of rawAgendas) {
-            var day = agenda.day.getTime();
-
-            if (typeof agendas[day] === "undefined") {
-                agendas[day] = {};
+            for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
+                if (typeof agendas[d.getTime()] === 'undefined') {
+                    agendas[d.getTime()] = {};
+                }
             }
 
-            var slotId = agenda.slot.id;
-
-            if (typeof agendas[day][slotId] === "undefined") {
-                agendas[day][slotId] = [agenda];
-            } else {
-                agendas[day][slotId].push(agenda);
-            }
-        }
-
-        for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
-            if (typeof agendas[d.getTime()] === 'undefined') {
-                agendas[d.getTime()] = {};
-            }
-        }
-
-        models.Planning.create({
-            firstDate: firstDate,
-            lastDate: lastDate,
-            validated: false,
-            generated: false,
-            presences: [],
-            categoryId: categoryId
-        }).then(planning => {
-            res.redirect("/planning/" + planning.id);
-        });
-    });
-});
-
-router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})", function (req, res) {
-    var categoryId = req.params.categoryId;
-    categoryId = categoryId !== '0' ? categoryId : null;
-    var month = req.params.month;
-    var year = req.params.year;
-
-    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
-    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
-
-    models.EmployeeCategory.findById(categoryId).then(category => {
-        if (!category) {
-            category = { id: 0, name: i18n.__("category.default") };
-        }
-
-        models.Planning.findAll({
-            where: {
+            models.Planning.create({
                 firstDate: firstDate,
                 lastDate: lastDate,
-                categoryId: categoryId,
-            },
-            order: [
-                ['validated', 'DESC'],
-                ['createdAt', 'ASC']
-            ]
-        }).then(plannings => {
-            res.render('planning/list.ejs', {
-                plannings: plannings,
-                category: category,
-                firstDate: firstDate,
-                lastDate: lastDate
+                validated: false,
+                generated: false,
+                presences: [],
+                categoryId: category.id,
+                interval: category.interval
+            }).then(planning => {
+                res.redirect("/planning/" + planning.id);
             });
         });
     });
 });
-
-// router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})/validated", function (req, res) {
-//     var categoryId = req.params.categoryId;
-//     categoryId = categoryId !== '0' ? categoryId : null;
-//     var month = req.params.month;
-//     var year = req.params.year;
-
-//     var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
-//     var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
-
-//     models.Planning.findOne({
-//         where: {
-//             firstDate: firstDate,
-//             lastDate: lastDate,
-//             categoryId: categoryId,
-//             validated: true
-//         }
-//     }).then(planning => {
-//         res.redirect("/planning/" + planning.id);
-//     })
-// });
 
 router.get('/currents', function (req, res) {
     models.Slot.findAll({
@@ -1161,38 +1215,6 @@ router.get("/:id(\\d+)/employee/:employeeId(\\d+)", function (req, res) {
     });
 });
 
-// router.get("/employee/:employeeId(\\d+)/:month(\\d{2}):year(\\d{4})/validated", function (req, res) {
-//     var employeeId = req.params.employeeId;
-//     var month = req.params.month;
-//     var year = req.params.year;
-
-//     var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
-//     var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
-
-//     models.Employee.findById(employeeId).then(employee => {
-//         models.Planning.findOne({
-//             where: {
-//                 firstDate: firstDate,
-//                 lastDate: lastDate,
-//                 categoryId: {
-//                     [models.Sequelize.Op.or]: [employee.categoryId, null]
-//                 },
-//                 validated: true
-//             },
-//             include: [
-//                 {
-//                     model: models.Availability,
-//                     as: 'presences',
-//                     where: {
-//                         EmployeeId: employeeId
-//                     }
-//                 }
-//             ]
-//         }).then(planning => {
-//             res.redirect("/planning/" + planning.id);
-//         });
-//     });
-// });
 Date.prototype.getWeek = function () {
     var date = new Date(this.getTime());
     date.setHours(0, 0, 0, 0);
@@ -1200,5 +1222,29 @@ Date.prototype.getWeek = function () {
     var week1 = new Date(date.getFullYear(), 0, 4);
     return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
 };
+
+function getFirstDateWeek(week, year) {
+    console.log("in getfirstdateweek");
+    console.log(week, year);
+
+    var simple = new Date(year, 0, 1 + (week - 1) * 7);
+    var dow = simple.getDay();
+    var weekStart = simple;
+
+    if (dow <= 4) {
+        weekStart.setDate(simple.getDate() - simple.getDay() + 1);
+    } else {
+        weekStart.setDate(simple.getDate() + 8 - simple.getDay());
+    }
+
+    return new Date(Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()));
+}
+
+function getLastDateWeek(week, year) {
+    var lastDateWeek = getFirstDateWeek(week, year);
+    lastDateWeek.setDate(lastDateWeek.getDate() + 6);
+
+    return lastDateWeek;
+}
 
 module.exports = router;

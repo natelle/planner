@@ -2,8 +2,8 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-        <li class="breadcrumb-item"><%= __("slot.menu") %></li>
+        <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+        <li class="breadcrumb-item"><%= __('slot.menu') %></li>
     </ol>
 </nav>
 <p class="text-right mb-3">
@@ -14,7 +14,7 @@
 for(var categoryId in slots) {
     var categorySlots = slots[categoryId];
 %>
-    <h4 class="mb-3"><%= categoryId !== 'default' ? categories[categoryId].name : __("slot.defaultcategory") %></h4>
+    <h4 class="mb-3"><%= categoryId !== 'default' ? categories[categoryId].name : __('slot.defaultcategory') %></h4>
     <table class="table mb-4">
         <thead class="thead-dark">
             <tr>
@@ -35,7 +35,7 @@ for(var categoryId in slots) {
                     <td><%= slot.name %></td>
                     <td><%= slot.begin ? slot.begin.replace(/:\d+$/, '') : '-' %></td>
                     <td><%= slot.end ? slot.end.replace(/:\d+$/, '') : '-' %></td>
-                    <td><%= slot.getDuration() %> <%= __("time.hourabbr") %></td>
+                    <td><%= slot.getDuration() %> <%= __('time.hourabbr') %></td>
                     <td>
 <%
                         for(var day of slot.days) {

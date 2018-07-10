@@ -2,27 +2,27 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-    <li class="breadcrumb-item active"><%= __("company.menu") %></li>
+    <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+    <li class="breadcrumb-item active"><%= __('company.menu') %></li>
   </ol>
 </nav>
 
 <p class="text-right mb-3">
-    <a class="btn btn-primary" href="/company/update" role="button"><%= __("global.edit") %></a>
+    <a class="btn btn-primary" href="/company/update" role="button"><%= __('global.edit') %></a>
 </p>
 
 <table class="table table-borderless">
   <tbody>
     <tr>
-      <td><%= __("company.name") %></td>
+      <td><%= __('company.name') %></td>
       <td><%= company.name ? company.name : "-" %></td>
     </tr>
     <tr>
-        <td><%= __("company.email") %></td>
+        <td><%= __('company.email') %></td>
         <td><%= company.email ? company.email : "-" %></td>
     </tr>
     <tr>
-        <td><%= __("company.phone") %></td>
+        <td><%= __('company.phone') %></td>
         <td><%= company.phone ? company.phone : "-" %></td>
     </tr>
   </tbody>

@@ -2,8 +2,8 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-    <li class="breadcrumb-item active"><%= __("planning.menu") %></li>
+    <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+    <li class="breadcrumb-item active"><%= __('planning.menu') %></li>
   </ol>
 </nav>
 
@@ -17,14 +17,14 @@
     <tbody>
         <% for(var category of categories) {
             if(!category) {
-                category = { name: __("category.default"), id: 0 };
+                category = { name: __('category.default'), id: 0 };
             }
         %>
             <tr>
                 <th><%= category.name %></th>
                 <td>
                     <a class="btn btn-primary btn-sm" href="/planning/category/<%= category.id %>">
-                        <%= __('planning.yearly') %>
+                        <%= __('planning.globalview') %>
                     </a>
                     <% if(typeof plannings[category.id] !== "undefined") { %>
                         <a class="btn btn-primary btn-sm" href="/planning/<%= plannings[category.id].id %>">

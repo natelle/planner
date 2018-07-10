@@ -2,37 +2,37 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-        <li class="breadcrumb-item"><a href="/company/slot"><%= __("slot.menu") %></a></li>
-        <li class="breadcrumb-item active"><%= __("slot.edition") %></li>
+        <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+        <li class="breadcrumb-item"><a href="/company/slot"><%= __('slot.menu') %></a></li>
+        <li class="breadcrumb-item active"><%= __('slot.edition') %></li>
     </ol>
 </nav>
 <form action="/company/slot/<%= slot.id %>/update" method="post">
     <table class="table table-borderless">
         <tbody>
             <tr>
-                <th class="label"><%= __("slot.name") %></th>
-                <td><input type="text" name="name" class="form-control" value="<%= slot.name %>" id="name" placeholder="<%= __("slot.name") %>"></td>
+                <th class="label"><%= __('slot.name') %></th>
+                <td><input type="text" name="name" class="form-control" value="<%= slot.name %>" id="name" placeholder="<%= __('slot.name') %>"></td>
             </tr>
             <tr>
-                <th class="label"><%= __("slot.begin") %></th>
-                <td><input type="time" name="begin" class="form-control" value="<%= slot.begin %>" id="begin" placeholder="<%= __("slot.begin") %>"></td>
+                <th class="label"><%= __('slot.begin') %></th>
+                <td><input type="time" name="begin" class="form-control" value="<%= slot.begin %>" id="begin" placeholder="<%= __('slot.begin') %>"></td>
             </tr>
             <tr>
-                <th class="label"><%= __("slot.end") %></th>
-                <td><input type="time" name="end" class="form-control" value="<%= slot.end %>" id="end" placeholder="<%= __("slot.end") %>"></td>
+                <th class="label"><%= __('slot.end') %></th>
+                <td><input type="time" name="end" class="form-control" value="<%= slot.end %>" id="end" placeholder="<%= __('slot.end') %>"></td>
             </tr>
             <tr>
-                <th class="label"><%= __("slot.days") %></th>
+                <th class="label"><%= __('slot.days') %></th>
                 <td>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                        <button type="button" id="monday" class="btn day"><%= __("time.day1") %></button>
-                        <button type="button" id="tuesday" class="btn day"><%= __("time.day2") %></button>
-                        <button type="button" id="wednesday" class="btn day"><%= __("time.day3") %></button>
-                        <button type="button" id="thursday" class="btn day"><%= __("time.day4") %></button>
-                        <button type="button" id="friday" class="btn day"><%= __("time.day5") %></button>
-                        <button type="button" id="saturday" class="btn day"><%= __("time.day6") %></button>
-                        <button type="button" id="sunday" class="btn day"><%= __("time.day0") %></button>
+                        <button type="button" id="monday" class="btn day"><%= __('time.day1') %></button>
+                        <button type="button" id="tuesday" class="btn day"><%= __('time.day2') %></button>
+                        <button type="button" id="wednesday" class="btn day"><%= __('time.day3') %></button>
+                        <button type="button" id="thursday" class="btn day"><%= __('time.day4') %></button>
+                        <button type="button" id="friday" class="btn day"><%= __('time.day5') %></button>
+                        <button type="button" id="saturday" class="btn day"><%= __('time.day6') %></button>
+                        <button type="button" id="sunday" class="btn day"><%= __('time.day0') %></button>
                     </div>
 
                     <span class="d-none">
@@ -47,10 +47,10 @@
                 </td>
             </tr>
             <tr>
-                <th class="label"><%= __("slot.category") %></th>
+                <th class="label"><%= __('slot.category') %></th>
                 <td>
                     <select class="custom-select" name="category" id="category">
-                        <option value="0"><%= __("slot.defaultcategory") %></option>
+                        <option value="0"><%= __('slot.defaultcategory') %></option>
 <%
                         for(var i in categories) {
                             var category = categories[i];
@@ -63,7 +63,7 @@
             </tbody>
         </table>
         <div class="text-right">
-            <button type="submit" class="btn btn-primary text-right"><%= __("global.save") %></button>
+            <button type="submit" class="btn btn-primary text-right"><%= __('global.save') %></button>
         </div>
     </form>
 

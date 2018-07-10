@@ -2,40 +2,40 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-        <li class="breadcrumb-item"><a href="/employee"><%= __("employee.menu") %></a></li>
+        <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+        <li class="breadcrumb-item"><a href="/employee"><%= __('employee.menu') %></a></li>
         <li class="breadcrumb-item"><%= employee.getName() %></li>
-        <li class="breadcrumb-item active"><%= __("employee.edition") %></li>
+        <li class="breadcrumb-item active"><%= __('employee.edition') %></li>
     </ol>
 </nav>
 
 <form action="/employee/<%= employee.id %>/update" method="post">
     <div class="form-group row">
-        <label class="col-sm-2" for="lastName"><%= __("employee.lastname") %></label>
+        <label class="col-sm-2" for="lastName"><%= __('employee.lastname') %></label>
         <div class="col-sm-10">
-            <input type="text" name="lastName" value="<%= employee.lastName %>" class="form-control" id="lastName" placeholder="<%= __("employee.lastname") %>">
+            <input type="text" name="lastName" value="<%= employee.lastName %>" class="form-control" id="lastName" placeholder="<%= __('employee.lastname') %>">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2" for="firstName"><%= __("employee.firstname") %></label>
+        <label class="col-sm-2" for="firstName"><%= __('employee.firstname') %></label>
         <div class="col-sm-10">
-            <input type="text" name="firstName" value="<%= employee.firstName %>"class="form-control" id="firstName" placeholder="<%= __("employee.firstname") %>">
+            <input type="text" name="firstName" value="<%= employee.firstName %>"class="form-control" id="firstName" placeholder="<%= __('employee.firstname') %>">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2" for="email"><%= __("employee.email") %></label>
+        <label class="col-sm-2" for="email"><%= __('employee.email') %></label>
         <div class="col-sm-10">
-            <input type="email" name="email" value="<%= employee.email %>" class="form-control" id="email" placeholder="<%= __("employee.email") %>">
+            <input type="email" name="email" value="<%= employee.email %>" class="form-control" id="email" placeholder="<%= __('employee.email') %>">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2" for="phone"><%= __("employee.phone") %></label>
+        <label class="col-sm-2" for="phone"><%= __('employee.phone') %></label>
         <div class="col-sm-10">
-            <input type="tel" name="phone" value="<%= employee.phone %>" class="form-control" id="phone" placeholder="<%= __("employee.phone") %>" pattern="^((\+\d{1,3})[ .-]?\d|0\d)([ .-]?\d{2}){4}$">
+            <input type="tel" name="phone" value="<%= employee.phone %>" class="form-control" id="phone" placeholder="<%= __('employee.phone') %>" pattern="^((\+\d{1,3})[ .-]?\d|0\d)([ .-]?\d{2}){4}$">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2" for="category"><%= __("employee.category") %></label>
+        <label class="col-sm-2" for="category"><%= __('employee.category') %></label>
         <div class="col-sm-10">
             <select class=" custom-select" name="category" id="category">
                 <% for(var category of categories) { %>
@@ -45,20 +45,20 @@
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2" for="number"><%= __("employee.number") %></label>
+        <label class="col-sm-2" for="number"><%= __('employee.number') %></label>
         <div class="col-sm-10">
             <div class="input-group mb-3">
-                <input type="number" name="number" value="<%= employee.number %>" step="0.5" min="0" class="form-control" id="number" placeholder="<%= __("employee.number") %>">
+                <input type="number" name="number" value="<%= employee.number %>" step="0.5" min="0" class="form-control" id="number" placeholder="<%= __('employee.number') %>">
                 <div class="input-group-append">
                     <span class="input-group-text">
-                    <%= __("time.hourabbr") %>/<span id="interval"></span>
+                    <%= __('time.hourabbr') %>/<span id="interval"></span>
                     </span>
                 </div>
             </div>
         </div>
     </div>
     <div class="text-right mt-3">
-        <button type="submit" class="btn btn-primary text-right"><%= __("global.save") %></button>
+        <button type="submit" class="btn btn-primary text-right"><%= __('global.save') %></button>
     </div>
 </form>
 

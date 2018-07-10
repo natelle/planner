@@ -2,18 +2,18 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-    <li class="breadcrumb-item"><a href="/agenda"><%= __("agenda.menu") %></a></li>
+    <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+    <li class="breadcrumb-item"><a href="/agenda"><%= __('agenda.menu') %></a></li>
     <li class="breadcrumb-item"><a href="/agenda/category/<%= category.id %>"><%= category.name %></a></li>
-    <li class="breadcrumb-item active"><%= __("agenda.default") %></li>
+    <li class="breadcrumb-item active"><%= __('agenda.default') %></li>
   </ol>
 </nav>
 
 <table class="table table-sm">
     <thead class="thead-dark">
         <tr>
-            <th scope="col" class="align-middle"><%= __("availability.day") %></th>
-            <th scope="col" class="text-center"><button class="btn btn-info btn-sm button-mode"><b><%= __("agenda.slot") %></b></button></th>
+            <th scope="col" class="align-middle"><%= __('availability.day') %></th>
+            <th scope="col" class="text-center"><button class="btn btn-info btn-sm button-mode"><b><%= __('agenda.slot') %></b></button></th>
         </tr>
     </thead>
     <tbody>
@@ -37,10 +37,10 @@
                                         <input type="number" min="1" class="number form-control form-control-sm" data-day="<%= day %>" data-slotId="<%= slot.id %>" >
                                     </div>
                                     <% index++ } %>
-                                    <button type="button" class="btn btn-danger btn-sm disabled form-closed"><%= __("time.closed") %></button>
+                                    <button type="button" class="btn btn-danger btn-sm disabled form-closed"><%= __('time.closed') %></button>
                                 </form>
                                 <% } else { %>
-                                    <button type="button" class="btn btn-secondary btn-sm disabled"><%= __("time.closed") %></button>
+                                    <button type="button" class="btn btn-secondary btn-sm disabled"><%= __('time.closed') %></button>
                                     <% } %>
                                 </td>
                             </tr>
@@ -54,11 +54,11 @@
                             if($("form.numbers").hasClass("d-none")) {
                                 $("div.slots").addClass("d-none");
                                 $("form.numbers").removeClass("d-none");
-                                $(this).html("<%= __("agenda.number") %>");
+                                $(this).html("<%= __('agenda.number') %>");
                             } else {
                                 $("form.numbers").addClass("d-none");
                                 $("div.slots").removeClass("d-none");
-                                $(this).html("<%= __("agenda.slot") %>");
+                                $(this).html("<%= __('agenda.slot') %>");
                             }
                         });
 

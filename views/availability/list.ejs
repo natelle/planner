@@ -12,10 +12,10 @@ Date.prototype.getWeek = function() {
 
 <nav aria-label="breadcrumb"v>
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-        <li class="breadcrumb-item"><a href="/employee"><%= __("employee.menu") %></a></li>
+        <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+        <li class="breadcrumb-item"><a href="/employee"><%= __('employee.menu') %></a></li>
         <li class="breadcrumb-item"><%= employee.getName() %></li>
-        <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>/availabilities"><%= __("availability.menu") %></a></li>
+        <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>/availabilities"><%= __('availability.menu') %></a></li>
         <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>/availabilities/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
         <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
     </ol>
@@ -24,10 +24,10 @@ Date.prototype.getWeek = function() {
 <p class="mb-3 text-right">
     <% var dateId = (firstDate.getMonth()+1).toString().padStart(2, '0') + firstDate.getFullYear() %>
     <button id="default" class="btn btn-primary" data-dateId="<%= dateId %>">
-        <%= __("availability.setdefault") %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
+        <%= __('availability.setdefault') %><i class="fas fa-spinner fa-spin ml-3 d-none"></i>
     </button>
     <button id="toggleall" data-action="enable" class="mr-3 btn btn-primary">
-        <%= __("availability.enableall") %>
+        <%= __('availability.enableall') %>
     </button>
 </p>
 
@@ -43,8 +43,8 @@ Date.prototype.getWeek = function() {
         <table class="table table-sm">
             <thead class="thead-dark">
                 <tr>
-                    <th colspan="2" scope="col" class="align-middle text-center"><%= __("availability.date") %></th>
-                    <th scope="col" class="text-center"><%= __("availability.slot") %></th>
+                    <th colspan="2" scope="col" class="align-middle text-center"><%= __('availability.date') %></th>
+                    <th scope="col" class="text-center"><%= __('availability.slot') %></th>
                 </tr>
             </thead>
             <tbody>
@@ -70,7 +70,7 @@ Date.prototype.getWeek = function() {
                             <% } %>
                             </div>
                             <% } else { %>
-                                <button type="button" class="btn btn-secondary btn-sm disabled"><%= __("time.closed") %></button>
+                                <button type="button" class="btn btn-secondary btn-sm disabled"><%= __('time.closed') %></button>
                             <% } %>
                             </td>
                             </tr>
@@ -136,10 +136,10 @@ Date.prototype.getWeek = function() {
 
                     if(enable) {
                         $(this).attr("data-action", "disable");
-                        $(this).html('<%= __("availability.disableall") %>');
+                        $(this).html('<%= __('availability.disableall') %>');
                     } else {
                         $(this).attr("data-action", "enable");
-                        $(this).html('</i><%= __("availability.enableall") %>');
+                        $(this).html('</i><%= __('availability.enableall') %>');
                     }
                 });
 

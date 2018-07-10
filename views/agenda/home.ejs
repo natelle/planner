@@ -2,8 +2,8 @@
 
 <nav aria-label="breadcrumb" class="mb-5">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/"><%= __("global.home") %></a></li>
-        <li class="breadcrumb-item active"><%= __("agenda.menu") %></li>
+        <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
+        <li class="breadcrumb-item active"><%= __('agenda.menu') %></li>
     </ol>
 </nav>
 
@@ -11,7 +11,7 @@
         if(category) { %>
             <h4><a href="/agenda/<%= category.id %>"><%= category.name %></a></h4>
         <% } else { %>
-                <h4><a href="/agenda/0"><%= __("category.default") %></a></h4>
+                <h4><a href="/agenda/0"><%= __('category.default') %></a></h4>
         <% } %>
         <br>
     <% } %>

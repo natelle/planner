@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
         validated: DataTypes.BOOLEAN,
         generated: DataTypes.BOOLEAN,
         success: DataTypes.BOOLEAN,
-        modified: DataTypes.BOOLEAN
+        modified: DataTypes.BOOLEAN,
+        interval: DataTypes.STRING
     }, {
         tableName: 'planning',
     });
