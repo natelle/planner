@@ -178,7 +178,8 @@
 		"category": "Catégorie",
 		"firstdate": "Débute le",
 		"lastdate": "Fini le",
-		"globalview": "Vue globale"
+		"globalview": "Vue globale",
+		"summary": "planning.summary"
 	},
 	"category": {
 		"listing": "Catégories",

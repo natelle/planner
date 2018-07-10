@@ -4,10 +4,32 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
     <li class="breadcrumb-item"><a href="/planning"><%= __('planning.menu') %></a></li>
-    <li class="breadcrumb-item"><a href="/employee/<%= employee.id %>"><%= employee.getName() %></a></li>
-    <li class="breadcrumb-item"><a href="/planning/employee/<%= employee.id %>/<%= firstDate.getFullYear() %>"><%= firstDate.getFullYear() %></a></li>
-    <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
-
+    <li class="breadcrumb-item"><a href="/planning/employee/<%= employee.id %>"><%= employee.getName() %></a></li>
+    <% if(employee.category.interval == "month") { %>
+        <li class="breadcrumb-item">
+            <a href="/planning/employee/<%= employee.id %>/global/<%= firstDate.getTime() %>">
+                <%= firstDate.getFullYear() %>
+            </a>
+        </li>
+        <li class="breadcrumb-item active"><%= __("time.month" + (firstDate.getMonth() + 1)) %></li>
+    <% } else if(employee.category.interval == "week") { %>
+        <li class="breadcrumb-item"><%= firstDate.getFullYear() %></li>
+        <li class="breadcrumb-item">
+            <a href="/planning/employee/<%= employee.id %>/global/<%= firstDate.getTime() %>">
+                <%= __('time.month' + (firstDate.getMonth() + 1)) %>
+            </a>
+        </li>
+        <li class="breadcrumb-item active"><%= __('time.week') + ' ' + firstDate.getWeek() %></li>
+    <% } else if(employee.category.interval == "day") { %>
+        <li class="breadcrumb-item"><%= firstDate.getFullYear() %></li>
+        <li class="breadcrumb-item">
+            <a href="/planning/employee/<%= employee.id %>/global/<%= firstDate.getTime() %>">
+                <%= __('time.month' + (firstDate.getMonth() + 1)) %>
+            </a>
+        </li>
+        <% var day = firstDate.getDay() %>
+        <li class="breadcrumb-item active"><%= __('time.day' + (day ? day : 7)) + ' ' + firstDate.getDate() %></li>
+    <% } %>
   </ol>
 </nav>
 
@@ -47,18 +69,12 @@
                     <% } else if(planning.generated && !planning.success) { %>
                         <i class="fas fa-exclamation-triangle"></i>
                     <% } else { %>
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-plus"></i>
                     <% } %>
                 </td>
                 <td class="text-center">
                     <a href="/planning/<%= planning.id %>/employee/<%= employee.id %>">
-                        <i class="fas fa-calendar-alt"></i>
-                    </a>
-                    <a href="/planning/<%= planning.id %>" class="ml-1">
-                        <i class="fas fa-pencil-alt"></i>
-                    </a>
-                    <a href="/planning/<%= planning.id %>/delete" class="ml-1">
-                        <i class="fas fa-trash-alt"></i>
+                        <i class="fas fa-eye"></i>
                     </a>
                 </td>
             </tr>

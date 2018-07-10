@@ -1031,6 +1031,13 @@ router.post('/:id(\\d+)/toggle-presence', function (req, res) {
         });
 });
 
+router.post('/:id(\\d+)/summary', function (req, res) {
+    var id = req.params.id;
+
+    // TODO: find all availabilities by employee + number of slot + total time
+    
+});
+
 router.get('/employee/:employeeId(\\d+)', function (req, res) {
     res.redirect("/planning/employee/" + req.params.employeeId + '/global/' + (new Date).getTime());
 });
@@ -1118,19 +1125,46 @@ router.get('/employee/:employeeId(\\d+)/global/:date(\\d{12,})', function (req, 
     });
 });
 
-router.get("/employee/:employeeId(\\d+)/:month(\\d{2}):year(\\d{4})", function (req, res) {
+router.get('/employee/:employeeId(\\d+)/:date(\\d{12,})', function (req, res) {
     var employeeId = req.params.employeeId;
-    var month = req.params.month;
-    var year = req.params.year;
 
-    var firstDate = new Date(Date.UTC(year, parseInt(month) - 1, 1));
-    var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
+    var date = new Date(parseInt(req.params.date));
 
-    models.Employee.findById(employeeId).then(employee => {
+    models.Employee.findById(employeeId, {
+        include: [
+            {
+                model: models.EmployeeCategory,
+                as: 'category'
+            }
+        ]
+    }).then(employee => {
+        var interval = employee.category.interval, dateMin, dateMax;
+
+        switch (interval) {
+            case "month":
+                dateMin = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1));
+                dateMax = new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 0));
+                break;
+            case "week":
+                var week = date.getWeek();
+
+                dateMin = getFirstDateWeek(week, date.getFullYear());
+                dateMax = getLastDateWeek(week, date.getFullYear());
+                break;
+            case "day":
+                dateMin = new Date(date);
+                dateMax = new Date(date);
+                break;
+            default:
+                throw "Category interval not supported."
+        }
+
         models.Planning.findAll({
             where: {
-                firstDate: firstDate,
-                lastDate: lastDate
+                firstDate: {
+                    [models.Sequelize.Op.between]: [dateMin, dateMax]
+                },
+                interval: employee.category.interval
             },
             include: [
                 {
@@ -1142,21 +1176,117 @@ router.get("/employee/:employeeId(\\d+)/:month(\\d{2}):year(\\d{4})", function (
                 }
             ],
             order: [
-                ['validated', 'DESC'],
+                ['validated', "DESC"],
                 ['createdAt', 'ASC']
             ]
         }).then(plannings => {
             res.render('planning/list-employee.ejs', {
                 plannings: plannings,
                 employee: employee,
-                firstDate: firstDate,
-                lastDate: lastDate
+                firstDate: dateMin,
+                lastDate: dateMax
             });
-        })
+        });
     });
 });
 
-router.get("/:id(\\d+)/employee/:employeeId(\\d+)", function (req, res) {
+router.get('/:id(\\d+)/employee/:employeeId(\\d+)', function (req, res) {
+    var id = req.params.id;
+    var employeeId = req.params.employeeId;
+
+    models.Employee.findById(employeeId).then(employee => {
+        models.Planning.findById(id, {
+            include: [
+                {
+                    model: models.Availability,
+                    as: 'presences',
+                    include: [
+                        {
+                            model: models.Slot,
+                            as: 'slot'
+                        },
+                        {
+                            model: models.Employee
+                        }
+                    ],
+                    where: {
+                        EmployeeId: employeeId
+                    }
+                },
+                {
+                    model: models.EmployeeCategory,
+                    as: 'category'
+                }
+            ],
+            order: [
+                [
+                    { model: models.Availability, as: 'presences' },
+                    { model: models.Slot, as: 'slot' },
+                    'begin'
+                ]
+            ]
+        }).then(planning => {
+            var promises = [];
+
+            promises.push(models.Slot.findAll({
+                where: {
+                    categoryId: planning.getCategoryId()
+                },
+                order: ['begin']
+            }));
+
+            promises.push(models.Agenda.findAll({
+                where: {
+                    day: {
+                        [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
+                    }
+                },
+                include: [
+                    {
+                        model: models.Slot,
+                        as: 'slot',
+                        where: {
+                            categoryId: planning.getCategoryId()
+                        }
+                    }
+                ]
+            }));
+
+            Promise.all(promises).then(values => {
+                var agendas = {};
+
+                for (var agenda of values[1]) {
+                    var day = agenda.day.getTime();
+
+                    if (typeof agendas[day] === "undefined") {
+                        agendas[day] = {};
+                    }
+
+                    var slotId = agenda.slot.id;
+
+                    agendas[day][slotId] = agenda;
+                }
+
+                for (var d = new Date(planning.firstDate); d <= planning.lastDate; d.setDate(d.getDate() + 1)) {
+                    if (typeof agendas[d.getTime()] === 'undefined') {
+                        agendas[d.getTime()] = {};
+                    }
+                }
+
+                planning.organisePresences();
+
+                res.render('planning/display-employee.ejs', {
+                    planning: planning,
+                    employee: employee,
+                    slots: values[0],
+                    agendas: agendas
+                });
+            });
+        });
+    });
+});
+
+router.get("/:id(\\d+)/employee/:employeeId(\\d+)/calendar", function (req, res) {
     var id = req.params.id;
     var employeeId = req.params.employeeId;
 
@@ -1238,7 +1368,7 @@ router.get("/:id(\\d+)/employee/:employeeId(\\d+)", function (req, res) {
                 }
 
                 models.Employee.findById(employeeId).then(employee => {
-                    res.render('planning/employee.ejs', {
+                    res.render('planning/calendar-employee.ejs', {
                         planning: planning,
                         employee: employee,
                         agendas: agendas
@@ -1258,9 +1388,6 @@ Date.prototype.getWeek = function () {
 };
 
 function getFirstDateWeek(week, year) {
-    console.log("in getfirstdateweek");
-    console.log(week, year);
-
     var simple = new Date(year, 0, 1 + (week - 1) * 7);
     var dow = simple.getDay();
     var weekStart = simple;

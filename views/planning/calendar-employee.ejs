@@ -13,6 +13,12 @@
   </ol>
 </nav>
 
+<p class="text-right mb-3">
+    <a class="btn btn-primary ml-3" href="/planning/<%= planning.id %>/employee/<%= employee.id %>">
+        <%= __('planning.classicalview') %>
+    </a>
+</p>
+
 <%
 function getRealDay(day) {
     return day != 0 ? day : 7;

@@ -7,6 +7,18 @@ Date.prototype.getWeek = function() {
     return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
 }
 %>
+
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#summary" aria-expanded="false" aria-controls="collapseExample">
+        <%= __('planning.summary') %>
+    </button>
+</p>
+<div class="collapse mb-3" id="summary">
+    <div class="card card-body">
+
+    </div>
+</div>
+
 <table class="table table-sm">
     <thead class="thead-dark">
         <tr>
@@ -274,6 +286,14 @@ Date.prototype.getWeek = function() {
                 });
             });
         }
+
+        function updateSummary() {
+            $.get("/planning/<%= planning.id %>/summary", function(summary) {
+                for(var employee of summary) {
+                    // TODO: display summary in the collapse
+                }
+            });
+        }    
     });
 
 </script>

@@ -1,0 +1,95 @@
+<%- include ../header.ejs %>
+
+<nav aria-label="breadcrumb" class="mb-5">
+  <ol class="breadcrumb">
+    <%- include base-planning-breadcrumb.ejs %>
+  </ol>
+</nav>
+
+<p class="text-right mb-3">
+    <a class="btn btn-primary" href="/planning/<%= planning.id %>">
+        <%= __('planning.edit') %>
+    </a>
+    <a class="btn btn-primary ml-3" href="/planning/<%= planning.id %>/employee/<%= employee.id %>/calendar">
+        <%= __('planning.calendarview') %>
+    </a>
+</p>
+
+<%
+Date.prototype.getWeek = function() {
+    var date = new Date(this.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+%>
+<table class="table table-sm">
+    <thead class="thead-dark">
+        <tr>
+            <th colspan="2" scope="col" class="text-center">
+                <%= __('planning.date') %>
+            </th>
+            <th scope="col" class="text-center">
+                <%= __('planning.slot') %>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+<%
+        var availabilityDateId = (planning.firstDate.getMonth()+1).toString().padStart(2, '0') + planning.firstDate.getFullYear();
+
+        for(var d=new Date(planning.firstDate); d<=planning.lastDate; d.setDate(d.getDate() + 1)) {
+            var dateId = d.getTime();
+%>
+            <tr class="availability">
+<%
+                if(d.getDay() == 1 || d.getTime() == planning.firstDate.getTime()) {
+                    var days = 8 - (d.getDay() || 7);
+%>
+                    <th rowspan="<%= days %>" class="week-number align-middle"><span class="badge badge-secondary"><%= d.getWeek() %></span></th>
+<%
+                }
+%>
+                <th scope="row" class="date text-center align-middle">
+                    <%= __("time.shortday" + d.getDay()) %> <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+                </th>
+                <td class="text-center">
+                    <div class="card-deck">
+<%
+                        var dayPresences = agendas[d.getTime()]
+                        if(Object.keys(dayPresences).length > 0 ) {
+                            for(var slot of slots) {
+                                if(slot.days.includes(d.getDay())) {
+                                    var slotPresences = dayPresences[slot.id]
+
+                                    if(typeof planning.presences[dateId] !== 'undefined' &&
+                                    typeof planning.presences[dateId][slot.id] !== 'undefined') {
+%>
+                                        <div class="card slot-card">
+                                            <div class="card-body py-1">
+                                                <%= slotPresences.slot.name %> <small>(<%= slotPresences.slot.getTimeLabel() %>)</small>
+                                            </div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="card invisible"></div>
+<%
+                                        }
+                                    }
+                                }
+                            } else {
+%>
+                                <button class="btn btn-secondary btn-sm disabled mx-auto"><%= __('time.closed') %></button>
+<%
+                            }
+%>
+                    </div>
+                </td>
+            </tr>
+<%
+        }
+%>
+    </tbody>
+</table>
+
+<%- include ../footer.ejs %>

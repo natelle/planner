@@ -5,6 +5,7 @@
     "database": "planner",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "timezone": "+02:00"
+    "timezone": "+02:00",
+    "logging": false
   }
 }
