@@ -1034,8 +1034,40 @@ router.post('/:id(\\d+)/toggle-presence', function (req, res) {
 router.post('/:id(\\d+)/summary', function (req, res) {
     var id = req.params.id;
 
-    // TODO: find all availabilities by employee + number of slot + total time
-    
+    models.Planning.findById(id, {
+        include: [
+            {
+                model: models.Availability,
+                as: 'presences',
+                include: [
+                    {
+                        model: models.Slot,
+                        as: 'slot'
+                    },
+                    {
+                        model: models.Employee
+                    }
+                ]
+            },
+            {
+                model: models.EmployeeCategory,
+                as: 'category'
+            }
+        ]
+    }).then(planning => {
+        var summary = {};
+
+        for (var presence of planning.presences) {
+            if (typeof summary[presence.EmployeeId] === 'undefined') {
+                summary[presence.EmployeeId] = { employee: presence.Employee, slots: 0, duration: 0 };
+            }
+
+            summary[presence.EmployeeId].slots++;
+            summary[presence.EmployeeId].duration += presence.slot.getDuration();
+        }
+
+        res.send(summary);
+    });
 });
 
 router.get('/employee/:employeeId(\\d+)', function (req, res) {
