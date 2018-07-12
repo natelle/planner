@@ -532,22 +532,67 @@ router.get('/create/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(\\
 });
 
 router.get('/currents', function (req, res) {
-    models.Slot.findAll({
-        attributes: ['categoryId'],
-        group: ['Slot.categoryId'],
-        order: ['begin']
-    }).then(slots => {
+    models.EmployeeCategory.findAll().then(categories => {
         var promises = [];
 
-        for (var slot of slots) {
-            promises.push(models.EmployeeCategory.findById(slot.categoryId))
+        for (var category of categories) {
+            var interval = category.interval, dateMin, dateMax;
+            var date = new Date();
+            date.setHours(0, 0, 0, 0);
+
+            switch (interval) {
+                case "month":
+                    dateMin = new Date(Date.UTC(date.getFullYear(), date.getMonth(), 1));
+                    dateMax = new Date(Date.UTC(date.getFullYear(), date.getMonth() + 1, 0));
+                    break;
+                case "week":
+                    var week = date.getWeek();
+
+                    dateMin = getFirstDateWeek(week, date.getFullYear());
+                    dateMax = getLastDateWeek(week, date.getFullYear());
+                    break;
+                case "day":
+                    dateMin = new Date(date);
+                    dateMax = new Date(date);
+                    break;
+                default:
+                    throw "Category interval not supported."
+            }
+
+            console.log(category.name);            
+            console.log("dateMin = " + dateMin);
+            console.log("dateMax = " + dateMax);
+            
+            
+
+            promises.push(models.Planning.findOne({
+                where: {
+                    firstDate: {
+                        [models.Sequelize.Op.between]: [dateMin, dateMax]
+                    },
+                    interval: category.interval,
+                    validated: true,
+                    categoryId: category.id
+                },
+                include: [
+                    {
+                        model: models.EmployeeCategory,
+                        as: 'category',
+                    }
+                ],
+                order: [
+                    [{ model: models.EmployeeCategory, as: 'category' }, 'name']
+                ]
+            }));
         }
 
-        Promise.all(promises).then(categories => {
-            res.render('planning/currents.ejs',
-                {
-                    categories: categories
-                });
+        Promise.all(promises).then(plannings => {
+            console.log(plannings);
+            
+
+            res.render('planning/currents.ejs', {
+                plannings: plannings.filter(planning => planning !== null)
+            })
         })
     });
 });

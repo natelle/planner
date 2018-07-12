@@ -26,7 +26,7 @@
             var category = categories[i]; %>
             <tr>
                 <td><%= category.name %></td>
-                <td><%= __('category.interval.' + category.interval) %></td>
+                <td><%= __('time.' + category.interval) %></td>
                 <td>
                     <a href="/employee/category/<%= category.id %>/update" title="<%= __('global.edit') %>">
                         <i class="fas fa-pencil-alt"></i>

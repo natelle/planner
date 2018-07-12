@@ -100,7 +100,7 @@ Planner.prototype.buildModel = function () {
         for (var availability of availabilities) {
             var employeeId = availability.EmployeeId;
 
-            var key = d.getTime() + "-" + availability.slotId;
+            var key = d.getTime() + '-' + availability.slotId;
             var mainKey = employeeId + '-' + key
             variables[mainKey] = {};
             variables[mainKey][key] = 1;
@@ -108,7 +108,6 @@ Planner.prototype.buildModel = function () {
             variables[mainKey][employeeId] = 1;
 
             var subkey;
-
             switch (this.category.interval) {
                 case "day":
                     subkey = d.getTime();
@@ -134,6 +133,7 @@ Planner.prototype.buildModel = function () {
             model.binaries[mainKey] = 1;
             optimizeMinTime[employeeId + '-' + subkey] = "min";
             optimizeWholeDay[employeeId + '-' + d.getTime()] = "max";
+            optimizeSlot[employeeId] = "min";
         }
     }
 
@@ -147,6 +147,7 @@ Planner.prototype.buildModel = function () {
         {},
         //shuffle(optimizeMinTime),
         //shuffle(optimizeWholeDay),
+        //shuffle(optimizeSlot)
     );
 
     return model;

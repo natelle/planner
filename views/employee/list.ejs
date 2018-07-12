@@ -30,7 +30,13 @@
                 <td><%= employee.firstName %></td>
                 <td><%= employee.lastName %></td>
                 <td><%= employee.category ? employee.category.name : "" %></td>
-                <td><%= employee.number %><%= __('time.hourabbr') + '/' + __('time.' + employee.category.interval).toLowerCase() %></td>
+                <td>
+                    <% if(employee.number) { %>
+                        <%= employee.number %><%= __('time.hourabbr') + '/' + __('time.' + employee.category.interval).toLowerCase() %>
+                    <% } else { %>
+                        -
+                    <% } %>
+                </td>
                 <td>
                     <a href="/employee/<%= employee.id %>/update" title="<%= __('global.edit') %>">
                         <i class="fas fa-pencil-alt"></i>

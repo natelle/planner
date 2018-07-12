@@ -16,37 +16,33 @@
             <i class="fas fa-angle-left fa-2x"></i>
         </a>
     </div>
-    <div class="col-md-10">
-        <table class="table table-sm">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Mois</th>
-                    <th scope="col">Autres</th>
-                </tr>
-            </thead>
-            <tbody>
-<%
-                var now = new Date();
-                for(var i=1; i<=12; i++) {
-%>
-                    <tr>
-                    <td>
-                    <a href="/employee/<%= employee.id %>/availabilities/<%= i.toString().padStart(2, '0') + year %>">
-                    <% if(now.getMonth() == (i-1)) { %><b><% } %>
-                    <%= i.toString().padStart(2, '0') %>/<%= year %>
-                    <% if(now.getMonth() == (i-1)) { %></b><% } %>
-                    </a>
-                    </td>
-                    <td>...
-                    </td>
-                    </tr>
+    <div class="col-md-10 text-center">
+        <ul class="list-unstyled">
+            <% var now = new Date();
+            for(var i=1; i<=12; i++) { %>
+                <li>
+                    <% if(now.getMonth() == (i-1)) { %>
+                        <h4>
+                            <b>
+                                <a href="/employee/<%= employee.id %>/availabilities/<%= i.toString().padStart(2, '0') + year %>">
+                                    <%= __('time.month' + i)%> <%= year %>
+                                </a>
+                            </b>
+                        </h4>
+                    <% } else { %>
+                        <h5>
+                            <a href="/employee/<%= employee.id %>/availabilities/<%= i.toString().padStart(2, '0') + year %>">
+                                <%= __('time.month' + i)%> <%= year %>
+                            </a>
+                        </h5>
                     <% } %>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-md-1">
-            <a href="/employee/<%= employee.id %>/availabilities/<%= parseInt(year) + 1 %>"><i class="fas fa-angle-right fa-2x"></i></a>
-        </div>
+                </li>
+            <% } %>
+        </ul>
     </div>
+    <div class="col-md-1">
+        <a href="/employee/<%= employee.id %>/availabilities/<%= parseInt(year) + 1 %>"><i class="fas fa-angle-right fa-2x"></i></a>
+    </div>
+</div>
 
-    <%- include ../footer.ejs %>
+<%- include ../footer.ejs %>
