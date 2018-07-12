@@ -104,61 +104,124 @@ Date.prototype.getWeek = function() {
                     });
                 });
 
-                $('button.slot').click(function() {
+                var DELAY = 400, clicks = 0, timer = null;
+
+                $('button.slot').on("click", function() {
                     var enable = !$(this).hasClass("btn-success");
+
+                    var state = $(this).attr("data-state");
                     var dateId = $(this).attr("data-dateId");
                     var slotId = $(this).attr("data-slotId");
-                    var state = $(this).attr("data-state");
                     var that = this;
 
+                    clicks++;
+
                     $(this).addClass("disabled");
+                    $(this).removeClass("btn-danger btn-success btn-info");
 
-                    if(enable) {
-                        $(this).removeClass("btn-danger");
-                        $(this).addClass("btn-success")
+                    if(clicks === 1) {
+                        timer = setTimeout(function() {
+                            if(state !== "enabled") {
+                                $(that).addClass("btn-success");
+                            } else {
+                                $(that).addClass("btn-danger");
+                            }
+
+                            var newState = state !== "enabled" ? "enabled" : "disabled";
+
+                            setSlotState(newState, slotId, dateId, that);
+
+                            clicks = 0;
+                        }, DELAY);
                     } else {
-                        $(this).removeClass("btn-success");
-                        $(this).addClass("btn-danger")
-                    }
+                        clearTimeout(timer);
 
-                    enableSlot(enable, slotId, dateId, this);
+                        $(that).addClass("btn-info");
+
+                        setSlotState("mandatory", slotId, dateId, that);
+
+                        clicks = 0;
+                    }
+                }).on("dblclick", function(e){
+                    e.preventDefault();
                 });
+
+
+
+                // $('button.slot').click(function() {
+                //     var enable = !$(this).hasClass("btn-success");
+                //     var dateId = $(this).attr("data-dateId");
+                //     var slotId = $(this).attr("data-slotId");
+                //     var state = $(this).attr("data-state");
+                //     var that = this;
+                //
+                //     $(this).addClass("disabled");
+                //     $(this).removeClass("btn-danger btn-success btn-info");
+                //
+                //     var newState;
+                //
+                //     switch(state) {
+                //         case "enabled":
+                //             $(button).addClass("btn-success");
+                //             break;
+                //         case "disabled":
+                //             $(button).addClass("btn-danger");
+                //             break;
+                //         case "mandatory":
+                //             $(button).addClass("btn-info");
+                //             break;
+                //     }
+                //     if(enable) {
+                //         $(this).removeClass("btn-danger");
+                //         $(this).addClass("btn-success")
+                //     } else {
+                //         $(this).removeClass("btn-success");
+                //         $(this).addClass("btn-danger")
+                //     }
+                //
+                //     setSlotState(enable, slotId, dateId, this);
+                // });
 
                 $("button#toggleall").click(function() {
                     var action = $(this).attr("data-action");
-                    var enable = action == "enable" ? true : false;
+                    var state = (action == "enable" ? "enabled" : "disabled");
 
                     $('button.slot').each(function() {
                         var dateId = $(this).attr("data-dateId");
                         var slotId = $(this).attr("data-slotId");
 
-                        enableSlot(enable, slotId, dateId, this);
+                        setSlotState(state, slotId, dateId, this);
                     });
 
-                    if(enable) {
+                    if(action == "enable") {
                         $(this).attr("data-action", "disable");
                         $(this).html('<%= __('availability.disableall') %>');
                     } else {
                         $(this).attr("data-action", "enable");
-                        $(this).html('</i><%= __('availability.enableall') %>');
+                        $(this).html('<%= __('availability.enableall') %>');
                     }
                 });
 
-                function enableSlot(enable, slotId, dateId, button) {
+                function setSlotState(state, slotId, dateId, button) {
                     $.post('/employee/<%= employee.id %>/availabilities/set', {
-                        enable: enable,
+                        state: state,
                         slotId: slotId,
                         dateId: dateId
                     },
-                    function(enabled) {
-                        $(button).removeClass("disabled");
+                    function(state) {
+                        $(button).removeClass("disabled btn-danger btn-success btn-info");
+                        $(button).attr("data-state", state);
 
-                        if(enabled) {
-                            $(button).removeClass("btn-danger");
-                            $(button).addClass("btn-success")
-                        } else {
-                            $(button).removeClass("btn-success");
-                            $(button).addClass("btn-danger")
+                        switch(state) {
+                            case "enabled":
+                                $(button).addClass("btn-success");
+                                break;
+                            case "disabled":
+                                $(button).addClass("btn-danger");
+                                break;
+                            case "mandatory":
+                                $(button).addClass("btn-info");
+                                break;
                         }
                     });
                 }
@@ -170,18 +233,23 @@ Date.prototype.getWeek = function() {
                         var state = $(this).attr("data-state");
                         var that = this;
 
-                        $.post('/employee/<%= employee.id %>/availabilities/enabled', {
+                        $.post('/employee/<%= employee.id %>/availabilities/state', {
                             slotId: slotId,
                             dateId: dateId
-                        }, function(enabled) {
-                            $(that).removeClass("btn-secondary");
+                        }, function(state) {
+                            $(that).removeClass("btn-secondary btn-danger btn-success btn-info");
+                            $(that).attr("data-state", state);
 
-                            if(enabled) {
-                                $(that).removeClass("btn-danger");
-                                $(that).addClass("btn-success");
-                            } else {
-                                $(that).removeClass("btn-success");
-                                $(that).addClass("btn-danger");
+                            switch(state) {
+                                case "enabled":
+                                    $(that).addClass("btn-success");
+                                    break;
+                                case "disabled":
+                                    $(that).addClass("btn-danger");
+                                    break;
+                                case "mandatory":
+                                    $(that).addClass("btn-info");
+                                    break;
                             }
                         })
                     });

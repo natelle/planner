@@ -179,9 +179,9 @@
 		"firstdate": "Débute le",
 		"lastdate": "Fini le",
 		"globalview": "Vue globale",
-		"summary": "planning.summary",
-		"slotnumber": "planning.slotnumber",
-		"cumulatedDuration": "planning.cumulatedDuration"
+		"summary": "Récapitulatif",
+		"slotnumber": "Nombre de créneaux",
+		"cumulatedDuration": "Durée cumulée"
 	},
 	"category": {
 		"listing": "Catégories",

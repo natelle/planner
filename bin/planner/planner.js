@@ -6,7 +6,7 @@ var Planner = function (params) {
     this.lastDate = params.lastDate;
     this.employees = params.employees;
     this.slots = params.slots,
-        this.agendas = params.agendas;
+    this.agendas = params.agendas;
     this.availabilities = params.availabilities;
     this.category = params.category;
 };
@@ -99,11 +99,13 @@ Planner.prototype.buildModel = function () {
 
         for (var availability of availabilities) {
             var employeeId = availability.EmployeeId;
+
             var key = d.getTime() + "-" + availability.slotId;
-            variables[employeeId + '-' + key] = {};
-            variables[employeeId + '-' + key][key] = 1;
-            variables[employeeId + '-' + key][employeeId + '-' + d.getTime()] = 1;
-            variables[employeeId + '-' + key][employeeId] = 1;
+            var mainKey = employeeId + '-' + key
+            variables[mainKey] = {};
+            variables[mainKey][key] = 1;
+            variables[mainKey][employeeId + '-' + d.getTime()] = 1;
+            variables[mainKey][employeeId] = 1;
 
             var subkey;
 
@@ -119,14 +121,17 @@ Planner.prototype.buildModel = function () {
                     break;
             }
 
-            variables[employeeId + '-' + key][employeeId + '-' + subkey] = availability.slot.getDuration();
+            variables[mainKey][employeeId + '-' + subkey] = availability.slot.getDuration();
 
             if(availability.Employee.number) {
                 constraintsAvailability[employeeId + '-' + subkey] = { min: availability.Employee.number };
             }
+            if(availability.mandatory) {
+                variables[mainKey][employeeId + '-' + key] = 1;
+                constraintsAvailability[mainKey] = { equal: 1 };
+            }
 
-
-            model.binaries[employeeId + '-' + key] = 1;
+            model.binaries[mainKey] = 1;
             optimizeMinTime[employeeId + '-' + subkey] = "min";
             optimizeWholeDay[employeeId + '-' + d.getTime()] = "max";
         }
@@ -140,8 +145,8 @@ Planner.prototype.buildModel = function () {
 
     model.optimize = Object.assign(
         {},
-        shuffle(optimizeMinTime),
-        shuffle(optimizeWholeDay),
+        //shuffle(optimizeMinTime),
+        //shuffle(optimizeWholeDay),
     );
 
     return model;
@@ -154,6 +159,9 @@ Planner.prototype.generate = function () {
     console.log(model);
     //console.log("RESULTS");
     //console.log(results);
+    //
+    // var resultsbis = solver.MultiObjective(model);
+    // console.log(resultsbis.midpoint.feasible);
 
     var planning = new models.Planning();
 

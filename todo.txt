@@ -3,6 +3,6 @@
 - pour les employés, number max ?
 - voir pour le titre de la page (head title) + navbar (onglet courant=)
 - gérer les erreurs 404 (notamment lorsque findById ne renvoie rien)
-- pour la génération des plannings : options pour matcher les agendas : equals: number ou min: number 
+- pour la génération des plannings : options pour matcher les agendas : equals: number ou min: number
 - afficher dans le calendrier plusieurs plannings (validés) sur un mois (si petit planning)
-- pouvoir définir des disponibilités comme des présences obligatoires
+- afficher mini récapitulatif dans list yearly availability
