@@ -261,7 +261,7 @@ router.get('/:id(\\d+)/availabilities/default', function (req, res) {
     });
 });
 
-router.post('/:id(\\d+)/availabilities/default/enabled', function (req, res) {
+router.post('/:id(\\d+)/availabilities/default/state', function (req, res) {
     var employeeId = req.params.id;
     var day = req.body.day;
     var slotId = req.body.slotId;
@@ -273,7 +273,17 @@ router.post('/:id(\\d+)/availabilities/default/enabled', function (req, res) {
             slotId: slotId
         }
     }).then(availability => {
-        res.send(availability !== null);
+        var state;
+
+        if (!availability) {
+            state = "disabled";
+        } else if (availability.mandatory) {
+            state = "mandatory";
+        } else {
+            state = "enabled";
+        }
+
+        res.send(state);
     })
 });
 
@@ -288,16 +298,24 @@ router.post('/:id(\\d+)/availabilities/default/set', function (req, res) {
             where: {
                 EmployeeId: employeeId,
                 day: day,
-                slotId: slotId
+                slotId: slotId,
             }, defaults: {
                 EmployeeId: employeeId,
                 day: day,
-                slotId: slotId
+                slotId: slotId,
+                mandatory: false
             }
-        })
-            .spread((availability, created) => {
-                res.send(true)
-            });
+        }).spread((availability, created) => {
+            if (!created) {
+                models.DefaultAvailability.update({
+                    mandatory: false,
+                }, { where: { id: availability.id } }).then(availability => {
+                    res.send(true);
+                });
+            } else {
+                res.send(true);
+            }
+        });
     } else {
         models.DefaultAvailability.destroy({
             where: {
@@ -311,6 +329,35 @@ router.post('/:id(\\d+)/availabilities/default/set', function (req, res) {
     }
 });
 
+router.post('/:id(\\d+)/availabilities/default/set-mandatory', function (req, res) {
+    var employeeId = req.params.id;
+    var day = req.body.day;
+    var slotId = req.body.slotId;
+
+    models.DefaultAvailability.findOrCreate({
+        where: {
+            EmployeeId: employeeId,
+            day: day,
+            slotId: slotId
+        }, defaults: {
+            EmployeeId: employeeId,
+            day: day,
+            slotId: slotId,
+            mandatory: true
+        }
+    }).spread((availability, created) => {
+        if (!created) {
+            models.DefaultAvailability.update({
+                mandatory: true,
+            }, { where: { id: availability.id } }).then(availability => {
+                res.send(true);
+            });
+        } else {
+            res.send(true);
+        }
+    });
+});
+
 router.get('/availabilities/category/:categoryId(\\d+)/slot/:slotId(\\d+)/:dateId(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
@@ -318,7 +365,7 @@ router.get('/availabilities/category/:categoryId(\\d+)/slot/:slotId(\\d+)/:dateI
     var date = new Date(parseInt(req.params.dateId));
 
     // TODO if categoryId == null, not filter
-    
+
     models.Availability.findAll({
         include: [{
             model: models.Employee,

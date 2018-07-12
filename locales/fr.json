@@ -179,7 +179,9 @@
 		"firstdate": "Débute le",
 		"lastdate": "Fini le",
 		"globalview": "Vue globale",
-		"summary": "planning.summary"
+		"summary": "planning.summary",
+		"slotnumber": "planning.slotnumber",
+		"cumulatedDuration": "planning.cumulatedDuration"
 	},
 	"category": {
 		"listing": "Catégories",

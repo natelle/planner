@@ -2,7 +2,8 @@
 
 module.exports = (sequelize, DataTypes) => {
     var Availability = sequelize.define('Availability', {
-        day: DataTypes.DATE
+        day: DataTypes.DATE,
+        mandatory: DataTypes.BOOLEAN
     }, {
         tableName: 'availability',
     });

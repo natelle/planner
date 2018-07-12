@@ -6,7 +6,7 @@ var Planner = function (params) {
     this.lastDate = params.lastDate;
     this.employees = params.employees;
     this.slots = params.slots,
-    this.agendas = params.agendas;
+        this.agendas = params.agendas;
     this.availabilities = params.availabilities;
     this.category = params.category;
 };
@@ -73,20 +73,26 @@ Planner.prototype.buildModel = function () {
         binaries: {}
     };
 
+    var constraintsAgenda = {};
+
     for (var d = new Date(this.firstDate); d <= this.lastDate; d.setDate(d.getDate() + 1)) {
         var agendas = this.findAgendas(d);
 
         for (var agenda of agendas) {
-            model.constraints[d.getTime() + '-' + agenda.slotId] = { equal: agenda.number };
+            if(agenda.number) {
+                constraintsAgenda[d.getTime() + '-' + agenda.slotId] = { equal: agenda.number };
+            }
         }
 
         var missingSlots = this.findMissingSlots(d, agendas);
         for (var slot of missingSlots) {
-            model.constraints[d.getTime() + '-' + slot.id] = { equal: 0 };
+            constraintsAgenda[d.getTime() + '-' + slot.id] = { equal: 0 };
         }
     }
 
-    var variables = {};
+    var variables = {}, constraintsAvailability = {};
+    var optimizeMinTime = {}, optimizeWholeDay = {}, optimizeSlot = {};
+
 
     for (var d = new Date(this.firstDate); d <= this.lastDate; d.setDate(d.getDate() + 1)) {
         var availabilities = this.findAvailabilities(d);
@@ -96,11 +102,12 @@ Planner.prototype.buildModel = function () {
             var key = d.getTime() + "-" + availability.slotId;
             variables[employeeId + '-' + key] = {};
             variables[employeeId + '-' + key][key] = 1;
+            variables[employeeId + '-' + key][employeeId + '-' + d.getTime()] = 1;
+            variables[employeeId + '-' + key][employeeId] = 1;
 
             var subkey;
-            console.log("###############interval = " + this.category.interval);
-            
-            switch(this.category.interval) {
+
+            switch (this.category.interval) {
                 case "day":
                     subkey = d.getTime();
                     break;
@@ -114,31 +121,28 @@ Planner.prototype.buildModel = function () {
 
             variables[employeeId + '-' + key][employeeId + '-' + subkey] = availability.slot.getDuration();
 
-            model.constraints[employeeId + '-' + subkey] = { min: availability.Employee.number };
+            if(availability.Employee.number) {
+                constraintsAvailability[employeeId + '-' + subkey] = { min: availability.Employee.number };
+            }
+
+
             model.binaries[employeeId + '-' + key] = 1;
-            model.optimize[employeeId] = "min";
+            optimizeMinTime[employeeId + '-' + subkey] = "min";
+            optimizeWholeDay[employeeId + '-' + d.getTime()] = "max";
         }
     }
 
-    // Shuffling
-    var variablesArray = [];
-    for (var i in variables) {
-        var variable = {};
-        variable[i] = variables[i];
+    model.variables = shuffle(variables);
+    model.constraints = Object.assign(
+        shuffle(constraintsAgenda),
+        shuffle(constraintsAvailability)
+    );
 
-        var randomIndex = Math.floor(Math.random() * (variablesArray.length + 1));
-        variablesArray.splice(randomIndex, 0, variable);
-    }
-
-    variables = {};
-
-    for (var i in variablesArray) {
-        for (var j in variablesArray[i]) {
-            variables[j] = variablesArray[i][j];
-        }
-    }
-
-    model.variables = variables;
+    model.optimize = Object.assign(
+        {},
+        shuffle(optimizeMinTime),
+        shuffle(optimizeWholeDay),
+    );
 
     return model;
 };
@@ -148,8 +152,8 @@ Planner.prototype.generate = function () {
     var results = solver.Solve(model);
     console.log("MODEL");
     console.log(model);
-    console.log("RESULTS");
-    console.log(results);
+    //console.log("RESULTS");
+    //console.log(results);
 
     var planning = new models.Planning();
 
@@ -158,7 +162,6 @@ Planner.prototype.generate = function () {
     planning.validated = false;
     planning.success = results.feasible;
     planning.presences = [];
-
 
     for (var key in results) {
         switch (key) {
@@ -170,7 +173,7 @@ Planner.prototype.generate = function () {
                 var pattern = /^(\d+)-(\d+)-(\d+)$/;
                 var match;
 
-                if ((match = key.match(pattern)) && results[key] == 1) {                   
+                if ((match = key.match(pattern)) && results[key] == 1) {
                     var employeeId = match[1];
                     var date = new Date(parseInt(match[2]));
                     var slotId = match[3];
@@ -189,12 +192,34 @@ Planner.prototype.generate = function () {
     return planning;
 };
 
-Date.prototype.getWeek = function() {
+Date.prototype.getWeek = function () {
     var date = new Date(this.getTime());
     date.setHours(0, 0, 0, 0);
     date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
     var week1 = new Date(date.getFullYear(), 0, 4);
     return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+};
+
+function shuffle(object) {
+    var objectArray = [];
+    for (var i in object) {
+        var subObject = {};
+        subObject[i] = object[i];
+
+        var randomIndex = Math.floor(Math.random() * (objectArray.length + 1));
+        objectArray.splice(randomIndex, 0, subObject);
+    }
+
+    shuffleObject = {};
+
+    for (var i in objectArray) {
+        for (var j in objectArray[i]) {
+            shuffleObject[j] = objectArray[i][j];
+        }
+    }
+
+    return shuffleObject;
 }
+
 
 module.exports = Planner;

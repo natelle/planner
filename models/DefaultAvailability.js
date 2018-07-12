@@ -1,7 +1,8 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
     var DefaultAvailability = sequelize.define('DefaultAvailability', {
-        day: DataTypes.TINYINT
+        day: DataTypes.TINYINT,
+        mandatory: DataTypes.BOOLEAN
     }, {
         tableName: 'defaultavailability'
     });

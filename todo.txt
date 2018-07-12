@@ -1,15 +1,8 @@
-- generer plannings sur un intervalle précis (du ... au ...) (2)
-- dans les plannings, ajouter en haut ou bas de tableau un récapitulatif (collapse) du nombre d'heures (+ autres) de chaque employés (1)
 - intégration user (3)
-- options générales : afficher les heures des créneaux ? (ou systématiquement), ... (1)
 - vue print pour les plannings (vue normale [simple] et calendrier [à voir...]) (1)
 - pour les employés, number max ?
 - voir pour le titre de la page (head title) + navbar (onglet courant=)
 - gérer les erreurs 404 (notamment lorsque findById ne renvoie rien)
-- voir pour planning sur une autre période (semaine)
 - pour la génération des plannings : options pour matcher les agendas : equals: number ou min: number 
-- dans le calendrier, faire comme calendrier pour employee : utiliser agenda pour if(open)
 - afficher dans le calendrier plusieurs plannings (validés) sur un mois (si petit planning)
-- créer une page intermédiaire pour generate/create pour choisir le début et la fin
-- voir comment définir number pour les employés sur autre période que le mois
-- pour la vue calendrier, afficher autant de mois que nécessaire
+- pouvoir définir des disponibilités comme des présences obligatoires

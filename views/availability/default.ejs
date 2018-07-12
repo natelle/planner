@@ -44,54 +44,82 @@
                     var day = $(this).attr("data-day");
                     var slotId = $(this).attr("data-slotId");
                     var that = this;
-                    $.post('/employee/<%= employee.id %>/availabilities/default/enabled', {
+                    $.post('/employee/<%= employee.id %>/availabilities/default/state', {
                         slotId: slotId,
                         day: day
-                    }, function(enabled) {
-                        $(that).removeClass("btn-secondary");
+                    }, function(state) {
+                        $(that).removeClass("btn-secondary btn-danger btn-success btn-info");
 
-                        if(enabled) {
-                            $(that).removeClass("btn-danger");
-                            $(that).addClass("btn-success");
-                        } else {
-                            $(that).removeClass("btn-success");
-                            $(that).addClass("btn-danger");
+                        switch(state) {                            
+                            case 'enabled':
+                                $(that).addClass("btn-success");
+                                break;
+                            case 'disabled':
+                                $(that).addClass("btn-danger");
+                                break;
+                            case 'mandatory':
+                                $(that).addClass("btn-info");
+                                break;
                         }
                     })
                 });
 
-                $('button.slot').click(function() {
+                var DELAY = 400, clicks = 0, timer = null;
+
+                $('button.slot').on("click", function() {
                     var enable = !$(this).hasClass("btn-success");
                     var day = $(this).attr("data-day");
                     var slotId = $(this).attr("data-slotId");
                     var that = this;
 
-                    $(this).addClass("disabled");
+                    clicks++;
 
-                    if(enable) {
-                        $(this).removeClass("btn-danger");
-                        $(this).addClass("btn-success")
+                    if(clicks === 1) {
+                        timer = setTimeout(function() {
+                            $(this).addClass("disabled");
+                            $(this).removeClass("btn-danger btn-success btn-info");
+
+                            if(enable) {
+                                $(this).addClass("btn-success")
+                            } else {
+                                $(this).addClass("btn-danger")
+                            }
+
+                            $.post('/employee/<%= employee.id %>/availabilities/default/set', {
+                                enable: enable,
+                                slotId: slotId,
+                                day: day
+                            },
+                            function(enabled) {
+                                $(that).removeClass("disabled btn-danger btn-success btn-info");
+
+                                if(enabled) {
+                                    $(that).addClass("btn-success")
+                                } else {
+                                    $(that).addClass("btn-danger")
+                                }
+                            });
+                        
+                            clicks = 0;
+                        }, DELAY);
                     } else {
-                        $(this).removeClass("btn-success");
-                        $(this).addClass("btn-danger")
+                        clearTimeout(timer);
+                        
+                        $(this).addClass("disabled btn-info");
+                        $(this).removeClass("btn-danger btn-success");
+
+                        $.post('/employee/<%= employee.id %>/availabilities/default/set-mandatory', {
+                            slotId: slotId,
+                            day: day
+                        },
+                        function(mandatory) {
+                            $(that).removeClass("disabled");
+                        });
+
+                        clicks = 0;   
                     }
-
-                    $.post('/employee/<%= employee.id %>/availabilities/default/set', {
-                        enable: enable,
-                        slotId: slotId,
-                        day: day
-                    },
-                    function(enabled) {
-                        $(that).removeClass("disabled");
-
-                        if(enabled) {
-                            $(this).removeClass("btn-danger");
-                            $(this).addClass("btn-success")
-                        } else {
-                            $(this).removeClass("btn-success");
-                            $(this).addClass("btn-danger")
-                        }
-                    });
+                }).on("dblclick", function(e){
+                    e.preventDefault();
                 });
             });
             </script>

@@ -69,7 +69,7 @@
     </div>
     <div class="col-md-1">
         <% var nextDate = new Date(Date.UTC(year+1, 0, 1)) %>
-        <a href="/planning/category/<%= category ? category.id : 0 %>/global/<%= nextTime.getTime() %>"><i class="fas fa-angle-right fa-2x"></i></a>
+        <a href="/planning/category/<%= category ? category.id : 0 %>/global/<%= nextDate.getTime() %>"><i class="fas fa-angle-right fa-2x"></i></a>
     </div>
 </div>
 

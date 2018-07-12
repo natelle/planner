@@ -560,11 +560,16 @@ router.get('/:id(\\d+)/regenerate', function (req, res) {
         var firstDate = planning.firstDate.getTime();
         var lastDate = planning.lastDate.getTime();
 
-        models.Planning.destroy({
-            where: { id: id }
+        models.Availability.destroy({
+            where: { planningId: id }
         }).then(status => {
-            res.redirect('/planning/generate/category/' + categoryId + '/' + firstDate + '-' + lastDate);
+            models.Planning.destroy({
+                where: { id: id }
+            }).then(status => {
+                res.redirect('/planning/generate/category/' + categoryId + '/' + firstDate + '-' + lastDate);
+            });
         });
+
     });
 });
 
@@ -687,12 +692,16 @@ router.get('/:id(\\d+)/delete', function (req, res) {
         if (planning) {
             var dateId = (planning.firstDate.getMonth() + 1).toString().padStart(2, '0') + planning.firstDate.getFullYear();
 
-            models.Planning.destroy({
-                where: {
-                    id: req.params.id
-                }
+            models.Availability.destroy({
+                where: { planningId: id }
             }).then(status => {
-                res.redirect('/planning/category/' + planning.categoryId + '/' + dateId);
+                models.Planning.destroy({
+                    where: {
+                        id: req.params.id
+                    }
+                }).then(status => {
+                    res.redirect('/planning/category/' + planning.categoryId + '/' + dateId);
+                });
             });
         } else {
             res.sendStatus(404);
@@ -1031,7 +1040,7 @@ router.post('/:id(\\d+)/toggle-presence', function (req, res) {
         });
 });
 
-router.post('/:id(\\d+)/summary', function (req, res) {
+router.get('/:id(\\d+)/summary', function (req, res) {
     var id = req.params.id;
 
     models.Planning.findById(id, {
@@ -1053,20 +1062,69 @@ router.post('/:id(\\d+)/summary', function (req, res) {
                 model: models.EmployeeCategory,
                 as: 'category'
             }
+        ],
+        order: [
+            [
+                { model: models.Availability, as: 'presences' },
+                models.Employee,
+                'lastName'
+            ],
+            [
+                { model: models.Availability, as: 'presences' },
+                models.Employee,
+                'firstName'
+            ]
         ]
     }).then(planning => {
-        var summary = {};
+        var summary = [];
 
-        for (var presence of planning.presences) {
-            if (typeof summary[presence.EmployeeId] === 'undefined') {
-                summary[presence.EmployeeId] = { employee: presence.Employee, slots: 0, duration: 0 };
+        models.Availability.findAll({
+            where: {
+                day: {
+                    [models.Sequelize.Op.between]: [planning.firstDate, planning.lastDate]
+                },
+                planningId: null,
+            },
+            include: [
+                {
+                    model: models.Slot,
+                    as: 'slot'
+                },
+                {
+                    model: models.Employee
+                }
+            ]
+        }).then(availabilities => {
+            for (var presence of planning.presences) {
+                var index = summary.map(function (entry) { return entry.employee.id; }).indexOf(presence.EmployeeId);
+
+                var entry;
+                if (index > -1) {
+                    entry = summary[index];
+                    entry.slots++;
+                    entry.duration += presence.slot.getDuration();
+                } else {
+                    var totalSlots = 0, totalDuration = 0;
+
+                    for (var availability of availabilities) {
+                        if (availability.EmployeeId == presence.EmployeeId) {
+                            totalSlots++;
+                            totalDuration += availability.slot.getDuration();
+                        }
+                    }
+
+                    summary.push({
+                        employee: presence.Employee,
+                        slots: 1,
+                        totalSlots: totalSlots,
+                        duration: presence.slot.getDuration(),
+                        totalDuration: totalDuration
+                    });
+                }
             }
 
-            summary[presence.EmployeeId].slots++;
-            summary[presence.EmployeeId].duration += presence.slot.getDuration();
-        }
-
-        res.send(summary);
+            res.send(summary);
+        });
     });
 });
 
