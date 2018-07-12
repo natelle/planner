@@ -66,7 +66,7 @@ Date.prototype.getWeek = function() {
                     <% if(typeof slots[d.getDay()] !== 'undefined') { %>
                         <div class="btn-group" role="group">
                         <% for(var slot of slots[d.getDay()]) { %>
-                            <button type="button" class="btn btn-secondary btn-sm slot" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
+                            <button type="button" class="btn btn-secondary btn-sm slot" data-state="" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
                             <% } %>
                             </div>
                             <% } else { %>
@@ -108,6 +108,7 @@ Date.prototype.getWeek = function() {
                     var enable = !$(this).hasClass("btn-success");
                     var dateId = $(this).attr("data-dateId");
                     var slotId = $(this).attr("data-slotId");
+                    var state = $(this).attr("data-state");
                     var that = this;
 
                     $(this).addClass("disabled");
@@ -166,6 +167,7 @@ Date.prototype.getWeek = function() {
                     $('button.slot').each(function() {
                         var dateId = $(this).attr("data-dateId");
                         var slotId = $(this).attr("data-slotId");
+                        var state = $(this).attr("data-state");
                         var that = this;
 
                         $.post('/employee/<%= employee.id %>/availabilities/enabled', {

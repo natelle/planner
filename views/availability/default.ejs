@@ -26,7 +26,7 @@
                     <% if(typeof slots[day] !== 'undefined') { %>
                         <div class="btn-group" role="group">
                             <% for(var slot of slots[day]) { %>
-                                <button type="button" class="btn btn-secondary btn-sm slot" data-day="<%= day %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
+                                <button type="button" class="btn btn-secondary btn-sm slot" data-state="" data-day="<%= day %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
                             <% } %>
                         </div>
                     <% } else { %>
@@ -49,6 +49,7 @@
                         day: day
                     }, function(state) {
                         $(that).removeClass("btn-secondary btn-danger btn-success btn-info");
+                        $(that).attr("data-state", state);
 
                         switch(state) {                            
                             case 'enabled':
@@ -68,32 +69,37 @@
 
                 $('button.slot').on("click", function() {
                     var enable = !$(this).hasClass("btn-success");
+
+                    var state = $(this).attr("data-state");
                     var day = $(this).attr("data-day");
                     var slotId = $(this).attr("data-slotId");
                     var that = this;
 
                     clicks++;
 
+                    $(this).addClass("disabled");
+                    $(this).removeClass("btn-danger btn-success btn-info");
+
                     if(clicks === 1) {
                         timer = setTimeout(function() {
-                            $(this).addClass("disabled");
-                            $(this).removeClass("btn-danger btn-success btn-info");
-
-                            if(enable) {
-                                $(this).addClass("btn-success")
+                            if(state !== "enabled") {
+                                $(this).addClass("btn-success");
                             } else {
-                                $(this).addClass("btn-danger")
-                            }
+                                $(this).addClass("btn-danger");
+                            }                            
 
+                            var newState = state !== "enabled" ? "enabled" : "disabled";
+                            
                             $.post('/employee/<%= employee.id %>/availabilities/default/set', {
-                                enable: enable,
+                                state: newState,
                                 slotId: slotId,
                                 day: day
                             },
-                            function(enabled) {
+                            function(state) {
                                 $(that).removeClass("disabled btn-danger btn-success btn-info");
+                                $(that).attr("data-state", state);
 
-                                if(enabled) {
+                                if(state === "enabled") {
                                     $(that).addClass("btn-success")
                                 } else {
                                     $(that).addClass("btn-danger")
@@ -105,14 +111,15 @@
                     } else {
                         clearTimeout(timer);
                         
-                        $(this).addClass("disabled btn-info");
-                        $(this).removeClass("btn-danger btn-success");
+                        $(this).addClass("btn-info");
 
-                        $.post('/employee/<%= employee.id %>/availabilities/default/set-mandatory', {
+                        $.post('/employee/<%= employee.id %>/availabilities/default/set', {
+                            state: "mandatory",
                             slotId: slotId,
                             day: day
                         },
-                        function(mandatory) {
+                        function(state) {
+                            $(that).attr("data-state", state);
                             $(that).removeClass("disabled");
                         });
 
