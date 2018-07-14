@@ -6,3 +6,7 @@
 - pour la génération des plannings : options pour matcher les agendas : equals: number ou min: number
 - afficher dans le calendrier plusieurs plannings (validés) sur un mois (si petit planning)
 - afficher mini récapitulatif dans list yearly availability
+- planning à l'année (remplissage avec agendas/dispos par défaut mais affichage au mois)
+- option "journée entière dans les dispos (classique/défauts) pour indiquer que les parmis les disponibilités sélectionnées sur une journée, toutes doivent être valides ou non si planning
+=> pour ce faire, lorsqu'on clique, création d'une sorte de créneau virtuel englobant l'ensemble des disponibilités choisies dans planner
+- équilibrage des plannings: une fois généré, parcours à nouveau le planning pour équilibrer si remplaçant/remplacé ou éventuellement, voir si possibilité de regénéré un planning avec plus de contrainte
