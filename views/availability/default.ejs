@@ -24,10 +24,15 @@
                 <th scope="row"><%= __("time.day" + day) %></th>
                 <td class="type text-center">
                     <% if(typeof slots[day] !== 'undefined') { %>
-                        <div class="btn-group" role="group">
-                            <% for(var slot of slots[day]) { %>
-                                <button type="button" class="btn btn-secondary btn-sm slot" data-state="" data-day="<%= day %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
-                            <% } %>
+                        <div class="btn-toolbar justify-content-center" role="toolbar">
+                            <div class="btn-group" role="group" data-day="<%= day %>">
+                                <% for(var slot of slots[day]) { %>
+                                    <button type="button" class="btn btn-secondary btn-sm slot" data-state="" data-day="<%= day %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
+                                <% } %>
+                            </div>
+                            <div class="btn-group ml-3 full d-none justify-content-end" data-day="<%= day %>" role="group">
+                                <button type="button" class="btn btn-secondary"><%= __('availability.full') %></button>
+                            </div>
                         </div>
                     <% } else { %>
                         <button type="button" class="btn btn-secondary btn-sm" disabled><%= __('time.closed') %></button>
@@ -38,97 +43,115 @@
     </tbody>
 </table>
 
-            <script>
-            $(document).ready(function() {
-                $('button.slot').each(function() {
-                    var day = $(this).attr("data-day");
-                    var slotId = $(this).attr("data-slotId");
-                    var that = this;
-                    $.post('/employee/<%= employee.id %>/availabilities/default/state', {
+<script>
+    $(document).ready(function() {
+        var slotNumber = {};
+
+        $('button.slot').each(function() {
+            var day = $(this).attr("data-day");
+            var slotId = $(this).attr("data-slotId");
+            var that = this;
+            $.post('/employee/<%= employee.id %>/availabilities/default/state', {
+                slotId: slotId,
+                day: day
+            }, function(state) {
+                $(that).removeClass("btn-secondary btn-danger btn-success btn-info");
+                $(that).attr("data-state", state);
+
+                if(typeof slotNumber[day] === "undefined") {
+                    slotNumber[day] = 0;
+                }
+
+                switch(state) {                            
+                    case 'enabled':
+                        slotNumber[day]++;
+                        $(that).addClass("btn-success");
+                        break;
+                    case 'disabled':
+                        $(that).addClass("btn-danger");
+                        break;
+                    case 'mandatory':
+                        slotNumber[day]++;
+                        $(that).addClass("btn-info");
+                        break;
+                }
+
+                if(slotNumber[day] > 1) {
+                    showFull(day);
+                }
+                
+            })
+        });
+
+        
+        var DELAY = 400, clicks = 0, timer = null;
+
+        $('button.slot').on("click", function() {
+            var enable = !$(this).hasClass("btn-success");
+
+            var state = $(this).attr("data-state");
+            var day = $(this).attr("data-day");
+            var slotId = $(this).attr("data-slotId");
+            var that = this;
+
+            clicks++;
+
+            $(this).addClass("disabled");
+            $(this).removeClass("btn-danger btn-success btn-info");
+
+            if(clicks === 1) {
+                timer = setTimeout(function() {
+                    if(state !== "enabled") {
+                        $(this).addClass("btn-success");
+                    } else {
+                        $(this).addClass("btn-danger");
+                    }                            
+
+                    var newState = state !== "enabled" ? "enabled" : "disabled";
+                    
+                    $.post('/employee/<%= employee.id %>/availabilities/default/set', {
+                        state: newState,
                         slotId: slotId,
                         day: day
-                    }, function(state) {
-                        $(that).removeClass("btn-secondary btn-danger btn-success btn-info");
+                    },
+                    function(state) {
+                        $(that).removeClass("disabled btn-danger btn-success btn-info");
                         $(that).attr("data-state", state);
 
-                        switch(state) {                            
-                            case 'enabled':
-                                $(that).addClass("btn-success");
-                                break;
-                            case 'disabled':
-                                $(that).addClass("btn-danger");
-                                break;
-                            case 'mandatory':
-                                $(that).addClass("btn-info");
-                                break;
+                        if(state === "enabled") {
+                            $(that).addClass("btn-success")
+                        } else {
+                            $(that).addClass("btn-danger")
                         }
-                    })
+                    });
+                
+                    clicks = 0;
+                }, DELAY);
+            } else {
+                clearTimeout(timer);
+                
+                $(this).addClass("btn-info");
+
+                $.post('/employee/<%= employee.id %>/availabilities/default/set', {
+                    state: "mandatory",
+                    slotId: slotId,
+                    day: day
+                },
+                function(state) {
+                    $(that).attr("data-state", state);
+                    $(that).removeClass("disabled");
                 });
 
-                var DELAY = 400, clicks = 0, timer = null;
+                clicks = 0;   
+            }
+        }).on("dblclick", function(e){
+            e.preventDefault();
+        });
+    });
 
-                $('button.slot').on("click", function() {
-                    var enable = !$(this).hasClass("btn-success");
+    function showFull(day) {
+        $('div.full[data-day=' + day + ']').removeClass("d-none");
+    }
+</script>
 
-                    var state = $(this).attr("data-state");
-                    var day = $(this).attr("data-day");
-                    var slotId = $(this).attr("data-slotId");
-                    var that = this;
-
-                    clicks++;
-
-                    $(this).addClass("disabled");
-                    $(this).removeClass("btn-danger btn-success btn-info");
-
-                    if(clicks === 1) {
-                        timer = setTimeout(function() {
-                            if(state !== "enabled") {
-                                $(this).addClass("btn-success");
-                            } else {
-                                $(this).addClass("btn-danger");
-                            }                            
-
-                            var newState = state !== "enabled" ? "enabled" : "disabled";
-                            
-                            $.post('/employee/<%= employee.id %>/availabilities/default/set', {
-                                state: newState,
-                                slotId: slotId,
-                                day: day
-                            },
-                            function(state) {
-                                $(that).removeClass("disabled btn-danger btn-success btn-info");
-                                $(that).attr("data-state", state);
-
-                                if(state === "enabled") {
-                                    $(that).addClass("btn-success")
-                                } else {
-                                    $(that).addClass("btn-danger")
-                                }
-                            });
-                        
-                            clicks = 0;
-                        }, DELAY);
-                    } else {
-                        clearTimeout(timer);
-                        
-                        $(this).addClass("btn-info");
-
-                        $.post('/employee/<%= employee.id %>/availabilities/default/set', {
-                            state: "mandatory",
-                            slotId: slotId,
-                            day: day
-                        },
-                        function(state) {
-                            $(that).attr("data-state", state);
-                            $(that).removeClass("disabled");
-                        });
-
-                        clicks = 0;   
-                    }
-                }).on("dblclick", function(e){
-                    e.preventDefault();
-                });
-            });
-            </script>
-
-            <%- include ../footer.ejs %>
+<%- include ../footer.ejs %>
