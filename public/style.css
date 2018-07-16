@@ -40,6 +40,14 @@ button.employee-presence {
     opacity: 1!important;
 }
 
+td.full, th.full {
+    width: 150px;
+}
+
+button.full {
+    width: 30px;
+}
+
 button.day-1 {
     z-index: 1000;
     opacity: 1!important;

@@ -140,7 +140,7 @@
 		"enableall": "Tout cocher",
 		"disableall": "Tout décocher",
 		"menu": "Disponibilités",
-		"full": "availability.full"
+		"full": "Journée entière"
 	},
 	"planning": {
 		"home": "Plannings",

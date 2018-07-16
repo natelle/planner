@@ -15,7 +15,7 @@
         <tr>
             <th scope="col"><%= __('availability.day') %></th>
             <th scope="col" class="text-center"><%= __('availability.slot') %></th>
-            <th scope="col" class="text-center"><%= __("availability.full") %></th>
+            <th scope="col" class="text-center full"><%= __("availability.full") %></th>
         </tr>
     </thead>
     <tbody>
@@ -34,10 +34,8 @@
                         <button type="button" class="btn btn-secondary btn-sm" disabled><%= __('time.closed') %></button>
                     <% } %>
                 </td>
-                <td class="text-center">
-                    <div class="btn-group ml-3 full d-none" data-day="<%= day %>" role="group">
-                        <button type="button" class="btn btn-secondary">todo</button>
-                    </div>
+                <td class="text-center full">
+                    <button type="button" data-day="<%= day %>" class="btn btn-secondary btn-sm full d-none"></button>
                 </td>
             </tr>
         <% } %>
@@ -71,10 +69,10 @@
             });
         });
 
-        $('div.full').each(function() {
+        $('button.full').each(function() {
             var day = $(this).attr("data-day");
 
-            updateFull(day);
+            updateFull(day, this);
         });
 
 
@@ -109,6 +107,8 @@
                         day: day
                     },
                     function(state) {
+                        updateFull(day, "button.full[data-day=" + day + "]");
+
                         $(that).removeClass("disabled btn-danger btn-success btn-info");
                         $(that).attr("data-state", state);
 
@@ -132,6 +132,8 @@
                     day: day
                 },
                 function(state) {
+                    updateFull(day, "button.full[data-day=" + day + "]");
+
                     $(that).attr("data-state", state);
                     $(that).removeClass("disabled");
                 });
@@ -143,29 +145,61 @@
         });
     });
 
-    function updateFull(day) {
-        // $('div.full[data-day=' + day + '].slot').each(function() {
-        //     var dateId = $(this).attr("data-dateId");
-        //     var slotId = $(this).attr("data-slotId");
-        //     var state = $(this).attr("data-state");
-        //     var that = this;
+    $("button.full").click(function() {
+        var state = $(this).attr("data-state");
+        var day = $(this).attr("data-day");
 
-            $.post('/employee/<%= employee.id %>/availabilities/default/full', {
-                day: day
-            }, function(full) {
-                if(full !== "") {
-                    $("div.full[data-day=" + day + "]").removeClass("d-none btn-secondary")
+        var full = null;
 
-                    if(full == true) {
-                        $("div.full[data-day=" + day + "]").addClass("btn-success");
+        $(this).removeClass("btn-danger btn-success btn-secondary");
+        $(this).addClass("disabled");
+        $(this).empty();
 
-                    } else {
-                        $("div.full[data-day=" + day + "]").addClass("btn-danger");
-                    }
-                    console.log(day + ' : ' + full);
+        if(state === "disabled") {
+            full = true;
+            $(this).addClass("btn-success");
+            $(this).html('<i class="fas fa-check"></i>');
+        } else {
+            full = false;
+            $(this).addClass("btn-danger");
+            $(this).html('<i class="fas fa-times"></i>');
+        }
+
+        var that = this;
+
+        $.post('/employee/<%= employee.id %>/availabilities/default/set-full', {
+            day: day,
+            full: full
+        }, function(status) {
+            $(that).attr("data-state", full ? "enabled" : "disabled");
+            $(that).removeClass("disabled");
+        });
+    });
+
+    function updateFull(day, button) {  
+        $.post('/employee/<%= employee.id %>/availabilities/default/full', {
+            day: day
+        }, function(full) {
+            $(button).removeClass("btn-secondary btn-success btn-danger");
+            $(button).empty();
+
+            if(full !== "") {
+                $(button).removeClass("d-none disabled");
+                $(button).removeAttr("data-state");
+
+                if(full == true) {
+                    $(button).addClass("btn-success");
+                    $(button).attr("data-state", "enabled");
+                    $(button).html('<i class="fas fa-check"></i>');
+                } else {
+                    $(button).addClass("btn-danger");
+                    $(button).attr("data-state", "disabled");
+                    $(button).html('<i class="fas fa-times"></i>');
                 }
-            })
-        // });
+            } else {
+                $(button).addClass("d-none btn-secondary disabled");
+            }
+        });
     }
 </script>
 

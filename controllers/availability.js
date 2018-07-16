@@ -15,10 +15,10 @@ router.get('/:id(\\d+)/availabilities/:year(\\d{4})', function (req, res) {
 
     models.Employee.findById(id).then(employee => {
         res.render('availability/list-yearly.ejs',
-        {
-            employee: employee,
-            year: year
-        });
+            {
+                employee: employee,
+                year: year
+            });
     });
 });
 
@@ -69,12 +69,12 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})', function (re
                 }
 
                 res.render('availability/list.ejs',
-                {
-                    employee: employee,
-                    slots: slots,
-                    firstDate: firstDate,
-                    lastDate: lastDate
-                });
+                    {
+                        employee: employee,
+                        slots: slots,
+                        firstDate: firstDate,
+                        lastDate: lastDate
+                    });
             });
         })
     });
@@ -172,9 +172,9 @@ router.post('/:id(\\d+)/availabilities/state', function (req, res) {
     }).then(availability => {
         var state;
 
-        if(!availability) {
+        if (!availability) {
             state = "disabled";
-        } else if(availability.mandatory) {
+        } else if (availability.mandatory) {
             state = "mandatory";
         } else {
             state = "enabled";
@@ -210,8 +210,9 @@ router.post('/:id(\\d+)/availabilities/set', function (req, res) {
                     {
                         mandatory: false,
                     },
-                    { where:
-                        { id: availability.id }
+                    {
+                        where:
+                            { id: availability.id }
                     }
                 ).then(availability => {
                     res.send("enabled");
@@ -251,8 +252,9 @@ router.post('/:id(\\d+)/availabilities/set', function (req, res) {
                     {
                         mandatory: true,
                     },
-                    { where:
-                        { id: availability.id }
+                    {
+                        where:
+                            { id: availability.id }
                     }
                 ).then(availability => {
                     res.send("mandatory");
@@ -306,10 +308,10 @@ router.get('/:id(\\d+)/availabilities/default', function (req, res) {
                 }
 
                 res.render('availability/default.ejs',
-                {
-                    employee: employee,
-                    slots: slots
-                });
+                    {
+                        employee: employee,
+                        slots: slots
+                    });
             });
         })
     });
@@ -352,13 +354,12 @@ router.post('/:id(\\d+)/availabilities/default/full', function (req, res) {
         }
     }).then(availabilities => {
         var full = null;
-        var enabled = 0;
 
-        if(availabilities.length > 1) {
+        if (availabilities.length > 1) {
             full = true;
 
-            for(var availability of availabilities) {
-                if(!availability.full) {
+            for (var availability of availabilities) {
+                if (!availability.full) {
                     full = false;
                     break;
                 }
@@ -367,6 +368,25 @@ router.post('/:id(\\d+)/availabilities/default/full', function (req, res) {
 
         res.send(full);
     })
+});
+
+router.post('/:id(\\d+)/availabilities/default/set-full', function (req, res) {
+    var employeeId = req.params.id;
+    var day = req.body.day;
+    var full = req.body.full;
+
+    models.DefaultAvailability.update(
+        {
+            full: full
+        },
+        {
+            where: {
+                EmployeeId: employeeId,
+                day: day
+            }
+        }).then(status => {
+            res.send(true);
+        });
 });
 
 router.post('/:id(\\d+)/availabilities/default/set', function (req, res) {
@@ -393,8 +413,9 @@ router.post('/:id(\\d+)/availabilities/default/set', function (req, res) {
                     {
                         mandatory: false,
                     },
-                    { where:
-                        { id: availability.id }
+                    {
+                        where:
+                            { id: availability.id }
                     }
                 ).then(availability => {
                     res.send("enabled");
