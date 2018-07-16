@@ -146,42 +146,6 @@ Date.prototype.getWeek = function() {
                     e.preventDefault();
                 });
 
-
-
-                // $('button.slot').click(function() {
-                //     var enable = !$(this).hasClass("btn-success");
-                //     var dateId = $(this).attr("data-dateId");
-                //     var slotId = $(this).attr("data-slotId");
-                //     var state = $(this).attr("data-state");
-                //     var that = this;
-                //
-                //     $(this).addClass("disabled");
-                //     $(this).removeClass("btn-danger btn-success btn-info");
-                //
-                //     var newState;
-                //
-                //     switch(state) {
-                //         case "enabled":
-                //             $(button).addClass("btn-success");
-                //             break;
-                //         case "disabled":
-                //             $(button).addClass("btn-danger");
-                //             break;
-                //         case "mandatory":
-                //             $(button).addClass("btn-info");
-                //             break;
-                //     }
-                //     if(enable) {
-                //         $(this).removeClass("btn-danger");
-                //         $(this).addClass("btn-success")
-                //     } else {
-                //         $(this).removeClass("btn-success");
-                //         $(this).addClass("btn-danger")
-                //     }
-                //
-                //     setSlotState(enable, slotId, dateId, this);
-                // });
-
                 $("button#toggleall").click(function() {
                     var action = $(this).attr("data-action");
                     var state = (action == "enable" ? "enabled" : "disabled");

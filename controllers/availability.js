@@ -341,6 +341,34 @@ router.post('/:id(\\d+)/availabilities/default/state', function (req, res) {
     })
 });
 
+router.post('/:id(\\d+)/availabilities/default/full', function (req, res) {
+    var employeeId = req.params.id;
+    var day = req.body.day;
+
+    models.DefaultAvailability.findAll({
+        where: {
+            EmployeeId: employeeId,
+            day: day
+        }
+    }).then(availabilities => {
+        var full = null;
+        var enabled = 0;
+
+        if(availabilities.length > 1) {
+            full = true;
+
+            for(var availability of availabilities) {
+                if(!availability.full) {
+                    full = false;
+                    break;
+                }
+            }
+        }
+
+        res.send(full);
+    })
+});
+
 router.post('/:id(\\d+)/availabilities/default/set', function (req, res) {
     var employeeId = req.params.id;
     var state = req.body.state;
