@@ -1,14 +1,12 @@
 <%- include ../header.ejs %>
 
-<%
-Date.prototype.getWeek = function() {
-    var date = new Date(this.getTime());
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-    var week1 = new Date(date.getFullYear(), 0, 4);
-    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-}
-%>
+<% Date.prototype.getWeek = function() {
+var date = new Date(this.getTime());
+date.setHours(0, 0, 0, 0);
+date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+var week1 = new Date(date.getFullYear(), 0, 4);
+return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+} %>
 
 <nav aria-label="breadcrumb"v>
     <ol class="breadcrumb">
@@ -33,10 +31,8 @@ Date.prototype.getWeek = function() {
 
 <div class="row align-items-center">
     <div class="col-md-1">
-<%
-        var previousMonth = new Date(firstDate);
-        previousMonth.setMonth(previousMonth.getMonth()-1);
-%>
+        <% var previousMonth = new Date(firstDate);
+        previousMonth.setMonth(previousMonth.getMonth()-1); %>
         <a href="/employee/<%= employee.id %>/availabilities/<%= (previousMonth.getMonth() + 1).toString().padStart(2, '0') + previousMonth.getFullYear() %>" role="button"><i class="fas fa-angle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
@@ -45,180 +41,247 @@ Date.prototype.getWeek = function() {
                 <tr>
                     <th colspan="2" scope="col" class="align-middle text-center"><%= __('availability.date') %></th>
                     <th scope="col" class="text-center"><%= __('availability.slot') %></th>
+                    <th scope="col" class="text-center full"><%= __("availability.full") %></th>
                 </tr>
             </thead>
             <tbody>
                 <% for(var d=new Date(firstDate); d<=lastDate; d.setDate(d.getDate() + 1)) { %>
                     <% var dateId = d.getTime(); %>
                     <tr class="availability">
-<%
-                        if(d.getDay() == 1 || d.getTime() == firstDate.getTime()) {
-                            var days = 8 - (d.getDay() || 7);
-%>
+                        <% if(d.getDay() == 1 || d.getTime() == firstDate.getTime()) {
+                            var days = 8 - (d.getDay() || 7); %>
                             <th rowspan="<%= days %>" class="week-number align-middle"><span class="badge badge-secondary"><%= d.getWeek() %></span></th>
-<%
-                        }
-%>
-                    <th scope="row" class="date align-middle">
-                        <%= __("time.shortday" + d.getDay()) %> <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
-                    </th>
-                    <td class="type text-center">
-                    <% if(typeof slots[d.getDay()] !== 'undefined') { %>
-                        <div class="btn-group" role="group">
-                        <% for(var slot of slots[d.getDay()]) { %>
-                            <button type="button" class="btn btn-secondary btn-sm slot" data-state="" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
-                            <% } %>
-                            </div>
+                        <% } %>
+                        <th scope="row" class="date align-middle">
+                            <%= __("time.shortday" + d.getDay()) %> <%= d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth()+1).toString().padStart(2, '0') + '/' + d.getFullYear() %>
+                        </th>
+                        <td class="type text-center">
+                            <% if(typeof slots[d.getDay()] !== 'undefined') { %>
+                                <div class="btn-group" role="group">
+                                    <% for(var slot of slots[d.getDay()]) { %>
+                                        <button type="button" class="btn btn-secondary btn-sm slot" data-state="" data-dateId="<%= dateId %>" data-slotId="<%= slot.id %>"><%= slot.name %></button>
+                                    <% } %>
+                                </div>
                             <% } else { %>
                                 <button type="button" class="btn btn-secondary btn-sm disabled"><%= __('time.closed') %></button>
                             <% } %>
-                            </td>
-                            </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col-md-1">
-<%
-                    var nextMonth = new Date(firstDate);
-                    nextMonth.setMonth(nextMonth.getMonth()+1);
-%>
-                    <a href="/employee/<%= employee.id %>/availabilities/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-angle-right fa-2x"></i></a>
-                </div>
-            </div>
+                        </td>
+                        <td class="text-center full">
+                            <button type="button" data-dateId="<%= dateId %>" class="btn btn-secondary btn-sm full d-none"></button>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-1">
+        <% var nextMonth = new Date(firstDate);
+        nextMonth.setMonth(nextMonth.getMonth()+1); %>
+        <a href="/employee/<%= employee.id %>/availabilities/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-angle-right fa-2x"></i></a>
+    </div>
+</div>
 
-            <script>
-            $(document).ready(function() {
+<script>
+    $(document).ready(function() {
+        updateButtons();
+        updateAllFull();
+
+        $('button#default').click(function() {
+            $(this).find("i").removeClass("d-none");
+
+            var dateId = $(this).attr("data-dateId");
+            var that = this;
+
+            $.get('/employee/<%= employee.id %>/availabilities/' + dateId + '/default',
+            function(status) {
                 updateButtons();
+                updateAllFull();
 
-                $('button#default').click(function() {
-                    $(this).find("i").removeClass("d-none");
+                $(that).find("i").addClass("d-none");
+            });
+        });
 
-                    var dateId = $(this).attr("data-dateId");
-                    var that = this;
+        var DELAY = 400, clicks = 0, timer = null;
 
-                    $.get('/employee/<%= employee.id %>/availabilities/' + dateId + '/default',
-                    function(status) {
-                        updateButtons();
-                        $(that).find("i").addClass("d-none");
-                    });
-                });
+        $('button.slot').on("click", function() {
+            var enable = !$(this).hasClass("btn-success");
 
-                var DELAY = 400, clicks = 0, timer = null;
+            var state = $(this).attr("data-state");
+            var dateId = $(this).attr("data-dateId");
+            var slotId = $(this).attr("data-slotId");
+            var that = this;
 
-                $('button.slot').on("click", function() {
-                    var enable = !$(this).hasClass("btn-success");
+            clicks++;
 
-                    var state = $(this).attr("data-state");
-                    var dateId = $(this).attr("data-dateId");
-                    var slotId = $(this).attr("data-slotId");
-                    var that = this;
+            $(this).addClass("disabled");
+            $(this).removeClass("btn-danger btn-success btn-info");
 
-                    clicks++;
-
-                    $(this).addClass("disabled");
-                    $(this).removeClass("btn-danger btn-success btn-info");
-
-                    if(clicks === 1) {
-                        timer = setTimeout(function() {
-                            if(state !== "enabled") {
-                                $(that).addClass("btn-success");
-                            } else {
-                                $(that).addClass("btn-danger");
-                            }
-
-                            var newState = state !== "enabled" ? "enabled" : "disabled";
-
-                            setSlotState(newState, slotId, dateId, that);
-
-                            clicks = 0;
-                        }, DELAY);
+            if(clicks === 1) {
+                timer = setTimeout(function() {
+                    if(state !== "enabled") {
+                        $(that).addClass("btn-success");
                     } else {
-                        clearTimeout(timer);
-
-                        $(that).addClass("btn-info");
-
-                        setSlotState("mandatory", slotId, dateId, that);
-
-                        clicks = 0;
+                        $(that).addClass("btn-danger");
                     }
-                }).on("dblclick", function(e){
-                    e.preventDefault();
-                });
 
-                $("button#toggleall").click(function() {
-                    var action = $(this).attr("data-action");
-                    var state = (action == "enable" ? "enabled" : "disabled");
+                    var newState = state !== "enabled" ? "enabled" : "disabled";
 
-                    $('button.slot').each(function() {
-                        var dateId = $(this).attr("data-dateId");
-                        var slotId = $(this).attr("data-slotId");
+                    setSlotState(newState, slotId, dateId, that);
 
-                        setSlotState(state, slotId, dateId, this);
-                    });
+                    clicks = 0;
+                }, DELAY);
+            } else {
+                clearTimeout(timer);
 
-                    if(action == "enable") {
-                        $(this).attr("data-action", "disable");
-                        $(this).html('<%= __('availability.disableall') %>');
-                    } else {
-                        $(this).attr("data-action", "enable");
-                        $(this).html('<%= __('availability.enableall') %>');
-                    }
-                });
+                $(that).addClass("btn-info");
 
-                function setSlotState(state, slotId, dateId, button) {
-                    $.post('/employee/<%= employee.id %>/availabilities/set', {
-                        state: state,
-                        slotId: slotId,
-                        dateId: dateId
-                    },
-                    function(state) {
-                        $(button).removeClass("disabled btn-danger btn-success btn-info");
-                        $(button).attr("data-state", state);
+                setSlotState("mandatory", slotId, dateId, that);
 
-                        switch(state) {
-                            case "enabled":
-                                $(button).addClass("btn-success");
-                                break;
-                            case "disabled":
-                                $(button).addClass("btn-danger");
-                                break;
-                            case "mandatory":
-                                $(button).addClass("btn-info");
-                                break;
-                        }
-                    });
-                }
+                clicks = 0;
+            }
+        }).on("dblclick", function(e){
+            e.preventDefault();
+        });
 
-                function updateButtons() {
-                    $('button.slot').each(function() {
-                        var dateId = $(this).attr("data-dateId");
-                        var slotId = $(this).attr("data-slotId");
-                        var state = $(this).attr("data-state");
-                        var that = this;
+        $("button#toggleall").click(function() {
+            var action = $(this).attr("data-action");
+            var state = (action == "enable" ? "enabled" : "disabled");
 
-                        $.post('/employee/<%= employee.id %>/availabilities/state', {
-                            slotId: slotId,
-                            dateId: dateId
-                        }, function(state) {
-                            $(that).removeClass("btn-secondary btn-danger btn-success btn-info");
-                            $(that).attr("data-state", state);
+            $('button.slot').each(function() {
+                var dateId = $(this).attr("data-dateId");
+                var slotId = $(this).attr("data-slotId");
 
-                            switch(state) {
-                                case "enabled":
-                                    $(that).addClass("btn-success");
-                                    break;
-                                case "disabled":
-                                    $(that).addClass("btn-danger");
-                                    break;
-                                case "mandatory":
-                                    $(that).addClass("btn-info");
-                                    break;
-                            }
-                        })
-                    });
+                setSlotState(state, slotId, dateId, this);
+            });
+
+            if(action == "enable") {
+                $(this).attr("data-action", "disable");
+                $(this).html('<%= __('availability.disableall') %>');
+            } else {
+                $(this).attr("data-action", "enable");
+                $(this).html('<%= __('availability.enableall') %>');
+            }
+        });
+
+        function setSlotState(state, slotId, dateId, button) {
+            $.post('/employee/<%= employee.id %>/availabilities/set', {
+                state: state,
+                slotId: slotId,
+                dateId: dateId
+            },
+            function(state) {
+                updateFull(dateId, "button.full[data-dateId=" + dateId + "]");
+
+                $(button).removeClass("disabled btn-danger btn-success btn-info");
+                $(button).attr("data-state", state);
+
+                switch(state) {
+                    case "enabled":
+                        $(button).addClass("btn-success");
+                        break;
+                    case "disabled":
+                        $(button).addClass("btn-danger");
+                        break;
+                    case "mandatory":
+                        $(button).addClass("btn-info");
+                        break;
                 }
             });
-            </script>
+        }
 
-            <%- include ../footer.ejs %>
+        function updateButtons() {
+            $('button.slot').each(function() {
+                var dateId = $(this).attr("data-dateId");
+                var slotId = $(this).attr("data-slotId");
+                var state = $(this).attr("data-state");
+                var that = this;
+
+                $.post('/employee/<%= employee.id %>/availabilities/state', {
+                    slotId: slotId,
+                    dateId: dateId
+                }, function(state) {
+                    $(that).removeClass("btn-secondary btn-danger btn-success btn-info");
+                    $(that).attr("data-state", state);
+
+                    switch(state) {
+                        case "enabled":
+                            $(that).addClass("btn-success");
+                            break;
+                        case "disabled":
+                            $(that).addClass("btn-danger");
+                            break;
+                        case "mandatory":
+                            $(that).addClass("btn-info");
+                            break;
+                    }
+                })
+            });
+        }
+
+        $("button.full").click(function() {
+            var state = $(this).attr("data-state");
+            var dateId = $(this).attr("data-dateId");
+
+            var full = null;
+
+            $(this).removeClass("btn-danger btn-success btn-secondary");
+            $(this).addClass("disabled");
+            $(this).empty();
+
+            if(state === "disabled") {
+                full = true;
+                $(this).addClass("btn-success");
+                $(this).html('<i class="fas fa-check"></i>');
+            } else {
+                full = false;
+                $(this).addClass("btn-danger");
+                $(this).html('<i class="fas fa-times"></i>');
+            }
+
+            var that = this;
+
+            $.post('/employee/<%= employee.id %>/availabilities/set-full', {
+                dateId: dateId,
+                full: full
+            }, function(status) {
+                $(that).attr("data-state", full ? "enabled" : "disabled");
+                $(that).removeClass("disabled");
+            });
+        });
+
+        function updateFull(dateId, button) {
+            $.post('/employee/<%= employee.id %>/availabilities/full', {
+                dateId: dateId
+            }, function(full) {
+                $(button).removeClass("btn-secondary btn-success btn-danger");
+                $(button).empty();
+
+                if(full !== "") {
+                    $(button).removeClass("d-none disabled");
+                    $(button).removeAttr("data-state");
+
+                    if(full == true) {
+                        $(button).addClass("btn-success");
+                        $(button).attr("data-state", "enabled");
+                        $(button).html('<i class="fas fa-check"></i>');
+                    } else {
+                        $(button).addClass("btn-danger");
+                        $(button).attr("data-state", "disabled");
+                        $(button).html('<i class="fas fa-times"></i>');
+                    }
+                } else {
+                    $(button).addClass("d-none btn-secondary disabled");
+                }
+            });
+        }
+
+        function updateAllFull() {
+            $('button.full').each(function() {
+                var dateId = $(this).attr("data-dateId");
+                updateFull(dateId, this);
+            });
+        }
+    });
+</script>
+
+<%- include ../footer.ejs %>

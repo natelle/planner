@@ -15,10 +15,10 @@ router.get('/:id(\\d+)/availabilities/:year(\\d{4})', function (req, res) {
 
     models.Employee.findById(id).then(employee => {
         res.render('availability/list-yearly.ejs',
-            {
-                employee: employee,
-                year: year
-            });
+        {
+            employee: employee,
+            year: year
+        });
     });
 });
 
@@ -69,12 +69,12 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})', function (re
                 }
 
                 res.render('availability/list.ejs',
-                    {
-                        employee: employee,
-                        slots: slots,
-                        firstDate: firstDate,
-                        lastDate: lastDate
-                    });
+                {
+                    employee: employee,
+                    slots: slots,
+                    firstDate: firstDate,
+                    lastDate: lastDate
+                });
             });
         })
     });
@@ -139,11 +139,13 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/default', func
 
                     if (typeof availabilities[day] !== 'undefined') {
                         for (var availability of availabilities[day]) {
+                            console.log(availability.full);
                             promises.push(models.Availability.create({
                                 EmployeeId: id,
                                 day: date,
                                 slotId: availability.slot.id,
-                                mandatory: availability.mandatory
+                                mandatory: availability.mandatory,
+                                full: availability.full
                             }));
                         }
                     }
@@ -184,173 +186,15 @@ router.post('/:id(\\d+)/availabilities/state', function (req, res) {
     })
 });
 
-router.post('/:id(\\d+)/availabilities/set', function (req, res) {
+router.post('/:id(\\d+)/availabilities/full', function (req, res) {
     var employeeId = req.params.id;
-    var state = req.body.state;
     var date = new Date(parseInt(req.body.dateId));
-    var slotId = req.body.slotId;
 
-    if (state === "enabled") {
-        models.Availability.findOrCreate({
-            where: {
-                EmployeeId: employeeId,
-                day: date,
-                slotId: slotId,
-                planningId: null
-            }, defaults: {
-                EmployeeId: employeeId,
-                day: date,
-                slotId: slotId,
-                mandatory: false,
-                planningId: null
-            }
-        }).spread((availability, created) => {
-            if (!created) {
-                models.Availability.update(
-                    {
-                        mandatory: false,
-                    },
-                    {
-                        where:
-                            { id: availability.id }
-                    }
-                ).then(availability => {
-                    res.send("enabled");
-                });
-            } else {
-                res.send("enabled");
-            }
-        });
-    } else if (state === "disabled") {
-        models.Availability.destroy({
-            where: {
-                EmployeeId: employeeId,
-                day: date,
-                slotId: slotId,
-                planningId: null
-            }
-        }).then(status => {
-            res.send("disabled")
-        });
-    } else if (state === "mandatory") {
-        models.Availability.findOrCreate({
-            where: {
-                EmployeeId: employeeId,
-                day: date,
-                slotId: slotId,
-                planningId: null
-            }, defaults: {
-                EmployeeId: employeeId,
-                day: date,
-                slotId: slotId,
-                mandatory: true,
-                planningId: null
-            }
-        }).spread((availability, created) => {
-            if (!created) {
-                models.Availability.update(
-                    {
-                        mandatory: true,
-                    },
-                    {
-                        where:
-                            { id: availability.id }
-                    }
-                ).then(availability => {
-                    res.send("mandatory");
-                });
-            } else {
-                res.send("mandatory");
-            }
-        });
-    }
-});
-
-router.get('/:id(\\d+)/availabilities/default', function (req, res) {
-    var id = req.params.id;
-
-    models.Employee.findById(id, {
-        include: [{
-            model: models.EmployeeCategory,
-            as: 'category'
-        }]
-    }).then(employee => {
-        models.Slot.findAll({
-            where: {
-                categoryId: employee.category.id
-            },
-            order: ['begin']
-        }).then(rawSlots => {
-            var promises = [];
-
-            if (rawSlots.length == 0) {
-                promises.push(models.Slot.findAll({
-                    where: {
-                        categoryId: null
-                    },
-                    order: ['begin']
-                }).then(defaultSlots => {
-                    rawSlots = defaultSlots;
-                }))
-            }
-
-            Promise.all(promises).then(values => {
-                var slots = {}
-
-                for (var slot of rawSlots) {
-                    for (var day of slot.days) {
-                        if (typeof slots[day] === 'undefined') {
-                            slots[day] = [slot];
-                        } else {
-                            slots[day].push(slot)
-                        }
-                    }
-                }
-
-                res.render('availability/default.ejs',
-                    {
-                        employee: employee,
-                        slots: slots
-                    });
-            });
-        })
-    });
-});
-
-router.post('/:id(\\d+)/availabilities/default/state', function (req, res) {
-    var employeeId = req.params.id;
-    var day = req.body.day;
-    var slotId = req.body.slotId;
-
-    models.DefaultAvailability.findOne({
+    models.Availability.findAll({
         where: {
             EmployeeId: employeeId,
-            day: day,
-            slotId: slotId
-        }
-    }).then(availability => {
-        var state;
-
-        if (!availability) {
-            state = "disabled";
-        } else if (availability.mandatory) {
-            state = "mandatory";
-        } else {
-            state = "enabled";
-        }
-
-        res.send(state);
-    })
-});
-
-router.post('/:id(\\d+)/availabilities/default/full', function (req, res) {
-    var employeeId = req.params.id;
-    var day = req.body.day;
-
-    models.DefaultAvailability.findAll({
-        where: {
-            EmployeeId: employeeId,
-            day: day
+            day: date,
+            planningId: null
         }
     }).then(availabilities => {
         var full = null;
@@ -366,130 +210,374 @@ router.post('/:id(\\d+)/availabilities/default/full', function (req, res) {
             }
         }
 
-        res.send(full);
+        var promises = [];
+
+        for(var availability of availabilities) {
+            if(availability.full !== full) {
+                promises.push(models.Availability.update(
+                    {
+                        full: full
+                    },
+                    {
+                        where: {
+                            id: availability.id
+                        }
+                    }
+                ));
+            }
+        }
+
+        Promise.all(promises).then(status => {
+            res.send(full);
+        });
     })
 });
 
-router.post('/:id(\\d+)/availabilities/default/set-full', function (req, res) {
+router.post('/:id(\\d+)/availabilities/set-full', function (req, res) {
     var employeeId = req.params.id;
-    var day = req.body.day;
+    var date = new Date(parseInt(req.body.dateId));
     var full = req.body.full;
 
-    models.DefaultAvailability.update(
+    models.Availability.update(
         {
             full: full
         },
         {
             where: {
                 EmployeeId: employeeId,
-                day: day
+                day: date,
+                planningId: null
             }
         }).then(status => {
             res.send(true);
         });
-});
-
-router.post('/:id(\\d+)/availabilities/default/set', function (req, res) {
-    var employeeId = req.params.id;
-    var state = req.body.state;
-    var day = req.body.day;
-    var slotId = req.body.slotId;
-
-    if (state === "enabled") {
-        models.DefaultAvailability.findOrCreate({
-            where: {
-                EmployeeId: employeeId,
-                day: day,
-                slotId: slotId,
-            }, defaults: {
-                EmployeeId: employeeId,
-                day: day,
-                slotId: slotId,
-                mandatory: false
-            }
-        }).spread((availability, created) => {
-            if (!created) {
-                models.DefaultAvailability.update(
-                    {
-                        mandatory: false,
-                    },
-                    {
-                        where:
-                            { id: availability.id }
-                    }
-                ).then(availability => {
-                    res.send("enabled");
-                });
-            } else {
-                res.send("enabled");
-            }
-        });
-    } else if (state === "disabled") {
-        models.DefaultAvailability.destroy({
-            where: {
-                EmployeeId: employeeId,
-                day: day,
-                slotId: slotId
-            }
-        }).then(status => {
-            res.send("disabled")
-        });
-    } else if (state === "mandatory") {
-        models.DefaultAvailability.findOrCreate({
-            where: {
-                EmployeeId: employeeId,
-                day: day,
-                slotId: slotId
-            }, defaults: {
-                EmployeeId: employeeId,
-                day: day,
-                slotId: slotId,
-                mandatory: true
-            }
-        }).spread((availability, created) => {
-            if (!created) {
-                models.DefaultAvailability.update(
-                    {
-                        mandatory: true,
-                    },
-                    {
-                        where: { id: availability.id }
-                    }
-                ).then(availability => {
-                    res.send("mandatory");
-                });
-            } else {
-                res.send("mandatory");
-            }
-        });
-    }
-});
-
-router.get('/availabilities/category/:categoryId(\\d+)/slot/:slotId(\\d+)/:dateId(\\d{12,})', function (req, res) {
-    var categoryId = req.params.categoryId;
-    categoryId = categoryId !== '0' ? categoryId : null;
-    var slotId = req.params.slotId;
-    var date = new Date(parseInt(req.params.dateId));
-
-    // TODO if categoryId == null, not filter
-
-    models.Availability.findAll({
-        include: [{
-            model: models.Employee,
-            where: categoryId ? { categoryId: categoryId } : {}
-        }],
-        where: {
-            day: date,
-            slotId: slotId,
-            planningId: null
-        },
-        order: [
-            [models.Employee, 'lastName', 'ASC'],
-            [models.Employee, 'firstName', 'ASC']
-        ]
-    }).then(availabilities => {
-        res.send(availabilities);
     });
-});
 
-module.exports = router;
+    router.post('/:id(\\d+)/availabilities/set', function (req, res) {
+        var employeeId = req.params.id;
+        var state = req.body.state;
+        var date = new Date(parseInt(req.body.dateId));
+        var slotId = req.body.slotId;
+
+        if (state === "enabled") {
+            models.Availability.findOrCreate({
+                where: {
+                    EmployeeId: employeeId,
+                    day: date,
+                    slotId: slotId,
+                    planningId: null
+                }, defaults: {
+                    EmployeeId: employeeId,
+                    day: date,
+                    slotId: slotId,
+                    mandatory: false,
+                    planningId: null
+                }
+            }).spread((availability, created) => {
+                if (!created) {
+                    models.Availability.update(
+                        {
+                            mandatory: false,
+                        },
+                        {
+                            where:
+                            { id: availability.id }
+                        }
+                    ).then(availability => {
+                        res.send("enabled");
+                    });
+                } else {
+                    res.send("enabled");
+                }
+            });
+        } else if (state === "disabled") {
+            models.Availability.destroy({
+                where: {
+                    EmployeeId: employeeId,
+                    day: date,
+                    slotId: slotId,
+                    planningId: null
+                }
+            }).then(status => {
+                res.send("disabled")
+            });
+        } else if (state === "mandatory") {
+            models.Availability.findOrCreate({
+                where: {
+                    EmployeeId: employeeId,
+                    day: date,
+                    slotId: slotId,
+                    planningId: null
+                }, defaults: {
+                    EmployeeId: employeeId,
+                    day: date,
+                    slotId: slotId,
+                    mandatory: true,
+                    planningId: null
+                }
+            }).spread((availability, created) => {
+                if (!created) {
+                    models.Availability.update(
+                        {
+                            mandatory: true,
+                        },
+                        {
+                            where:
+                            { id: availability.id }
+                        }
+                    ).then(availability => {
+                        res.send("mandatory");
+                    });
+                } else {
+                    res.send("mandatory");
+                }
+            });
+        }
+    });
+
+    router.get('/:id(\\d+)/availabilities/default', function (req, res) {
+        var id = req.params.id;
+
+        models.Employee.findById(id, {
+            include: [{
+                model: models.EmployeeCategory,
+                as: 'category'
+            }]
+        }).then(employee => {
+            models.Slot.findAll({
+                where: {
+                    categoryId: employee.category.id
+                },
+                order: ['begin']
+            }).then(rawSlots => {
+                var promises = [];
+
+                if (rawSlots.length == 0) {
+                    promises.push(models.Slot.findAll({
+                        where: {
+                            categoryId: null
+                        },
+                        order: ['begin']
+                    }).then(defaultSlots => {
+                        rawSlots = defaultSlots;
+                    }))
+                }
+
+                Promise.all(promises).then(values => {
+                    var slots = {}
+
+                    for (var slot of rawSlots) {
+                        for (var day of slot.days) {
+                            if (typeof slots[day] === 'undefined') {
+                                slots[day] = [slot];
+                            } else {
+                                slots[day].push(slot)
+                            }
+                        }
+                    }
+
+                    res.render('availability/default.ejs',
+                    {
+                        employee: employee,
+                        slots: slots
+                    });
+                });
+            })
+        });
+    });
+
+    router.post('/:id(\\d+)/availabilities/default/state', function (req, res) {
+        var employeeId = req.params.id;
+        var day = req.body.day;
+        var slotId = req.body.slotId;
+
+        models.DefaultAvailability.findOne({
+            where: {
+                EmployeeId: employeeId,
+                day: day,
+                slotId: slotId
+            }
+        }).then(availability => {
+            var state;
+
+            if (!availability) {
+                state = "disabled";
+            } else if (availability.mandatory) {
+                state = "mandatory";
+            } else {
+                state = "enabled";
+            }
+
+            res.send(state);
+        })
+    });
+
+    router.post('/:id(\\d+)/availabilities/default/full', function (req, res) {
+        var employeeId = req.params.id;
+        var day = req.body.day;
+
+        models.DefaultAvailability.findAll({
+            where: {
+                EmployeeId: employeeId,
+                day: day
+            }
+        }).then(availabilities => {
+            var full = null;
+
+            if (availabilities.length > 1) {
+                full = true;
+
+                for (var availability of availabilities) {
+                    if (!availability.full) {
+                        full = false;
+                        break;
+                    }
+                }
+            }
+
+            var promises = [];
+
+            for(var availability of availabilities) {
+                if(availability.full !== full) {
+                    promises.push(models.DefaultAvailability.update(
+                        {
+                            full: full
+                        },
+                        {
+                            where: {
+                                id: availability.id
+                            }
+                        }
+                    ));
+                }
+            }
+
+            Promise.all(promises).then(status => {
+                res.send(full);
+            });
+        })
+    });
+
+    router.post('/:id(\\d+)/availabilities/default/set-full', function (req, res) {
+        var employeeId = req.params.id;
+        var day = req.body.day;
+        var full = req.body.full;
+
+        models.DefaultAvailability.update(
+            {
+                full: full
+            },
+            {
+                where: {
+                    EmployeeId: employeeId,
+                    day: day
+                }
+            }).then(status => {
+                res.send(true);
+            });
+        });
+
+        router.post('/:id(\\d+)/availabilities/default/set', function (req, res) {
+            var employeeId = req.params.id;
+            var state = req.body.state;
+            var day = req.body.day;
+            var slotId = req.body.slotId;
+
+            if (state === "enabled") {
+                models.DefaultAvailability.findOrCreate({
+                    where: {
+                        EmployeeId: employeeId,
+                        day: day,
+                        slotId: slotId,
+                    }, defaults: {
+                        EmployeeId: employeeId,
+                        day: day,
+                        slotId: slotId,
+                        mandatory: false
+                    }
+                }).spread((availability, created) => {
+                    if (!created) {
+                        models.DefaultAvailability.update(
+                            {
+                                mandatory: false,
+                            },
+                            {
+                                where:
+                                { id: availability.id }
+                            }
+                        ).then(availability => {
+                            res.send("enabled");
+                        });
+                    } else {
+                        res.send("enabled");
+                    }
+                });
+            } else if (state === "disabled") {
+                models.DefaultAvailability.destroy({
+                    where: {
+                        EmployeeId: employeeId,
+                        day: day,
+                        slotId: slotId
+                    }
+                }).then(status => {
+                    res.send("disabled")
+                });
+            } else if (state === "mandatory") {
+                models.DefaultAvailability.findOrCreate({
+                    where: {
+                        EmployeeId: employeeId,
+                        day: day,
+                        slotId: slotId
+                    }, defaults: {
+                        EmployeeId: employeeId,
+                        day: day,
+                        slotId: slotId,
+                        mandatory: true
+                    }
+                }).spread((availability, created) => {
+                    if (!created) {
+                        models.DefaultAvailability.update(
+                            {
+                                mandatory: true,
+                            },
+                            {
+                                where: { id: availability.id }
+                            }
+                        ).then(availability => {
+                            res.send("mandatory");
+                        });
+                    } else {
+                        res.send("mandatory");
+                    }
+                });
+            }
+        });
+
+        router.get('/availabilities/category/:categoryId(\\d+)/slot/:slotId(\\d+)/:dateId(\\d{12,})', function (req, res) {
+            var categoryId = req.params.categoryId;
+            categoryId = categoryId !== '0' ? categoryId : null;
+            var slotId = req.params.slotId;
+            var date = new Date(parseInt(req.params.dateId));
+
+            // TODO if categoryId == null, not filter
+
+            models.Availability.findAll({
+                include: [{
+                    model: models.Employee,
+                    where: categoryId ? { categoryId: categoryId } : {}
+                }],
+                where: {
+                    day: date,
+                    slotId: slotId,
+                    planningId: null
+                },
+                order: [
+                    [models.Employee, 'lastName', 'ASC'],
+                    [models.Employee, 'firstName', 'ASC']
+                ]
+            }).then(availabilities => {
+                res.send(availabilities);
+            });
+        });
+
+        module.exports = router;

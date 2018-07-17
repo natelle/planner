@@ -176,7 +176,7 @@
         });
     });
 
-    function updateFull(day, button) {  
+    function updateFull(day, button) {
         $.post('/employee/<%= employee.id %>/availabilities/default/full', {
             day: day
         }, function(full) {

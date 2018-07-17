@@ -9,6 +9,7 @@ var Planner = function (params) {
     this.agendas = params.agendas;
     this.availabilities = params.availabilities;
     this.category = params.category;
+    this.fullSlots = {};
 };
 
 Planner.prototype.findAgendas = function (date) {
@@ -91,8 +92,7 @@ Planner.prototype.buildModel = function () {
     }
 
     var variables = {}, constraintsAvailability = {};
-    var optimizeMinTime = {}, optimizeWholeDay = {}, optimizeSlot = {};
-
+    var optimizeMinTime = {}, optimizeSlot = {};
 
     for (var d = new Date(this.firstDate); d <= this.lastDate; d.setDate(d.getDate() + 1)) {
         var availabilities = this.findAvailabilities(d);
@@ -100,27 +100,47 @@ Planner.prototype.buildModel = function () {
         for (var availability of availabilities) {
             var employeeId = availability.EmployeeId;
 
+            var slotId = availability.slotId;
+            if(availability.full) {
+                slotId = 'f' + d.getTime();
+
+                if(typeof this.fullSlots[slotId] === "undefined") {
+                    this.fullSlots[slotId] = [availability.slotId];
+                } else {
+                    this.fullSlots[slotId].push(availability.slotId);
+                }
+            }
+
+            var mainKey = employeeId + '-' + d.getTime() + '-' + slotId;
             var key = d.getTime() + '-' + availability.slotId;
-            var mainKey = employeeId + '-' + key
-            variables[mainKey] = {};
+
+            if(typeof variables[mainKey] === "undefined") {
+                variables[mainKey] = {};
+            }
+            
             variables[mainKey][key] = 1;
-            variables[mainKey][employeeId + '-' + d.getTime()] = 1;
-            variables[mainKey][employeeId] = 1;
+            if(typeof variables[mainKey][employeeId] === "undefined") {
+                variables[mainKey][employeeId] = 0;
+            }
+            variables[mainKey][employeeId]++;
 
             var subkey;
             switch (this.category.interval) {
                 case "day":
-                    subkey = d.getTime();
-                    break;
+                subkey = d.getTime();
+                break;
                 case "week":
-                    subkey = d.getWeek();
-                    break;
+                subkey = d.getWeek();
+                break;
                 case "month":
-                    subkey = d.getMonth();
-                    break;
+                subkey = d.getMonth();
+                break;
             }
 
-            variables[mainKey][employeeId + '-' + subkey] = availability.slot.getDuration();
+            if(typeof variables[mainKey][employeeId + '-' + subkey] === 'undefined') {
+                variables[mainKey][employeeId + '-' + subkey] = 0;
+            }
+            variables[mainKey][employeeId + '-' + subkey] += availability.slot.getDuration();
 
             if(availability.Employee.number) {
                 constraintsAvailability[employeeId + '-' + subkey] = { min: availability.Employee.number };
@@ -132,7 +152,6 @@ Planner.prototype.buildModel = function () {
 
             model.binaries[mainKey] = 1;
             optimizeMinTime[employeeId + '-' + subkey] = "min";
-            optimizeWholeDay[employeeId + '-' + d.getTime()] = "max";
             optimizeSlot[employeeId] = "min";
         }
     }
@@ -146,7 +165,6 @@ Planner.prototype.buildModel = function () {
     model.optimize = Object.assign(
         {},
         //shuffle(optimizeMinTime),
-        //shuffle(optimizeWholeDay),
         //shuffle(optimizeSlot)
     );
 
@@ -177,16 +195,29 @@ Planner.prototype.generate = function () {
             case 'feasible':
             case 'result':
             case 'bounded':
-                break;
+            break;
             default:
-                var pattern = /^(\d+)-(\d+)-(\d+)$/;
-                var match;
+            var pattern = /^(\d+)-(\d+)-(f?\d+)$/;
+            var match;
 
-                if ((match = key.match(pattern)) && results[key] == 1) {
-                    var employeeId = match[1];
-                    var date = new Date(parseInt(match[2]));
-                    var slotId = match[3];
+            if ((match = key.match(pattern)) && results[key] == 1) {
+                var employeeId = match[1];
+                var date = new Date(parseInt(match[2]));
 
+                var slotId = match[3];
+                if(slotId.match(/f/)) {
+                    var slots = this.fullSlots[slotId];
+
+                    for(var slot of slots) {
+                        var presence = {
+                            day: date,
+                            slotId: slot,
+                            EmployeeId: employeeId
+                        }
+
+                        planning.presences.push(presence);
+                    }
+                } else {
                     var presence = {
                         day: date,
                         slotId: slotId,
@@ -195,6 +226,7 @@ Planner.prototype.generate = function () {
 
                     planning.presences.push(presence);
                 }
+            }
         }
     }
 
