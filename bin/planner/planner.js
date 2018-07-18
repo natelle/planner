@@ -66,6 +66,20 @@ Planner.prototype.findAvailabilities = function (date) {
     return availabilities;
 }
 
+Planner.prototype.getTotalAgendaTime = function () {
+    var total = 0;
+
+    for (var d = new Date(this.firstDate); d <= this.lastDate; d.setDate(d.getDate() + 1)) {
+        var agendas = this.findAgendas(d);
+
+        for (var agenda of agendas) {
+            total += agenda.slot.getDuration();
+        }
+    }
+
+    return total;
+}
+
 Planner.prototype.buildModel = function () {
     var model = {
         optimize: {},
@@ -182,6 +196,10 @@ Planner.prototype.generate = function () {
     // var resultsbis = solver.MultiObjective(model);
     // console.log(resultsbis.midpoint.feasible);
 
+    if(results.feasible) {
+        //todo: dichotomic search of the best %
+    }
+
     var planning = new models.Planning();
 
     planning.firstDate = this.firstDate;
@@ -229,6 +247,8 @@ Planner.prototype.generate = function () {
             }
         }
     }
+
+    // todo: post balancing
 
     return planning;
 };
