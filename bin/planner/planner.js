@@ -80,6 +80,28 @@ Planner.prototype.getTotalAgendaTime = function () {
     return total;
 }
 
+Planner.prototype.getTotalEmployees = function (hasNumber) {
+    hasNumber = (typeof hasNumber !== 'undefined') ? hasNumber : true;
+
+    var rawEmployees = {};
+
+    for (var availability of this.availabilities) {
+        if(!hasNumber || availability.Employee.number) {
+            if(typeof rawEmployees[availability.Employee.id] === 'undefined') {
+                rawEmployees[availability.Employee.id] = availability.Employee;
+            }
+        }
+    }
+
+    var employees = [];
+
+    for(var employee of rawEmployees) {
+        employees.push(employee);
+    }
+
+    return employees;
+}
+
 Planner.prototype.buildModel = function () {
     var model = {
         optimize: {},
