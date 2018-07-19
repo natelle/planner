@@ -139,7 +139,6 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/default', func
 
                     if (typeof availabilities[day] !== 'undefined') {
                         for (var availability of availabilities[day]) {
-                            console.log(availability.full);
                             promises.push(models.Availability.create({
                                 EmployeeId: id,
                                 day: date,
