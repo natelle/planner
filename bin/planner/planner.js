@@ -6,7 +6,7 @@ var Planner = function (params) {
     this.lastDate = params.lastDate;
     this.employees = params.employees;
     this.slots = params.slots,
-    this.agendas = params.agendas;
+        this.agendas = params.agendas;
     this.availabilities = params.availabilities;
     this.category = params.category;
     this.fullSlots = {};
@@ -78,29 +78,22 @@ Planner.prototype.getTotalAgendaTime = function () {
     }
 
     return total;
-}
+};
 
 Planner.prototype.getTotalEmployees = function (hasNumber) {
     hasNumber = (typeof hasNumber !== 'undefined') ? hasNumber : true;
 
-    var rawEmployees = {};
-
+    var employees = {};
     for (var availability of this.availabilities) {
-        if(!hasNumber || availability.Employee.number) {
-            if(typeof rawEmployees[availability.Employee.id] === 'undefined') {
-                rawEmployees[availability.Employee.id] = availability.Employee;
+        if (!hasNumber || availability.Employee.number) {
+            if (typeof employees[availability.Employee.id] === 'undefined') {
+                employees[availability.Employee.id] = availability.Employee;
             }
         }
     }
 
-    var employees = [];
-
-    for(var employee of rawEmployees) {
-        employees.push(employee);
-    }
-
-    return employees;
-}
+    return Object.values(employees);
+};
 
 Planner.prototype.buildModel = function () {
     var model = {
@@ -116,7 +109,7 @@ Planner.prototype.buildModel = function () {
         var agendas = this.findAgendas(d);
 
         for (var agenda of agendas) {
-            if(agenda.number) {
+            if (agenda.number) {
                 constraintsAgenda[d.getTime() + '-' + agenda.slotId] = { equal: agenda.number };
             }
         }
@@ -137,10 +130,10 @@ Planner.prototype.buildModel = function () {
             var employeeId = availability.EmployeeId;
 
             var slotId = availability.slotId;
-            if(availability.full) {
+            if (availability.full) {
                 slotId = 'f' + d.getTime();
 
-                if(typeof this.fullSlots[slotId] === "undefined") {
+                if (typeof this.fullSlots[slotId] === "undefined") {
                     this.fullSlots[slotId] = [availability.slotId];
                 } else {
                     this.fullSlots[slotId].push(availability.slotId);
@@ -150,12 +143,12 @@ Planner.prototype.buildModel = function () {
             var mainKey = employeeId + '-' + d.getTime() + '-' + slotId;
             var key = d.getTime() + '-' + availability.slotId;
 
-            if(typeof variables[mainKey] === "undefined") {
+            if (typeof variables[mainKey] === "undefined") {
                 variables[mainKey] = {};
             }
-            
+
             variables[mainKey][key] = 1;
-            if(typeof variables[mainKey][employeeId] === "undefined") {
+            if (typeof variables[mainKey][employeeId] === "undefined") {
                 variables[mainKey][employeeId] = 0;
             }
             variables[mainKey][employeeId]++;
@@ -163,25 +156,25 @@ Planner.prototype.buildModel = function () {
             var subkey;
             switch (this.category.interval) {
                 case "day":
-                subkey = d.getTime();
-                break;
+                    subkey = d.getTime();
+                    break;
                 case "week":
-                subkey = d.getWeek();
-                break;
+                    subkey = d.getWeek();
+                    break;
                 case "month":
-                subkey = d.getMonth();
-                break;
+                    subkey = d.getMonth();
+                    break;
             }
 
-            if(typeof variables[mainKey][employeeId + '-' + subkey] === 'undefined') {
+            if (typeof variables[mainKey][employeeId + '-' + subkey] === 'undefined') {
                 variables[mainKey][employeeId + '-' + subkey] = 0;
             }
             variables[mainKey][employeeId + '-' + subkey] += availability.slot.getDuration();
 
-            if(availability.Employee.number) {
+            if (availability.Employee.number) {
                 constraintsAvailability[employeeId + '-' + subkey] = { min: availability.Employee.number };
             }
-            if(availability.mandatory) {
+            if (availability.mandatory) {
                 variables[mainKey][employeeId + '-' + key] = 1;
                 constraintsAvailability[mainKey] = { equal: 1 };
             }
@@ -207,72 +200,171 @@ Planner.prototype.buildModel = function () {
     return model;
 };
 
-Planner.prototype.generate = function () {
+Planner.prototype.generateRaw = async function () {
     var model = this.buildModel();
-    var results = solver.Solve(model);
     console.log("MODEL");
-    console.log(model);
-    //console.log("RESULTS");
-    //console.log(results);
-    //
-    // var resultsbis = solver.MultiObjective(model);
-    // console.log(resultsbis.midpoint.feasible);
+    console.log(model.constraints);
 
-    if(results.feasible) {
-        //todo: dichotomic search of the best %
-    }
+    var planningPromise = new Promise(function (resolve) {
+        var results = solver.Solve(model);
 
-    var planning = new models.Planning();
+        console.log("RESULTS");
+        console.log(results.feasible);
 
-    planning.firstDate = this.firstDate;
-    planning.lastDate = this.lastDate;
-    planning.validated = false;
-    planning.success = results.feasible;
-    planning.presences = [];
+        var planning = new models.Planning();
 
-    for (var key in results) {
-        switch (key) {
-            case 'feasible':
-            case 'result':
-            case 'bounded':
-            break;
-            default:
-            var pattern = /^(\d+)-(\d+)-(f?\d+)$/;
-            var match;
+        planning.firstDate = this.firstDate;
+        planning.lastDate = this.lastDate;
+        planning.validated = false;
+        planning.success = results.feasible;
+        planning.presences = [];
 
-            if ((match = key.match(pattern)) && results[key] == 1) {
-                var employeeId = match[1];
-                var date = new Date(parseInt(match[2]));
+        for (var key in results) {
+            switch (key) {
+                case 'feasible':
+                case 'result':
+                case 'bounded':
+                    break;
+                default:
+                    var pattern = /^(\d+)-(\d+)-(f?\d+)$/;
+                    var match;
 
-                var slotId = match[3];
-                if(slotId.match(/f/)) {
-                    var slots = this.fullSlots[slotId];
+                    if ((match = key.match(pattern)) && results[key] == 1) {
+                        var employeeId = match[1];
+                        var date = new Date(parseInt(match[2]));
 
-                    for(var slot of slots) {
-                        var presence = {
-                            day: date,
-                            slotId: slot,
-                            EmployeeId: employeeId
+                        var slotId = match[3];
+                        if (slotId.match(/f/)) {
+                            var slots = this.fullSlots[slotId];
+
+                            for (var slot of slots) {
+                                var presence = {
+                                    day: date,
+                                    slotId: slot,
+                                    EmployeeId: employeeId
+                                }
+
+                                planning.presences.push(presence);
+                            }
+                        } else {
+                            var presence = {
+                                day: date,
+                                slotId: slotId,
+                                EmployeeId: employeeId
+                            }
+
+                            planning.presences.push(presence);
                         }
-
-                        planning.presences.push(presence);
                     }
-                } else {
-                    var presence = {
-                        day: date,
-                        slotId: slotId,
-                        EmployeeId: employeeId
-                    }
-
-                    planning.presences.push(presence);
-                }
             }
         }
+
+    });
+
+    var maxTimePromise = this.maxTimePromise();
+
+    await Promise.race([planningPromise, maxTimePromise]).then(values => {
+        console.log("VALUES");        
+        console.log(values);
+        
+    })
+
+    //return planning;
+};
+
+Planner.prototype.maxTimePromise = function () {
+    return new Promise(function (resolve, reject) {
+        setTimeout(resolve, 5000, false);
+    });
+}
+
+Planner.prototype.generate = function () {
+    var planning = this.generateRaw();
+
+
+    //var planning = this.generateRaw();
+
+    if (false && planning.success) {
+        console.log("feasible. start dichotomy search");
+
+        var totalAgenda = this.getTotalAgendaTime();
+        var employees = this.getTotalEmployees();
+
+        var realNumbers = {};
+
+        for (var employee of employees) {
+            var presences = planning.presences.filter(p => p.EmployeeId == employee.id);
+            var duration = 0;
+
+            for (var presence of presences) {
+                var slot = this.slots.find(slot => slot.id == presence.slotId);
+                duration += slot.getDuration();
+            }
+
+            realNumbers[employee.id] = duration;
+        }
+
+        var theoreticalAvg = employees.map(e => e.number).reduce((a, b) => a + b) / employees.length;
+        var realAvg = Object.values(realNumbers).reduce((a, b) => a + b) / employees.length;
+
+        var theoreticalNumbers = {};
+        for (var employee of employees) {
+            theoreticalNumbers[employee.id] = employee.number;
+        }
+
+        var idealNumbers = {};
+        for (var employee of employees) {
+            idealNumbers[employee.id] = (employee.number * realAvg) / theoreticalAvg;
+        }
+
+        var idealDiff = {};
+        for (var employeeId in idealNumbers) {
+            idealDiff[employeeId] = idealNumbers[employeeId] - theoreticalNumbers[employeeId];
+        }
+        console.log(theoreticalNumbers)
+        console.log(idealNumbers);
+        console.log(idealDiff);
+
+        var value = 0.75, minValue = 0, maxValue = 1;
+        var iteration = 10;
+        var balancedPlanning;
+
+        for (var i = 0; i < 0; i++) {
+            console.log("DICHOTOMY -  value = " + value);
+
+            for (var employeeId in idealDiff) {
+                for (var availability of this.availabilities) {
+                    if (availability.EmployeeId == employeeId) {
+                        availability.Employee.number = theoreticalNumbers[employeeId] + value * idealDiff[employeeId];
+                    }
+                }
+            }
+
+            balancedPlanning = this.generateRaw();
+
+            console.log("ok");
+            if (balancedPlanning.success) {
+                if (value == 1) {
+                    break;
+                } else {
+                    value = (value + maxValue) / 2;
+                    minValue = value;
+                }
+            } else {
+                value = (value + minValue) / 2;
+                maxValue = value;
+            }
+        }
+
+        // if(balancedPlanning.success) {
+        //     return balancedPlanning;
+        // }
     }
 
-    // todo: post balancing
+    console.log("here");
 
     return planning;
+
 };
 
 Date.prototype.getWeek = function () {

@@ -62,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
         }        
 
         this.presences = organisedPresences;
-    }
+    };
 
     Planning.prototype.organisePresencesByDate = function() {
         var organisedPresences = {};
@@ -84,7 +84,7 @@ module.exports = (sequelize, DataTypes) => {
         }
 
         this.presences = organisedPresences;
-    }
-
+    };
+    
     return Planning;
 };

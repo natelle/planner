@@ -377,6 +377,8 @@ router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(
         });
 
         var generatedPlanning = planner.generate();
+        // planner.generate().then(generatedPlanning => {
+        
 
         models.Planning.create(
             {
