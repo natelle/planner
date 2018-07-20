@@ -103,6 +103,8 @@ Planner.prototype.buildModel = function () {
         binaries: {}
     };
 
+    this.fullSlots = {};
+
     var constraintsAgenda = {};
 
     for (var d = new Date(this.firstDate); d <= this.lastDate; d.setDate(d.getDate() + 1)) {
@@ -193,11 +195,12 @@ Planner.prototype.buildModel = function () {
 
 Planner.prototype.generateRaw = function () {
     var model = this.buildModel();
-    console.log("MODEL");
-    console.log(model.constraints);
+    // console.log("MODEL");
+    // console.log(model.constraints);
 
     var results = solver.Solve(model)
-
+    console.log(results);
+    
     var planning = new models.Planning();
 
     planning.firstDate = this.firstDate;
@@ -222,15 +225,18 @@ Planner.prototype.generateRaw = function () {
 
                     var slotId = match[3];
                     if (slotId.match(/f/)) {
+                        console.log("full = " + key);
+                        
                         var slots = this.fullSlots[slotId];
-
+                        console.log(slots.length);
+                        
                         for (var slot of slots) {
                             var presence = {
                                 day: date,
                                 slotId: slot,
                                 EmployeeId: employeeId
                             }
-
+                            
                             planning.presences.push(presence);
                         }
                     } else {
@@ -298,6 +304,8 @@ Planner.prototype.generate = function () {
             }
         }
 
+        console.log("regenereting planning...");
+        
         balancedPlanning = this.generateRaw();
 
         if (balancedPlanning.success) {
