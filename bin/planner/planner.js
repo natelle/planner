@@ -1,4 +1,5 @@
 var solver = require("javascript-lp-solver");
+const spawn = require('threads').spawn;
 var models = require('../../models');
 
 var Planner = function (params) {
@@ -193,14 +194,41 @@ Planner.prototype.buildModel = function () {
     return model;
 };
 
-Planner.prototype.generateRaw = function () {
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+Planner.prototype.generateRaw = async function () {
     var model = this.buildModel();
     // console.log("MODEL");
     // console.log(model.constraints);
+    const thread = spawn(function (model, done) {
+        var solver = require("javascript-lp-solver");
 
-    var results = solver.Solve(model)
-    console.log(results);
+        var results = solver.Solve(model);
+
+        done({ results: results });
+    });
+
+    var results = null
+
+    thread
+        .send(model)
+        .on('message', function (response) {
+            results = response.results;
+
+            thread.kill();
+        });
+
+
+    await timeout(2000);
     
+    if (results == null) {
+        thread.kill();
+    }
+
+    // var results = solver.Solve(model)
+
     var planning = new models.Planning();
 
     planning.firstDate = this.firstDate;
@@ -225,18 +253,15 @@ Planner.prototype.generateRaw = function () {
 
                     var slotId = match[3];
                     if (slotId.match(/f/)) {
-                        console.log("full = " + key);
-                        
                         var slots = this.fullSlots[slotId];
-                        console.log(slots.length);
-                        
+
                         for (var slot of slots) {
                             var presence = {
                                 day: date,
                                 slotId: slot,
                                 EmployeeId: employeeId
                             }
-                            
+
                             planning.presences.push(presence);
                         }
                     } else {
@@ -255,8 +280,8 @@ Planner.prototype.generateRaw = function () {
     return planning;
 };
 
-Planner.prototype.generate = function () {
-    var planning = this.generateRaw();
+Planner.prototype.generate = async function () {
+    var planning = await this.generateRaw();
 
     if (planning.success) {
         var totalAgenda = this.getTotalAgendaTime();
@@ -293,23 +318,38 @@ Planner.prototype.generate = function () {
             idealDiff[employeeId] = idealNumbers[employeeId] - theoreticalNumbers[employeeId];
         }
 
-        var value = 0.5, balancedPlanning = {};
+        var value = 0.5, valueMin = 0, valueMax = 1, balancedPlanning = {}, successPlanning = null;
         balancedPlanning.success = false;
 
-        for (var employeeId in idealDiff) {
-            for (var availability of this.availabilities) {
-                if (availability.EmployeeId == employeeId) {
-                    availability.Employee.number = theoreticalNumbers[employeeId] + value * idealDiff[employeeId];
+        for(var i=0; i<4; i++) {
+            for (var employeeId in idealDiff) {
+                for (var availability of this.availabilities) {
+                    if (availability.EmployeeId == employeeId) {
+                        availability.Employee.number = theoreticalNumbers[employeeId] + value * idealDiff[employeeId];
+                    }
                 }
             }
+
+            balancedPlanning = await this.generateRaw();
+
+            if(balancedPlanning.success) {
+                successPlanning = balancedPlanning;
+
+                if(value == 1) {
+                    break;
+                } else {
+                    valueMin = value;
+                    value = (value + valueMax) / 2;
+                }
+            } else {
+                valueMax = value;
+                value = (value + valueMin) / 2;
+                
+            }
         }
-
-        console.log("regenereting planning...");
         
-        balancedPlanning = this.generateRaw();
-
-        if (balancedPlanning.success) {
-            return balancedPlanning;
+        if (successPlanning) {
+            return successPlanning;
         }
     }
 

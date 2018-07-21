@@ -376,28 +376,28 @@ router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(
             category: category
         });
 
-        var generatedPlanning = planner.generate();
-        
-        models.Planning.create(
-            {
-                firstDate: firstDate,
-                lastDate: lastDate,
-                validated: false,
-                generated: true,
-                success: generatedPlanning.success,
-                modified: false,
-                presences: generatedPlanning.presences,
-                categoryId: category.id,
-                interval: category.interval
-            },
-            {
-                include: [{
-                    model: models.Availability,
-                    as: 'presences'
-                }]
-            }).then(planning => {
-                res.redirect('/planning/' + planning.id);
-            });
+        planner.generate().then(generatedPlanning => {
+            models.Planning.create(
+                {
+                    firstDate: firstDate,
+                    lastDate: lastDate,
+                    validated: false,
+                    generated: true,
+                    success: generatedPlanning.success,
+                    modified: false,
+                    presences: generatedPlanning.presences,
+                    categoryId: category.id,
+                    interval: category.interval
+                },
+                {
+                    include: [{
+                        model: models.Availability,
+                        as: 'presences'
+                    }]
+                }).then(planning => {
+                    res.redirect('/planning/' + planning.id);
+                });
+        });
     });
 });
 
