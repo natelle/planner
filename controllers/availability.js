@@ -154,7 +154,7 @@ router.get('/:id(\\d+)/availabilities/:month(\\d{2}):year(\\d{4})/default', func
                     res.send(true);
                 });
             });
-        })
+        });
     });
 });
 

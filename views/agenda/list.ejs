@@ -96,7 +96,7 @@ Date.prototype.getWeek = function() {
                             var nextMonth = new Date(firstDate);
                             nextMonth.setMonth(nextMonth.getMonth()+1);
 %>
-                            <a href="/agenda/<%= categoryId %>/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-angle-right fa-2x"></i></a>
+                            <a href="/agenda/<%= categoryId %>/<%= (nextMonth.getMonth() + 1).toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-angle-right fa-2x"></i></a>
                         </div>
                     </div>
 

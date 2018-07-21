@@ -77,7 +77,8 @@ return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week
     <div class="col-md-1">
         <% var nextMonth = new Date(firstDate);
         nextMonth.setMonth(nextMonth.getMonth()+1); %>
-        <a href="/employee/<%= employee.id %>/availabilities/<%= nextMonth.getMonth().toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-angle-right fa-2x"></i></a>
+        <% console.log(nextMonth) %>
+        <a href="/employee/<%= employee.id %>/availabilities/<%= (nextMonth.getMonth() + 1).toString().padStart(2, '0') + nextMonth.getFullYear() %>" role="button"><i class="fas fa-angle-right fa-2x"></i></a>
     </div>
 </div>
 

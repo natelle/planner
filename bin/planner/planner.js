@@ -221,13 +221,11 @@ Planner.prototype.generateRaw = async function () {
         });
 
 
-    await timeout(2000);
+    await timeout(1000);
     
     if (results == null) {
         thread.kill();
     }
-
-    // var results = solver.Solve(model)
 
     var planning = new models.Planning();
 
@@ -331,7 +329,7 @@ Planner.prototype.generate = async function () {
             }
 
             balancedPlanning = await this.generateRaw();
-
+            console.log('i = ' + i + ' - value = ' + value + ' - success = ' + balancedPlanning.success);
             if(balancedPlanning.success) {
                 successPlanning = balancedPlanning;
 
@@ -349,6 +347,7 @@ Planner.prototype.generate = async function () {
         }
         
         if (successPlanning) {
+            console.log('returning success');
             return successPlanning;
         }
     }

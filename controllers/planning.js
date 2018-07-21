@@ -290,6 +290,147 @@ router.get('/generate/category/:categoryId(\\d+)/month-:month(\\d{2}):year(\\d{4
     res.redirect('/planning/generate/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
 });
 
+router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', function (req, res) {
+    var categoryId = req.params.categoryId;
+    var year = req.params.year;
+
+    
+    //let promise = new Promise(resolve => resolve(null));
+    for(let i=0, promise= Promise.resolve(null); i<12; i++) {
+        promise = promise.then(previousPlanning => new Promise(resolve => {
+            console.log("i = " + i);
+            
+            var firstDate = new Date(Date.UTC(year, i, 1));
+            var lastDate = new Date(Date.UTC(year, i+1, 0));
+
+            if(previousPlanning) {
+                // calculate the time spent for each employee
+                // then do number = (yearlyNumber - cumul) / nombre mois restant
+                // et le passer à la génération du prochain planning
+            }
+
+            generatePlanning(categoryId, firstDate, lastDate).then(planning => {
+                console.log("got it for i = " + i);
+                resolve();
+                if(i == 11) {
+                    console.log("here");
+                    
+                    res.redirect('/planning');
+                }
+            });
+        }));
+    }
+
+    // res.redirect('/planning/generate/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
+});
+
+function generatePlanning(categoryId, firstDate, lastDate) {
+    return new Promise(resolve => {
+        var promises = [];
+        var employees, agendas, availabilities, slots, category;
+
+        promises.push(models.Agenda.findAll({
+            where: {
+                day: {
+                    [models.Sequelize.Op.between]: [firstDate, lastDate]
+                }
+            },
+            include: [{
+                model: models.Slot,
+                where: { categoryId: categoryId },
+                as: 'slot'
+            }],
+            order: [
+                ['day'],
+                [
+                    { model: models.Slot, as: 'slot' },
+                    'begin'
+                ]
+            ]
+        }).then(a => {
+            agendas = a;
+        }));
+
+        promises.push(models.Availability.findAll({
+            where: {
+                day: {
+                    [models.Sequelize.Op.between]: [firstDate, lastDate]
+                },
+                planningId: null
+            },
+            include: [
+                {
+                    model: models.Slot,
+                    where: { categoryId: categoryId },
+                    as: 'slot'
+                },
+                {
+                    model: models.Employee
+                }
+            ]
+        }).then(a => {
+            availabilities = a;
+        }));
+
+        promises.push(models.Slot.findAll({
+            where: {
+                categoryId: categoryId
+            }
+        }).then(s => {
+            slots = s;
+        }));
+
+        promises.push(models.Employee.findAll({
+            include: [{
+                model: models.EmployeeCategory,
+                where: { id: categoryId },
+                as: 'category'
+            }]
+        }).then(e => {
+            employees = e;
+        }));
+
+        promises.push(models.EmployeeCategory.findById(categoryId).then(c => {
+            category = c;
+        }));
+
+        Promise.all(promises).then(values => {
+            var planner = new Planner({
+                firstDate: firstDate,
+                lastDate: lastDate,
+                employees: employees,
+                slots: slots,
+                agendas: agendas,
+                availabilities: availabilities,
+                category: category
+            });
+
+            planner.generate().then(generatedPlanning => {
+                models.Planning.create(
+                    {
+                        firstDate: firstDate,
+                        lastDate: lastDate,
+                        validated: false,
+                        generated: true,
+                        success: generatedPlanning.success,
+                        modified: false,
+                        presences: generatedPlanning.presences,
+                        categoryId: category.id,
+                        interval: category.interval
+                    },
+                    {
+                        include: [{
+                            model: models.Availability,
+                            as: 'presences'
+                        }]
+                    }).then(planning => {
+                        resolve(planning);
+                    });
+            });
+        });
+    });
+}
+
 router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
     categoryId = categoryId !== '0' ? categoryId : null;
@@ -297,107 +438,8 @@ router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(
     var firstDate = new Date(parseInt(req.params.firstDate));
     var lastDate = new Date(parseInt(req.params.lastDate));
 
-    var promises = [];
-    var employees, agendas, availabilities, slots, category;
-
-    promises.push(models.Agenda.findAll({
-        where: {
-            day: {
-                [models.Sequelize.Op.between]: [firstDate, lastDate]
-            }
-        },
-        include: [{
-            model: models.Slot,
-            where: { categoryId: categoryId },
-            as: 'slot'
-        }],
-        order: [
-            ['day'],
-            [
-                { model: models.Slot, as: 'slot' },
-                'begin'
-            ]
-        ]
-    }).then(a => {
-        agendas = a;
-    }));
-
-    promises.push(models.Availability.findAll({
-        where: {
-            day: {
-                [models.Sequelize.Op.between]: [firstDate, lastDate]
-            },
-            planningId: null
-        },
-        include: [
-            {
-                model: models.Slot,
-                where: { categoryId: categoryId },
-                as: 'slot'
-            },
-            {
-                model: models.Employee
-            }
-        ]
-    }).then(a => {
-        availabilities = a;
-    }));
-
-    promises.push(models.Slot.findAll({
-        where: {
-            categoryId: categoryId
-        }
-    }).then(s => {
-        slots = s;
-    }));
-
-    promises.push(models.Employee.findAll({
-        include: [{
-            model: models.EmployeeCategory,
-            where: { id: categoryId },
-            as: 'category'
-        }]
-    }).then(e => {
-        employees = e;
-    }));
-
-    promises.push(models.EmployeeCategory.findById(categoryId).then(c => {
-        category = c;
-    }));
-
-    Promise.all(promises).then(values => {
-        var planner = new Planner({
-            firstDate: firstDate,
-            lastDate: lastDate,
-            employees: employees,
-            slots: slots,
-            agendas: agendas,
-            availabilities: availabilities,
-            category: category
-        });
-
-        planner.generate().then(generatedPlanning => {
-            models.Planning.create(
-                {
-                    firstDate: firstDate,
-                    lastDate: lastDate,
-                    validated: false,
-                    generated: true,
-                    success: generatedPlanning.success,
-                    modified: false,
-                    presences: generatedPlanning.presences,
-                    categoryId: category.id,
-                    interval: category.interval
-                },
-                {
-                    include: [{
-                        model: models.Availability,
-                        as: 'presences'
-                    }]
-                }).then(planning => {
-                    res.redirect('/planning/' + planning.id);
-                });
-        });
+    generatePlanning(categoryId, firstDate, lastDate).then(planning => {
+        res.redirect('/planning/' + planning.id);
     });
 });
 
@@ -1167,6 +1209,21 @@ router.get('/:id(\\d+)/summary', function (req, res) {
                     });
                 }
             }
+
+            var mean = 0;
+            var S = 0;
+            for (var entry of summary) {
+                mean += entry.duration;
+            }
+            mean /= summary.length;
+
+            for (var entry of summary) {
+                S += Math.pow(entry.duration - mean, 2);
+            }
+            S /= summary.length;
+            S = Math.sqrt(S);
+            console.log('mean = ' + mean);
+            console.log('S = ' + S);
 
             res.send(summary);
         });
