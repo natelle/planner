@@ -290,44 +290,97 @@ router.get('/generate/category/:categoryId(\\d+)/month-:month(\\d{2}):year(\\d{4
     res.redirect('/planning/generate/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
 });
 
-router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', function (req, res) {
+router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async function (req, res) {
     var categoryId = req.params.categoryId;
     var year = req.params.year;
 
-    
+    var rawSlots = await models.Slot.findAll({
+        where: {
+            categoryId: categoryId
+        }
+    });
+
+    var slots = {};
+    for (var slot of rawSlots) {
+        slots[slot.id] = slot;
+    }
+
+    var rawEmployees = await models.Employee.findAll({
+        where: {
+            categoryId: categoryId
+        }
+    })
+
+    var employees = {};
+    for (var employee of rawEmployees) {
+        employee.totalNumber = 0;
+        employees[employee.id] = employee;
+    }
+
     //let promise = new Promise(resolve => resolve(null));
-    for(let i=0, promise= Promise.resolve(null); i<12; i++) {
+    for (let i = 0, promise = Promise.resolve(null); i < 12; i++) {
         promise = promise.then(previousPlanning => new Promise(resolve => {
             console.log("i = " + i);
-            
-            var firstDate = new Date(Date.UTC(year, i, 1));
-            var lastDate = new Date(Date.UTC(year, i+1, 0));
 
-            if(previousPlanning) {
-                // calculate the time spent for each employee
-                // then do number = (yearlyNumber - cumul) / nombre mois restant
-                // et le passer à la génération du prochain planning
+            var firstDate = new Date(Date.UTC(year, i, 1));
+            var lastDate = new Date(Date.UTC(year, i + 1, 0));
+
+            if (previousPlanning) {
+                console.log("previousPlanning != null");
+
+                var employeesNumber = {};
+                for (var presence of previousPlanning.presences) {
+                    if (typeof employeesNumber[presence.EmployeeId] === 'undefined') {
+                        employeesNumber[presence.EmployeeId] = slots[presence.slotId].getDuration();
+                    } else {
+                        employeesNumber[presence.EmployeeId] += slots[presence.slotId].getDuration();
+                    }
+                }
+
+                for (var employeeId in employees) {
+                    var employee = employees[employeeId];
+
+                    employee.totalNumber += employeesNumber[employee.id];
+                }
             }
 
-            generatePlanning(categoryId, firstDate, lastDate).then(planning => {
+            console.log("\n Current number");
+
+            for (var employeeId in employees) {
+                var employee = employees[employeeId];
+
+                employee.currentNumber = Math.max((employee.yearlyNumber - employee.totalNumber) / (12 - i), 0.5);
+                console.log(employee.currentNumber);
+
+            }
+
+            var employeesArray = [];
+            for (var employeeId in employees) {
+                employeesArray.push(employees[employeeId]);
+            }
+
+            generatePlanning(categoryId, firstDate, lastDate, employeesArray).then(planning => {
                 console.log("got it for i = " + i);
-                resolve();
-                if(i == 11) {
+                resolve(planning);
+                if (i == 11) {
                     console.log("here");
-                    
+
                     res.redirect('/planning');
                 }
             });
         }));
     }
 
+
     // res.redirect('/planning/generate/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
 });
 
-function generatePlanning(categoryId, firstDate, lastDate) {
+function generatePlanning(categoryId, firstDate, lastDate, employees) {
+    employees = (typeof employees !== "undefined") ? employees : null;
+
     return new Promise(resolve => {
         var promises = [];
-        var employees, agendas, availabilities, slots, category;
+        var agendas, availabilities, slots, category;
 
         promises.push(models.Agenda.findAll({
             where: {
@@ -380,15 +433,17 @@ function generatePlanning(categoryId, firstDate, lastDate) {
             slots = s;
         }));
 
-        promises.push(models.Employee.findAll({
-            include: [{
-                model: models.EmployeeCategory,
-                where: { id: categoryId },
-                as: 'category'
-            }]
-        }).then(e => {
-            employees = e;
-        }));
+        if (!employees) {
+            promises.push(models.Employee.findAll({
+                include: [{
+                    model: models.EmployeeCategory,
+                    where: { id: categoryId },
+                    as: 'category'
+                }]
+            }).then(e => {
+                employees = e;
+            }));
+        }
 
         promises.push(models.EmployeeCategory.findById(categoryId).then(c => {
             category = c;

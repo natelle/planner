@@ -6,8 +6,14 @@ var Planner = function (params) {
     this.firstDate = params.firstDate;
     this.lastDate = params.lastDate;
     this.employees = params.employees;
+
+    this.employeesById = {};
+    for(var employee of this.employees) {
+        this.employeesById[employee.id] = employee;
+    }
+
     this.slots = params.slots,
-        this.agendas = params.agendas;
+    this.agendas = params.agendas;
     this.availabilities = params.availabilities;
     this.category = params.category;
     this.fullSlots = {};
@@ -86,9 +92,9 @@ Planner.prototype.getTotalEmployees = function (hasNumber) {
 
     var employees = {};
     for (var availability of this.availabilities) {
-        if (!hasNumber || availability.Employee.number) {
+        if (!hasNumber || (typeof availability.Employee.currentNumber !== 'undefined') || availability.Employee.number) {
             if (typeof employees[availability.Employee.id] === 'undefined') {
-                employees[availability.Employee.id] = availability.Employee;
+                employees[availability.Employee.id] = this.employeesById[availability.Employee.id];
             }
         }
     }
@@ -173,7 +179,10 @@ Planner.prototype.buildModel = function () {
             }
             variables[mainKey][employeeId + '-' + subkey] += availability.slot.getDuration();
 
-            if (availability.Employee.number) {
+            // todo: use employees var instead of availability.Employee
+            if(typeof this.employeesById[availability.Employee.id].currentNumber !== 'undefined') {
+                constraintsAvailability[employeeId + '-' + subkey] = { min: this.employeesById[availability.Employee.id].currentNumber };
+            } else if (availability.Employee.number) {
                 constraintsAvailability[employeeId + '-' + subkey] = { min: availability.Employee.number };
             }
             if (availability.mandatory) {

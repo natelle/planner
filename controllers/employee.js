@@ -41,7 +41,8 @@ router.post('/add', function(req, res) {
         email: req.body.email,
         phone: req.body.phone,
         categoryId: req.body.category,
-        number: req.body.number
+        number: req.body.number,
+        yearlyNumber: req.body.yearlyNumber
     }).then(employee => {
         res.redirect('/employee');
     });
@@ -79,7 +80,8 @@ router.post('/:id(\\d+)/update', function(req, res) {
         email: req.body.email,
         phone: req.body.phone,
         categoryId: req.body.category,
-        number: req.body.number
+        number: req.body.number,
+        yearlyNumber: req.body.yearlyNumber
     }, {where: { id: req.params.id }}).then(employee => {
         res.redirect('/employee');
     });

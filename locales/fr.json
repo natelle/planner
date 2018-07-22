@@ -49,7 +49,8 @@
 		"number": "employee.number",
 		"home": "employee.home",
 		"creation": "employee.creation",
-		"edition": "employee.edition"
+		"edition": "employee.edition",
+		"yearlynumber": "employee.yearlynumber"
 	},
 	"agenda": {
 		"yearly": "agenda.yearly",
@@ -120,7 +121,8 @@
 		},
 		"hourabbr": "h",
 		"week": "Semaine",
-		"day": "Jour"
+		"day": "Jour",
+		"year": "time.year"
 	},
 	"availability": {
 		"date": "Date",

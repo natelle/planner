@@ -5,7 +5,8 @@ module.exports = (sequelize, DataTypes) => {
         lastName: DataTypes.STRING,
         email: DataTypes.STRING,
         phone: DataTypes.STRING,
-        number: DataTypes.FLOAT
+        number: DataTypes.FLOAT,
+        yearlyNumber: DataTypes.FLOAT
     }, {
         tableName: 'employee'
     });
