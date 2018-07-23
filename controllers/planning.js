@@ -294,6 +294,8 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
     var categoryId = req.params.categoryId;
     var year = req.params.year;
 
+    var category = await models.EmployeeCategory.findById(categoryId);
+
     var rawSlots = await models.Slot.findAll({
         where: {
             categoryId: categoryId
@@ -317,18 +319,44 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
         employees[employee.id] = employee;
     }
 
-    //let promise = new Promise(resolve => resolve(null));
-    for (let i = 0, promise = Promise.resolve(null); i < 12; i++) {
+    var maxI;
+    switch (category.interval) {
+        case "month":
+            maxI = 12;
+            break;
+        case "week":
+            maxI = 53;
+            break;
+        case "day":
+            maxI = (year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0)) ? 366 : 365;
+            break;
+        default:
+            throw "Category interval not supported."
+    }
+
+    for (let i = 0, promise = Promise.resolve(null); i < maxI; i++) {
         promise = promise.then(previousPlanning => new Promise(resolve => {
             console.log("i = " + i);
 
-            var firstDate = new Date(Date.UTC(year, i, 1));
-            var lastDate = new Date(Date.UTC(year, i + 1, 0));
+            var firstDate, lastDate;
+            switch (category.interval) {
+                case "month":
+                    firstDate = new Date(Date.UTC(year, i, 1));
+                    lastDate = new Date(Date.UTC(year, i + 1, 0));
+                    break;
+                case "week":
+                    firstDate = getFirstDateWeek(i+1, year);
+                    lastDate = getLastDateWeek(i+1, year);
+                    break;
+                case "day":
+                    firstDate = getDateYear(i+1, year);
+                    lastDate = getDateYear(i+1, year);
+                    break;
+                default:
+                    throw "Category interval not supported."
+            }
 
-            if (previousPlanning) {
-                console.log("previousPlanning != null");
-
-                var employeesNumber = {};
+            if (previousPlanning) {var employeesNumber = {};
                 for (var presence of previousPlanning.presences) {
                     if (typeof employeesNumber[presence.EmployeeId] === 'undefined') {
                         employeesNumber[presence.EmployeeId] = slots[presence.slotId].getDuration();
@@ -344,14 +372,10 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
                 }
             }
 
-            console.log("\n Current number");
-
             for (var employeeId in employees) {
                 var employee = employees[employeeId];
 
-                employee.currentNumber = Math.max((employee.yearlyNumber - employee.totalNumber) / (12 - i), 0.5);
-                console.log(employee.currentNumber);
-
+                employee.number = Math.max((employee.yearlyNumber - employee.totalNumber) / (maxI - i), 0.5);
             }
 
             var employeesArray = [];
@@ -360,19 +384,14 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
             }
 
             generatePlanning(categoryId, firstDate, lastDate, employeesArray).then(planning => {
-                console.log("got it for i = " + i);
                 resolve(planning);
                 if (i == 11) {
-                    console.log("here");
-
+                    // todo: must redirect to a page displaying all the new generated planning
                     res.redirect('/planning');
                 }
             });
         }));
     }
-
-
-    // res.redirect('/planning/generate/category/' + req.params.categoryId + '/' + firstDate.getTime() + '-' + lastDate.getTime());
 });
 
 function generatePlanning(categoryId, firstDate, lastDate, employees) {
@@ -434,6 +453,8 @@ function generatePlanning(categoryId, firstDate, lastDate, employees) {
         }));
 
         if (!employees) {
+            console.log("ok");
+
             promises.push(models.Employee.findAll({
                 include: [{
                     model: models.EmployeeCategory,
@@ -1654,5 +1675,10 @@ function getLastDateWeek(week, year) {
 
     return lastDateWeek;
 }
+
+function getDateYear(day, year){
+    var date = new Date(year, 0);
+    return new Date(date.setDate(day));
+  }
 
 module.exports = router;

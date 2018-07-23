@@ -8,11 +8,11 @@ var Planner = function (params) {
     this.employees = params.employees;
 
     this.employeesById = {};
-    for(var employee of this.employees) {
+    for (var employee of this.employees) {
         this.employeesById[employee.id] = employee;
     }
 
-    this.slots = params.slots,
+    this.slots = params.slots;
     this.agendas = params.agendas;
     this.availabilities = params.availabilities;
     this.category = params.category;
@@ -92,8 +92,8 @@ Planner.prototype.getTotalEmployees = function (hasNumber) {
 
     var employees = {};
     for (var availability of this.availabilities) {
-        if (!hasNumber || (typeof availability.Employee.currentNumber !== 'undefined') || availability.Employee.number) {
-            if (typeof employees[availability.Employee.id] === 'undefined') {
+        if (typeof employees[availability.Employee.id] === 'undefined') {
+            if (!hasNumber || this.employeesById[availability.Employee.id].number) {
                 employees[availability.Employee.id] = this.employeesById[availability.Employee.id];
             }
         }
@@ -180,10 +180,8 @@ Planner.prototype.buildModel = function () {
             variables[mainKey][employeeId + '-' + subkey] += availability.slot.getDuration();
 
             // todo: use employees var instead of availability.Employee
-            if(typeof this.employeesById[availability.Employee.id].currentNumber !== 'undefined') {
-                constraintsAvailability[employeeId + '-' + subkey] = { min: this.employeesById[availability.Employee.id].currentNumber };
-            } else if (availability.Employee.number) {
-                constraintsAvailability[employeeId + '-' + subkey] = { min: availability.Employee.number };
+            if (this.employeesById[availability.Employee.id].number) {
+                constraintsAvailability[employeeId + '-' + subkey] = { min: this.employeesById[availability.Employee.id].number };
             }
             if (availability.mandatory) {
                 variables[mainKey][employeeId + '-' + key] = 1;
@@ -230,8 +228,9 @@ Planner.prototype.generateRaw = async function () {
         });
 
 
-    await timeout(1000);
+    var timeoutId = await timeout(1000);
     
+
     if (results == null) {
         thread.kill();
     }
@@ -307,6 +306,8 @@ Planner.prototype.generate = async function () {
             realNumbers[employee.id] = duration;
         }
 
+        console.log(employees);
+        
         var theoreticalAvg = employees.map(e => e.number).reduce((a, b) => a + b) / employees.length;
         var realAvg = Object.values(realNumbers).reduce((a, b) => a + b) / employees.length;
 
@@ -328,21 +329,21 @@ Planner.prototype.generate = async function () {
         var value = 0.5, valueMin = 0, valueMax = 1, balancedPlanning = {}, successPlanning = null;
         balancedPlanning.success = false;
 
-        for(var i=0; i<4; i++) {
+        for (var i = 0; i < 4; i++) {
             for (var employeeId in idealDiff) {
                 for (var availability of this.availabilities) {
                     if (availability.EmployeeId == employeeId) {
-                        availability.Employee.number = theoreticalNumbers[employeeId] + value * idealDiff[employeeId];
+                        this.employeesById[availability.Employee.id].number = theoreticalNumbers[employeeId] + value * idealDiff[employeeId];
                     }
                 }
             }
 
             balancedPlanning = await this.generateRaw();
             console.log('i = ' + i + ' - value = ' + value + ' - success = ' + balancedPlanning.success);
-            if(balancedPlanning.success) {
+            if (balancedPlanning.success) {
                 successPlanning = balancedPlanning;
 
-                if(value == 1) {
+                if (value == 1) {
                     break;
                 } else {
                     valueMin = value;
@@ -351,12 +352,11 @@ Planner.prototype.generate = async function () {
             } else {
                 valueMax = value;
                 value = (value + valueMin) / 2;
-                
+
             }
         }
-        
+
         if (successPlanning) {
-            console.log('returning success');
             return successPlanning;
         }
     }
