@@ -24,6 +24,13 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+app.use(function (req, res, next) {
+  req.settings = require('../config/planner.json');
+    
+  next();
+});
+
+
 app.use('/', general);
 app.use('/employee', employee);
 app.use('/employee/category', category);

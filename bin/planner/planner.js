@@ -17,6 +17,7 @@ var Planner = function (params) {
     this.availabilities = params.availabilities;
     this.category = params.category;
     this.fullSlots = {};
+    this.parameters = params.parameters;
 };
 
 Planner.prototype.findAgendas = function (date) {
@@ -223,13 +224,11 @@ Planner.prototype.generateRaw = async function () {
         .send(model)
         .on('message', function (response) {
             results = response.results;
-
+            
             thread.kill();
         });
-
-
-    var timeoutId = await timeout(1000);
     
+    await timeout(this.parameters.time);
 
     if (results == null) {
         thread.kill();
@@ -305,8 +304,6 @@ Planner.prototype.generate = async function () {
 
             realNumbers[employee.id] = duration;
         }
-
-        console.log(employees);
         
         var theoreticalAvg = employees.map(e => e.number).reduce((a, b) => a + b) / employees.length;
         var realAvg = Object.values(realNumbers).reduce((a, b) => a + b) / employees.length;

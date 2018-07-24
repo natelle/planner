@@ -394,7 +394,7 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
     }
 });
 
-function generatePlanning(categoryId, firstDate, lastDate, employees) {
+function generatePlanning(categoryId, firstDate, lastDate, employees, parameters) {
     employees = (typeof employees !== "undefined") ? employees : null;
 
     return new Promise(resolve => {
@@ -478,7 +478,8 @@ function generatePlanning(categoryId, firstDate, lastDate, employees) {
                 slots: slots,
                 agendas: agendas,
                 availabilities: availabilities,
-                category: category
+                category: category,
+                parameters: parameters
             });
 
             planner.generate().then(generatedPlanning => {
@@ -514,7 +515,7 @@ router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(
     var firstDate = new Date(parseInt(req.params.firstDate));
     var lastDate = new Date(parseInt(req.params.lastDate));
 
-    generatePlanning(categoryId, firstDate, lastDate).then(planning => {
+    generatePlanning(categoryId, firstDate, lastDate, null, req.settings.planning.generation).then(planning => {
         res.redirect('/planning/' + planning.id);
     });
 });
