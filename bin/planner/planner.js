@@ -120,7 +120,8 @@ Planner.prototype.buildModel = function () {
 
         for (var agenda of agendas) {
             if (agenda.number) {
-                constraintsAgenda[d.getTime() + '-' + agenda.slotId] = { equal: agenda.number };
+                constraintsAgenda[d.getTime() + '-' + agenda.slotId] = {};
+                constraintsAgenda[d.getTime() + '-' + agenda.slotId][this.parameters["agenda-constraint"]] = agenda.number;
             }
         }
 
@@ -180,7 +181,6 @@ Planner.prototype.buildModel = function () {
             }
             variables[mainKey][employeeId + '-' + subkey] += availability.slot.getDuration();
 
-            // todo: use employees var instead of availability.Employee
             if (this.employeesById[availability.Employee.id].number) {
                 constraintsAvailability[employeeId + '-' + subkey] = { min: this.employeesById[availability.Employee.id].number };
             }
@@ -203,13 +203,26 @@ Planner.prototype.buildModel = function () {
 };
 
 function timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms, null));
+}
+
+function generationThread(thread, model) {
+    return new Promise(resolve => {
+        thread
+        .send(model)
+        .on('message', function (response) {
+            resolve(response.results);
+            
+            thread.kill();
+        });
+    });
 }
 
 Planner.prototype.generateRaw = async function () {
     var model = this.buildModel();
-    // console.log("MODEL");
-    // console.log(model.constraints);
+    console.log(model);
+    
+    
     const thread = spawn(function (model, done) {
         var solver = require("javascript-lp-solver");
 
@@ -218,17 +231,7 @@ Planner.prototype.generateRaw = async function () {
         done({ results: results });
     });
 
-    var results = null
-
-    thread
-        .send(model)
-        .on('message', function (response) {
-            results = response.results;
-            
-            thread.kill();
-        });
-    
-    await timeout(this.parameters.time);
+    var results = await Promise.race([timeout(this.parameters.time), generationThread(thread, model)]);
 
     if (results == null) {
         thread.kill();
@@ -326,7 +329,7 @@ Planner.prototype.generate = async function () {
         var value = 0.5, valueMin = 0, valueMax = 1, balancedPlanning = {}, successPlanning = null;
         balancedPlanning.success = false;
 
-        for (var i = 0; i < 4; i++) {
+        for (var i = 0; i < this.parameters.pass; i++) {
             for (var employeeId in idealDiff) {
                 for (var availability of this.availabilities) {
                     if (availability.EmployeeId == employeeId) {

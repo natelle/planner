@@ -13,7 +13,7 @@ Date.prototype.getWeek = function() {
         <%= __('planning.summary') %>
     </button>
 </p>
-<div class="collapse mb-3" id="summary">
+<div class="collapse mb-3 d-print-block" id="summary">
     <div class="card card-body">
     </div>
 </div>
@@ -63,7 +63,7 @@ Date.prototype.getWeek = function() {
                                             <div class="card-header py-1">
                                                 <span class="float-left font-weight-bold">(<span class="number">0</span>/<%= slotPresences.number %>)</span>
                                                 <%= slotPresences.slot.name %> <small>(<%= slotPresences.slot.getTimeLabel() %>)</small>
-                                                <a href="#add-employee" class="float-right add-employee"><i class="fas fa-user-edit"></i></a>
+                                                <a href="#add-employee" class="float-right add-employee d-print-none"><i class="fas fa-user-edit"></i></a>
                                             </div>
                                             <div class="card-body py-1">
                                             </div>
@@ -209,7 +209,7 @@ Date.prototype.getWeek = function() {
                             ' href="/employee/' + presence.Employee.id + '/availabilities/<%= availabilityDateId %>" ' +
                             (presence.missing ? 'data-toggle="tooltip" data-placement="bottom" data-original-title="<%= __('planning.missingavailability') %>"' : '') + '>' +
                             '<small>' + presence.Employee.firstName + ' ' + presence.Employee.lastName + '</small>' +
-                            '<a href="#exchange" class="replace-employee">' +
+                            '<a href="#exchange" class="replace-employee d-print-none">' +
                             (canReplace ? '<small><i class="fas fa-exchange-alt ml-3"></i></small>' : '') +
                             '</a>' +
                             '</a>' +

@@ -1,6 +1,6 @@
 <%- include ../header.ejs %>
 
-<nav aria-label="breadcrumb" class="mb-5">
+<nav aria-label="breadcrumb" class="mb-5 d-print-none">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/"><%= __('global.home') %></a></li>
     <li class="breadcrumb-item"><a href="/planning"><%= __('planning.menu') %></a></li>
@@ -11,7 +11,7 @@
   </ol>
 </nav>
 
-<p class="text-right mb-3">
+<p class="text-right mb-3 d-print-none">
     <a class="btn btn-primary" href="/planning/<%= planning.id %>/unvalidate">
         <%= __('planning.unvalidate') %>
     </a>
@@ -74,6 +74,12 @@ for(var month of months) {
                                     class="align-text-top py-0 btn btn-success btn-block my-1">
                                     <small>
                                         <%= presences[0].slot.name + " (" + presences.length + ")"%>
+                                        <span class="d-none d-print-inline">
+                                            <br>
+                                            <% for(var j in presences) {%>
+                                                <p class="mb-0"><%= presences[j].Employee.firstName + " " + presences[j].Employee.lastName %></p>
+                                            <% } %>
+                                        </span>
                                     </small>
                                 </button>
     <%
@@ -94,7 +100,7 @@ for(var month of months) {
                                 
                                 closed = true;
     %>
-                                <button class="position-absolute day-<%= size %> my-0 align-text-top py-0 btn btn-danger" disabled><small><%= __('time.closed') %></small></button>
+                                <button class="position-absolute day-<%= size %> my-auto py-0 btn btn-danger" disabled><small><%= __('time.closed') %></small></button>
     <%
                             }
                         }

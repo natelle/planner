@@ -1,1 +1,9 @@
-{"planning":{"generation":{"pass":"3","time":1000}}}
+{
+    "planning": {
+        "generation": {
+            "pass": "3",
+            "time": 1000,
+            "agenda-constraint": "equal"
+        }
+    }
+}

@@ -10,7 +10,7 @@
 		"edit": "Modifier",
 		"home": "Accueil",
 		"save": "Enregistrer",
-		"settings": "global.settings"
+		"settings": "Paramètres"
 	},
 	"company": {
 		"email": "Email",
@@ -238,7 +238,12 @@
 			"generation": {
 				"pass": "Nombre de passes",
 				"passname": "passes",
-				"time": "Temps d'une passe"
+				"time": "Temps d'une passe",
+				"agendaconstraint": {
+					"equal": "settings.planning.generation.agendaconstraint.equal",
+					"min": "settings.planning.generation.agendaconstraint.min",
+					"max": "settings.planning.generation.agendaconstraint.max"
+				}
 			}
 		}
 	}

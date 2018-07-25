@@ -18,8 +18,9 @@ router.get('/settings', function(req, res) {
 });
 
 router.post('/settings', function(req, res) {
-    req.settings.planning.generation.pass = req.body["planning.generation.pass"];
+    req.settings.planning.generation.pass = parseInt(req.body["planning.generation.pass"]);
     req.settings.planning.generation.time = parseInt(parseFloat(req.body["planning.generation.time"])*1000);
+    req.settings.planning.generation["agenda-constraint"] = req.body["planning.generation.agenda-constraint"];
 
     var json = JSON.stringify(req.settings); 
     fs.writeFile('config/planner.json', json);
