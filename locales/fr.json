@@ -192,7 +192,6 @@
 	"category": {
 		"listing": "Catégories",
 		"name": "Nom",
-		"default": "Catégorie par défaut",
 		"add": "Création d'une catégorie",
 		"update": "Edition d'une catégorie",
 		"category": {
@@ -218,13 +217,13 @@
 		"add": "Création d'un créneau",
 		"days": "Jours",
 		"update": "Edition du créneau",
-		"defaultcategory": "Par défaut",
 		"closed": "Fermé",
 		"default": "Créneau par défaut",
 		"category": "Catégorie",
 		"duration": "Durée",
 		"menu": "Créneaux",
-		"edition": "Edition"
+		"edition": "Edition",
+		"creation": "slot.creation"
 	},
 	"action": {
 		"back": "Retour",

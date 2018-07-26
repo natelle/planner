@@ -79,7 +79,7 @@ router.post('/add', function(req, res) {
         end: (req.body.end !== '' ? req.body.end : null),
         days: req.body.days,
         order: req.body.order,
-        categoryId: req.body.category !== '0' ? req.body.category : null
+        categoryId: req.body.category
     }).then(slot => {
         res.redirect('/company/slot');
     });

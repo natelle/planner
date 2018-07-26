@@ -21,14 +21,14 @@
                 <% if(now.getMonth() == (i-1)) { %>
                     <h4>
                         <b>
-                            <a href="/agenda/<%= category ? category.id : 0 %>/<%= i.toString().padStart(2, '0') + year %>">
+                            <a href="/agenda/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>">
                                 <%= __('time.month' + i)%> <%= year %>
                             </a>
                         </b>
                     </h4>
                 <% } else { %>
                     <h5>
-                        <a href="/agenda/<%= category ? category.id : 0 %>/<%= i.toString().padStart(2, '0') + year %>">
+                        <a href="/agenda/<%= category.id %>/<%= i.toString().padStart(2, '0') + year %>">
                             <%= __('time.month' + i)%> <%= year %>
                         </a>
                     </h5>
@@ -38,7 +38,7 @@
         </ul>
     </div>
     <div class="col-md-1">
-        <a href="/agenda/<%= category ? category.id : 0 %>/<%= parseInt(year) + 1 %>"><i class="fas fa-angle-right fa-2x"></i></a>
+        <a href="/agenda/<%= category.id %>/<%= parseInt(year) + 1 %>"><i class="fas fa-angle-right fa-2x"></i></a>
     </div>
 </div>
 

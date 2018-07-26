@@ -28,9 +28,6 @@ router.get('/', function (req, res) {
             lastDate.setDate(0);
 
             for (var category of categories) {
-                if (!category) {
-                    category = { id: 0 };
-                }
                 promises.push(models.Planning.findOne({
                     where: {
                         firstDate: {
@@ -47,8 +44,7 @@ router.get('/', function (req, res) {
 
                 for (var planning of rawPlannings) {
                     if (planning) {
-                        var categoryId = planning.categoryId ? planning.categoryId : 0;
-                        plannings[categoryId] = planning;
+                        plannings[planning.categoryId] = planning;
                     }
                 }
 
@@ -69,7 +65,6 @@ router.get('/category/:categoryId(\\d+)', function (req, res) {
 
 router.get('/category/:categoryId(\\d+)/global/:date(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
-    categoryId = categoryId !== '0' ? categoryId : null;
 
     var date = new Date(parseInt(req.params.date));
 
@@ -138,7 +133,6 @@ router.get('/category/:categoryId(\\d+)/global/:date(\\d{12,})', function (req, 
 
 router.get('/category/:categoryId(\\d+)/:date(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
-    categoryId = categoryId !== '0' ? categoryId : null;
 
     var date = new Date(parseInt(req.params.date));
 
@@ -190,7 +184,6 @@ router.get('/category/:categoryId(\\d+)/:date(\\d{12,})', function (req, res) {
 
 router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})", function (req, res) {
     var categoryId = req.params.categoryId;
-    categoryId = categoryId !== '0' ? categoryId : null;
     var month = req.params.month;
     var year = req.params.year;
 
@@ -198,10 +191,6 @@ router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})", function (
     var lastDate = new Date(Date.UTC(year, parseInt(month), 0));
 
     models.EmployeeCategory.findById(categoryId).then(category => {
-        if (!category) {
-            category = { id: 0, name: i18n.__("category.default") };
-        }
-
         models.Planning.findAll({
             where: {
                 firstDate: firstDate,
@@ -229,10 +218,6 @@ router.get("/category/:categoryId(\\d+)/:month(\\d{2}):year(\\d{4})", function (
 
 router.get('/generate/category/:categoryId(\\d+)', function (req, res) {
     models.EmployeeCategory.findById(req.params.categoryId).then(category => {
-        if (!category) {
-            category = { id: 0, name: i18n.__('category.default') };
-        }
-
         res.render('planning/generate.ejs',
             {
                 category: category
@@ -294,6 +279,8 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
     var categoryId = req.params.categoryId;
     var year = req.params.year;
 
+    // must populated with default availability/agenda... (optionnaly at least)
+
     var category = await models.EmployeeCategory.findById(categoryId);
 
     var rawSlots = await models.Slot.findAll({
@@ -345,18 +332,19 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
                     lastDate = new Date(Date.UTC(year, i + 1, 0));
                     break;
                 case "week":
-                    firstDate = getFirstDateWeek(i+1, year);
-                    lastDate = getLastDateWeek(i+1, year);
+                    firstDate = getFirstDateWeek(i + 1, year);
+                    lastDate = getLastDateWeek(i + 1, year);
                     break;
                 case "day":
-                    firstDate = getDateYear(i+1, year);
-                    lastDate = getDateYear(i+1, year);
+                    firstDate = getDateYear(i + 1, year);
+                    lastDate = getDateYear(i + 1, year);
                     break;
                 default:
                     throw "Category interval not supported."
             }
 
-            if (previousPlanning) {var employeesNumber = {};
+            if (previousPlanning) {
+                var employeesNumber = {};
                 for (var presence of previousPlanning.presences) {
                     if (typeof employeesNumber[presence.EmployeeId] === 'undefined') {
                         employeesNumber[presence.EmployeeId] = slots[presence.slotId].getDuration();
@@ -510,7 +498,6 @@ function generatePlanning(categoryId, firstDate, lastDate, employees, parameters
 
 router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
-    categoryId = categoryId !== '0' ? categoryId : null;
 
     var firstDate = new Date(parseInt(req.params.firstDate));
     var lastDate = new Date(parseInt(req.params.lastDate));
@@ -525,10 +512,6 @@ router.get('/generate/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(
 
 router.get('/create/category/:categoryId(\\d+)', function (req, res) {
     models.EmployeeCategory.findById(req.params.categoryId).then(category => {
-        if (!category) {
-            category = { id: 0, name: i18n.__('category.default') };
-        }
-
         res.render('planning/create.ejs',
             {
                 category: category
@@ -589,7 +572,6 @@ router.get('/create/category/:categoryId(\\d+)/month-:month(\\d{2}):year(\\d{4})
 
 router.get('/create/category/:categoryId(\\d+)/:firstDate(\\d{12,})-:lastDate(\\d{12,})', function (req, res) {
     var categoryId = req.params.categoryId;
-    categoryId = categoryId !== '0' ? categoryId : null;
 
     var firstDate = new Date(parseInt(req.params.firstDate));
     var lastDate = new Date(parseInt(req.params.lastDate));
@@ -1677,9 +1659,9 @@ function getLastDateWeek(week, year) {
     return lastDateWeek;
 }
 
-function getDateYear(day, year){
+function getDateYear(day, year) {
     var date = new Date(year, 0);
     return new Date(date.setDate(day));
-  }
+}
 
 module.exports = router;

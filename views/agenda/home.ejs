@@ -8,15 +8,9 @@
 </nav>
 
 <% for(var category of categories) {
-    if(category) { %>
-        <h4 class="text-center">
-            <a href="/agenda/<%= category.id %>"><%= category.name %></a>
-        </h4>
-    <% } else { %>
-        <h4 class="text-center">
-            <a href="/agenda/0"><%= __('category.default') %></a>
-        </h4>
-    <% } %>
+    <h4 class="text-center">
+        <a href="/agenda/<%= category.id %>"><%= category.name %></a>
+    </h4>
     <br>
 <% } %>
 

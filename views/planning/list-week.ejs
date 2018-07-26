@@ -18,7 +18,7 @@
 <div class="row align-items-center">
     <div class="col-md-1">
         <% var previousDate = new Date(Date.UTC(year, month-1, 1)) %>
-        <a href="/planning/category/<%= category ? category.id : 0 %>/<%= previousDate.getTime() %>"><i class="fas fa-angle-left fa-2x"></i></a>
+        <a href="/planning/category/<%= category.id %>/<%= previousDate.getTime() %>"><i class="fas fa-angle-left fa-2x"></i></a>
     </div>
     <div class="col-md-10">
         <table class="table table-sm">
@@ -107,7 +107,7 @@
     </div>
     <div class="col-md-1">
         <% var nextDate = new Date(Date.UTC(year, month+1, 1)) %>
-        <a href="/planning/category/<%= category ? category.id : 0 %>/<%= nextDate.getTime() %>"><i class="fas fa-angle-right fa-2x"></i></a>
+        <a href="/planning/category/<%= category.id %>/<%= nextDate.getTime() %>"><i class="fas fa-angle-right fa-2x"></i></a>
     </div>
 </div>
 

@@ -15,11 +15,7 @@
         </tr>
     </thead>
     <tbody>
-        <% for(var category of categories) {
-            if(!category) {
-                category = { name: __('category.default'), id: 0 };
-            }
-        %>
+        <% for(var category of categories) { %>
             <tr>
                 <th><%= category.name %></th>
                 <td>

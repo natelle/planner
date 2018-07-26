@@ -14,7 +14,7 @@
 for(var categoryId in slots) {
     var categorySlots = slots[categoryId];
 %>
-    <h4 class="mb-3"><%= categoryId !== 'default' ? categories[categoryId].name : __('slot.defaultcategory') %></h4>
+    <h4 class="mb-3"><%= categories[categoryId].name %></h4>
     <table class="table mb-4">
         <thead class="thead-dark">
             <tr>
