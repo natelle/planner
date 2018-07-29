@@ -7,30 +7,11 @@
   </ol>
 </nav>
 
-<table class="table table-sm">
-    <thead class="thead-dark">
-        <tr>
-            <th scope="col"><%= __('planning.category') %></th>
-            <th scope="col"><%= __n('global.action', 2) %></th>
-        </tr>
-    </thead>
-    <tbody>
-        <% for(var category of categories) { %>
-            <tr>
-                <th><%= category.name %></th>
-                <td>
-                    <a class="btn btn-primary btn-sm" href="/planning/category/<%= category.id %>">
-                        <%= __('planning.globalview') %>
-                    </a>
-                    <% if(typeof plannings[category.id] !== "undefined") { %>
-                        <a class="btn btn-primary btn-sm" href="/planning/<%= plannings[category.id].id %>">
-                            <%= __('planning.validated') %>
-                        </a>
-                    <% } %>
-                </td>
-            </tr>
-        <% } %>
-    </tbody>
-</table>
+<% for(var category of categories) { %>
+    <h4 class="text-center">
+        <a href="/planning/category/<%= category.id %>"><%= category.name %></a>
+    </h4>
+    <br>
+<% } %>
 
 <%- include ../footer.ejs %>

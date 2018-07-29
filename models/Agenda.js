@@ -3,7 +3,8 @@
 module.exports = (sequelize, DataTypes) => {
     var Agenda = sequelize.define('Agenda', {
         day: DataTypes.DATE,
-        number: DataTypes.SMALLINT
+        number: DataTypes.SMALLINT,
+        virtual: DataTypes.BOOLEAN
     }, {
         tableName: 'agenda',
     });

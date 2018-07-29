@@ -10,7 +10,8 @@
 </nav>
 
 <p class="text-right mb-3">
-    <a class="btn btn-primary" href="/planning/generate/category/<%= category.id %>"><%= __('planning.generate') %></a>
+    <a class="btn btn-primary" href="/planning/generate/category/<%= category.id %>/year-<%= year %>"><%= __('planning.generateyearly') %></a>
+    <a class="btn btn-primary ml-1" href="/planning/generate/category/<%= category.id %>"><%= __('planning.generate') %></a>
     <a class="btn btn-primary ml-1" href="/planning/create/category/<%= category.id %>"><%= __('planning.create') %></a>
 </p>
 

@@ -281,6 +281,79 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
 
     // must populated with default availability/agenda... (optionnaly at least)
 
+
+    var rawAgendas = await models.DefaultAgenda.findAll({
+        include: [{
+            model: models.Slot,
+            where: { categoryId: categoryId },
+            as: 'slot'
+        }]
+    });
+
+    var agendas = {}
+
+    for (var agenda of rawAgendas) {
+        var day = agenda.day;
+
+        if (typeof agendas[day] === 'undefined') {
+            agendas[day] = [agenda];
+        } else {
+            agendas[day].push(agenda);
+        }
+    }
+
+    for (let i = 0; i < 12; i++) {
+        var firstDate = new Date(Date.UTC(year, i, 1));
+        var lastDate = new Date(Date.UTC(year, i + 1, 0));
+
+        var promises = [];
+
+        // Delete first all the availabilities in the month
+
+        for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
+            let date = new Date(d);
+
+            promises.push(models.Agenda.destroy({
+                where: {
+                    day: date,
+                    virtual: true
+                }, include: [{
+                    model: models.Slot,
+                    where: { categoryId: categoryId },
+                    as: 'slot'
+                }]
+            }));
+        }
+
+        await Promise.all(promises);
+    }
+
+    for (let i = 0; i < 12; i++) {
+        var firstDate = new Date(Date.UTC(year, i, 1));
+        var lastDate = new Date(Date.UTC(year, i + 1, 0));
+
+        promises = [];
+
+        // Create then all the agendas from the default ones
+        for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
+            let date = new Date(d);
+            let day = date.getDay();
+
+            if (typeof agendas[day] !== 'undefined') {
+                for (var agenda of agendas[day]) {
+                    promises.push(models.Agenda.create({
+                        day: date,
+                        number: agenda.number,
+                        slotId: agenda.slot.id,
+                        virtual: true
+                    }));
+                }
+            }
+        }
+
+        await Promise.all(promises);
+    }
+
     var category = await models.EmployeeCategory.findById(categoryId);
 
     var rawSlots = await models.Slot.findAll({
@@ -298,10 +371,93 @@ router.get('/generate/category/:categoryId(\\d+)/year-:year(\\d{4})', async func
         where: {
             categoryId: categoryId
         }
-    })
+    });
 
     var employees = {};
     for (var employee of rawEmployees) {
+        console.log(employee.getName());
+        
+        var rawAvailabilities = await models.DefaultAvailability.findAll({
+            where: {
+                EmployeeId: employee.id
+            }, include: [{
+                model: models.Slot,
+                as: 'slot'
+            }],
+            order: [
+                [{ model: models.Slot, as: 'slot' }, 'begin', 'ASC']
+            ]
+        });
+
+        var availabilities = {}
+
+        for (var availability of rawAvailabilities) {
+            var day = availability.day;
+
+            if (typeof availabilities[day] === 'undefined') {
+                availabilities[day] = [availability];
+            } else {
+                availabilities[day].push(availability)
+            }
+        }
+
+        for (let i = 0; i < 12; i++) {
+            console.log(i);
+            
+            var firstDate = new Date(Date.UTC(year, i, 1));
+            var lastDate = new Date(Date.UTC(year, i + 1, 0));
+            var promises = [];
+
+            // Delete first all the availabilities in the month
+
+            for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
+                // var date = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0') + ' 00:00:00Z';
+                let date = new Date(d);
+                var day = (new Date(d)).getDay();
+
+                promises.push(models.Availability.destroy({
+                    where: {
+                        EmployeeId: employee.id,
+                        day: date,
+                        planningId: null,
+                        virtual: true
+                    }
+                }));
+            }
+
+            await Promise.all(promises);
+        }
+
+        for (let i = 0; i < 12; i++) {
+            console.log("creating " + i);
+            
+            var firstDate = new Date(Date.UTC(year, i, 1));
+            var lastDate = new Date(Date.UTC(year, i + 1, 0));
+            promises = [];
+
+            // Create then all the availabilities from the default ones
+            for (var d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
+                let date = new Date(d);
+                let day = date.getDay();
+
+                if (typeof availabilities[day] !== 'undefined') {
+                    for (var availability of availabilities[day]) {
+                        promises.push(models.Availability.create({
+                            EmployeeId: employee.id,
+                            day: date,
+                            slotId: availability.slot.id,
+                            mandatory: availability.mandatory,
+                            full: availability.full,
+                            virtual: true
+                        }));
+                    }
+                }
+            }
+
+            await Promise.all(promises);
+        }
+
+
         employee.totalNumber = 0;
         employees[employee.id] = employee;
     }

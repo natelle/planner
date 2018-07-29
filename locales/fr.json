@@ -187,7 +187,8 @@
 		"globalview": "Vue globale",
 		"summary": "Récapitulatif",
 		"slotnumber": "Nombre de créneaux",
-		"cumulatedDuration": "Durée cumulée"
+		"cumulatedDuration": "Durée cumulée",
+		"generateyearly": "planning.generateyearly"
 	},
 	"category": {
 		"listing": "Catégories",
