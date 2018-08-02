@@ -10,3 +10,4 @@
 - affichage des planning à l'année à la fin voire constamment dans une page à part (possibilité de tout imprimer d'un coup)
 - dans le calendrier (ou autre éventuellement), séparer à peine un peu plus les créneaux si non continus (9-12 et 14-18 non continus ; 9-12 12-14 continus)
 - si aucune catégorie (ou autre élément nécessaire à une page/action), renvoyer une erreur
+- vérifier si existence d'un bug si clic trop vite dans les disponibilités/agenda (reste blanc)
