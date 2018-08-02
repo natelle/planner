@@ -9,3 +9,4 @@
 - planning à l'année : ok mais toujours pas de remplissage avec agendas/dispos par défaut (sauf si disponibilités déjà existantes...) mais affichage au mois (trop de requête SQL => utiliser await !!!!)
 - affichage des planning à l'année à la fin voire constamment dans une page à part (possibilité de tout imprimer d'un coup)
 - dans le calendrier (ou autre éventuellement), séparer à peine un peu plus les créneaux si non continus (9-12 et 14-18 non continus ; 9-12 12-14 continus)
+- si aucune catégorie (ou autre élément nécessaire à une page/action), renvoyer une erreur
